@@ -1,0 +1,50 @@
+{
+    "name": "tinyups",
+    "version": "1.1.0",
+    "author": "Sergey Ko",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "build": "webpack --mode=production --node-env=production",
+        "build:dev": "webpack --mode=development --node-env=development",
+        "build:prod": "webpack --mode=production --node-env=production",
+        "watch": "webpack --watch"
+    },
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.3",
+        "@tailwindcss/typography": "^0.5.9",
+        "@webpack-cli/generators": "^2.4.2",
+        "autoprefixer": "^10.4.7",
+        "axios": "^0.27.2",
+        "browser-sync": "^2.29.3",
+        "browser-sync-webpack-plugin": "^2.3.0",
+        "compression-webpack-plugin": "^10.0.0",
+        "css-loader": "^6.7.1",
+        "css-minimizer-webpack-plugin": "^4.0.0",
+        "html-loader": "^3.1.0",
+        "html-webpack-plugin": "^5.5.0",
+        "mem-fs": "^2.0.0",
+        "mem-fs-editor": "^9.0.0",
+        "mini-css-extract-plugin": "^2.6.0",
+        "postcss": "^8.0.9",
+        "postcss-import": "^14.1.0",
+        "postcss-loader": "^7.0.0",
+        "postcss-nesting": "^10.1.7",
+        "prettier": "^2.6.2",
+        "remove-files-webpack-plugin": "^1.5.0",
+        "sass": "^1.52.1",
+        "sass-loader": "^13.0.0",
+        "tailwindcss": "^3.2.4",
+        "uglifyjs-webpack-plugin": "^2.2.0",
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.9.2"
+    },
+    "dependencies": {
+        "@material-tailwind/html": "^1.1.6",
+        "chartist": "^1.1.2",
+        "flowbite": "^1.4.7",
+        "flowbite-datepicker": "^1.2.2",
+        "humane-js": "wavded/humane-js",
+        "smoothie": "^1.36.0"
+    }
+}

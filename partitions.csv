@@ -1,0 +1,6 @@
+# ESP-IDF Partition Table
+# ESP32 Partitions: https://github.com/espressif/arduino-esp32/blob/master/docs/source/tutorials/partition_table.rst#partition-table 
+# Name,      Type,   SubType,  Offset,     Size,      Flags
+nvs,         data,   nvs,      0x9000,     0x7000,
+factory,     app,    factory,  0x10000,    0x26A000,
+storage,     data,   fat,      0x27A000,   0x16E000,
