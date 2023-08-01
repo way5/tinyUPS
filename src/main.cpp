@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 5th July 2023 11:51:05 pm                               #
+# Last Modified: Monday, 31st July 2023 5:50:52 pm                                  #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -47,14 +47,14 @@ AsyncWebServer httpd(80);
 fLogClass sysLog;
 fLogClass snmpLog;
 fLogClass monTempLog;
-fLogClass monBattDataLog;
+fLogClass monDataLog;
 NTPClientClass ntp;
 wifi_event_id_t wifiEvtCon, wifiEvtDscon;
 
 static const char _sysLogPath[] PROGMEM = "/logs/sys";
 static const char _snmpLogPath[] PROGMEM = "/logs/snmp";
 static const char _monTempLogPath[] PROGMEM = "/logs/montmp";
-static const char _monBattDataLogPath[] PROGMEM = "/logs/monbdta";
+static const char _monDataLogPath[] PROGMEM = "/logs/monbdta";
 
 /**
  * @brief Custom system reset function
@@ -188,7 +188,7 @@ void setSTA() {
 
     while(WiFi.status() != WL_CONNECTED && cntr <= 60) {
         delay(500);
-        // feedLoopWDT();
+        feedLoopWDT();
         cntr++;
     }
     // check if connected
@@ -222,9 +222,9 @@ void setup() {
     Serial.begin(SERIAL_BAUD);
     delay(1000);
 
-    // enableLoopWDT();
+    enableLoopWDT();
 
-    if(!FFat.begin(false, "", 7U, "storage")) {
+    if(!FFat.begin(false, "", 10U, "storage")) {
         __DL(F("(!) storage mount failed"));
         return;
     }
@@ -237,6 +237,15 @@ void setup() {
         __DF("  Total space used: %u byte\n", usedBytes);
     }
 #endif
+    // checking if there are required directories
+    if(!FFat.exists(_logDirPath) && !FFat.mkdir(_logDirPath)) {
+        __DL(F("(!) make log dir failed"));
+        return;
+    }
+    if(!FFat.exists(_dataDirPath) && !FFat.mkdir(_dataDirPath)) {
+        __DL(F("(!) make data dir failed"));
+        return;
+    }
     // Config
     eemem.init();
     // System log
@@ -249,7 +258,7 @@ void setup() {
         // monitor temperature log
         monTempLog.init(_monTempLogPath, MONTMPLOG_SIZE);
         // monitor battery info log
-        monBattDataLog.init(_monBattDataLogPath, MONDATALOG_SIZE);
+        monDataLog.init(_monDataLogPath, MONDATALOG_SIZE);
     }
     // WiFi
     if(strlen(config.ssid) == 0) {

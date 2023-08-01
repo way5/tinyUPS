@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 7:24:45 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 10:05:42 pm                                 #
+# Last Modified: Wednesday, 26th July 2023 5:05:06 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -191,6 +191,6 @@ size_t fLogClass::open() {
 */
 void fLogClass::close() {
     if(_smax == 0) return;
-    _f.flush();
+    // _f.flush();
     _f.close();
 }

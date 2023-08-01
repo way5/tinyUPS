@@ -23,9 +23,9 @@ module.exports = {
         },
         extend: {
             fontFamily: {
-                'narrow': ['Pragati Narrow', 'sans-serif'],
-                'roboto': ['Roboto Condensed', 'sans-serif'],
-                'exo': ['Exo', 'sans-serif'],
+                'narrow': ['Pragati Narrow', 'Arial Narrow', 'sans-serif'],
+                'roboto': ['Roboto Condensed', 'Tahoma', 'sans-serif'],
+                'exo': ['Exo 2', 'Lucida Grande', 'Helvetica Neue', 'Arial'],
             },
             fontSize: {
                 // body: ["1rem", "1.6875rem"],

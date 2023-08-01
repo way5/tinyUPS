@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 3:13:05 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 3rd July 2023 12:17:59 pm                                  #
+# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -16,7 +16,7 @@
 
 /**
  * @brief Construct a new Monitor Class:: Monitor Class object
- * 
+ *
 */
 MonitorClass::MonitorClass() {
     pinMode(PIN_MONITOR_FANCTL, OUTPUT);
@@ -103,7 +103,7 @@ void MonitorClass::loop() {
             } else if(_fan_on) {
                 if(monitorData.upsAdvBatteryTemperature <= config.batteryTempLT && monitorData.upsAdvSystemTemperature <= config.deviceTempLT) {
                     coolingSwitchOff();
-                    sysLog.putts(PSTR("battery:%.2f°C, system:%.2f°C, cooler: OFF"), 
+                    sysLog.putts(PSTR("battery:%.2f°C, system:%.2f°C, cooler: OFF"),
                                 monitorData.upsAdvBatteryTemperature, monitorData.upsAdvSystemTemperature );
                 }
             }
@@ -126,6 +126,8 @@ void MonitorClass::loop() {
     #ifdef DEBUG
         __DF(PSTR("(e) battery status: %s (%d)\n"), upsBatteryStatusCodeToString(monitorData.upsBasicBatteryStatus).c_str(), monitorData.upsBasicBatteryStatus);
     #endif
+        monDataLog.putdts(monitorData.upsBasicBatteryStatus, true, false);
+        monDataLog.put(";1");
         systemEvent.upsBatteryStatusChange = false;
     }
     if(systemEvent.upsOutputStateChange) {
@@ -133,13 +135,15 @@ void MonitorClass::loop() {
     #ifdef DEBUG
         __DF(PSTR("(e) power status: %s (%d)\n"), upsOutputStatusCodeToString(monitorData.upsBasicOutputStatus).c_str(), monitorData.upsBasicOutputStatus);
     #endif
+        monDataLog.putdts(monitorData.upsBasicOutputStatus, true, false);
+        monDataLog.put(";0");
         systemEvent.upsOutputStateChange = false;
     }
 }
 
 /**
  * @brief Swithes cooler fan ON
- * 
+ *
 */
 void MonitorClass::coolingSwitchOn() {
     digitalWrite(PIN_MONITOR_FANCTL, HIGH);
@@ -148,7 +152,7 @@ void MonitorClass::coolingSwitchOn() {
 
 /**
  * @brief Swithes cooler fan OFF
- * 
+ *
 */
 void MonitorClass::coolingSwitchOff() {
     digitalWrite(PIN_MONITOR_FANCTL, LOW);
@@ -183,8 +187,8 @@ float MonitorClass::getSysTemp() {
 
 /**
  * @brief Returns BATTERY temperature in °C
- * 
- * @return float 
+ *
+ * @return float
 */
 float MonitorClass::getBatTemp() {
     return monitorData.upsAdvBatteryTemperature;
@@ -192,9 +196,9 @@ float MonitorClass::getBatTemp() {
 
 /**
  * @brief Converts millivolts to Celcius using ntcRTTable
- * 
- * @param mv 
- * @return float 
+ *
+ * @param mv
+ * @return float
 */
 float MonitorClass::mVtoCelsius(float & mv, analog_thermistor_data_t *td) {
     float Rth = (_r1 * mv)/(_vin - mv);

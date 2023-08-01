@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 7:24:53 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 10:05:42 pm                                 #
+# Last Modified: Wednesday, 12th July 2023 5:38:29 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -63,12 +63,13 @@ class fLogClass {
         size_t putts(const __FlashStringHelper * str);
         // size_t putts(const char * str);
         /**
-         * @brief Writes a line with [timestamp;digit[\n]] pair or just a [val;[\n]]
+         * @brief Writes a line with [(timestamp-offset);digit[\n]] pair or just a [val;[\n]]
          *
+         * @todo offset 2023/01/01 11:59:59 PM +0.00 = (1672574399)
          * @tparam T
-         * @param val
-         * @param timestamp
-         * @param nl
+         * @param val   data to store in log
+         * @param timestamp if true (default) adding the timestamp
+         * @param nl    adding a new line
         */
         template <typename T>
         void putdts(T & val, bool timestamp = true, bool nl = true) {

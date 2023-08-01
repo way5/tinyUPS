@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:48:56 pm                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 3rd July 2023 12:17:02 pm                                  #
+# Last Modified: Wednesday, 12th July 2023 12:38:51 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -35,7 +35,7 @@
 
 extern fLogClass sysLog;
 extern fLogClass monTempLog;
-extern fLogClass monBattDataLog;
+extern fLogClass monDataLog;
 /**
  *
  *             R1 2k2         TH 1k

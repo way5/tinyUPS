@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Friday, 10th June 2022 8:44:02 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 3rd July 2023 12:17:02 pm                                  #
+# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -31,9 +31,9 @@ extern fLogClass sysLog;
 
 /**
  * @brief Visualize the FS structure
- * 
- * @param dir 
- * @param offset 
+ *
+ * @param dir
+ * @param offset
 */
 void printRoot(File dir, uint8_t offset = 4) {
     while (true) {
@@ -86,7 +86,7 @@ void loopSerial() {
 
             __DF(PSTR("> cmd: %s\n\n"), buffer);
             sysLog.putts(PSTR("(i) serial cmd: %s"), buffer);
-            
+
             if(strncmp_P(buffer, PSTR("?"), 1) == 0)  {
                 __DL(F("(i) config, configreset, wlstatus, printfs, freemem, dropauth, uptime, modeap, modesta, apkey, fanon, fanoff, battemp, reboot, genserial"));
             } else if(strncmp_P(buffer, PSTR("configreset"), 10) == 0)  {

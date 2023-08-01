@@ -3,21 +3,12 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <!-- <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-    <meta http-equiv="Expires" content="Thu, 01 Jan 1970 00:00:00 GMT" /> -->
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="origin">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <!-- FONTS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Exo:wght@200;600&family=Pragati+Narrow&family=Roboto+Condensed:wght@300;700&display=swap"
-        rel="stylesheet">
 </head>
 
 <body>
@@ -35,7 +26,7 @@
                     </circle>
                 </svg>
             </x-loading>
-            <div class="mt-3 text-gray-800 dark:text-gray-100 font-mono text-base">Loading...</div>
+            <div class="mt-3 text-gray-800 dark:text-gray-100 font-mono text-base" data-i18n="titleLoading"></div>
         </div>
     </div>
     <!-- LOADER END -->
@@ -44,21 +35,19 @@
         <!-- NAVIGATION BEGINN -->
         <header>
             <div class="nav-bar">
-                <a href="/" title="Goto Dashboard">
+                <a href="/" data-i18n="[title]index.dashboard">
                     <div class="text-center mdup:rounded-l-sm bg-violet-500 px-4 py-1 mdup:px-12 sm:px-8">
                         <h1 class="text-lg font-bold font-exo text-white">
                             tinyUPS
                         </h1>
-                        <p class="mb-1 text-sm font-narrow text-gray-100">
-                            backup battery manager
-                        </p>
+                        <p class="mb-1 text-sm font-narrow text-gray-100" data-i18n="slogan"></p>
                     </div>
                 </a>
                 <div class="relative mr-2">
 
                     <button type="menu" class="sidebar-toggle-btn" aria-expanded="false">
                         <!-- data-dropdown-toggle="sidebar" -->
-                        <span class="sr-only">Open sidebar</span>
+                        <span class="sr-only" data-i18n="index.openSidebar"></span>
                         <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <rect x="4" y="5" width="16" height="2"></rect>
                             <rect x="4" y="11" width="16" height="2"></rect>
@@ -66,40 +55,44 @@
                         </svg>
                     </button>
 
-                    <menu class="sidebar smdn:hidden" id="sidebar">
-                        <li class="item active"><a href="#home">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="1em"
-                                    viewBox="0 0 512 512">
+                    <menu class="sidebar hidden" id="sidebar">
+                        <li class="item active"><a href="#home" data-i18n="[title]index.dashboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="24"
+                                    viewBox="0 0 24 24">
                                     <path fill="currentColor"
-                                        d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm320 96c0-26.9-16.5-49.9-40-59.3V88c0-13.3-10.7-24-24-24s-24 10.7-24 24V292.7c-23.5 9.5-40 32.5-40 59.3c0 35.3 28.7 64 64 64s64-28.7 64-64zM144 176a32 32 0 1 0 0-64 32 32 0 1 0 0 64zm-16 80a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64zM400 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" />
+                                        d="M12 4C6.486 4 2 8.486 2 14a9.89 9.89 0 0 0 1.051 4.445c.17.34.516.555.895.555h16.107c.379 0 .726-.215.896-.555A9.89 9.89 0 0 0 22 14c0-5.514-4.486-10-10-10zm5.022 5.022L13.06 15.06a1.53 1.53 0 0 1-2.121.44 1.53 1.53 0 0 1 0-2.561l6.038-3.962a.033.033 0 0 1 .045.01.034.034 0 0 1 0 .035z">
+                                    </path>
                                 </svg>
-                                <span class="mdup:hidden">Dashboard</span>
+                                <span class="mdup:hidden" data-i18n="index.dashboard"></span>
                             </a>
                         </li>
-                        <li class="item"><a href="#conf">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="1em"
-                                    viewBox="0 0 512 512">
+                        <li class="item"><a href="#conf" data-i18n="[title]index.configuration">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="24"
+                                    viewBox="0 0 24 24">
                                     <path fill="currentColor"
-                                        d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z" />
+                                        d="m2.344 15.271 2 3.46a1 1 0 0 0 1.366.365l1.396-.806c.58.457 1.221.832 1.895 1.112V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.598a8.094 8.094 0 0 0 1.895-1.112l1.396.806c.477.275 1.091.11 1.366-.365l2-3.46a1.004 1.004 0 0 0-.365-1.366l-1.372-.793a7.683 7.683 0 0 0-.002-2.224l1.372-.793c.476-.275.641-.89.365-1.366l-2-3.46a1 1 0 0 0-1.366-.365l-1.396.806A8.034 8.034 0 0 0 15 4.598V3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v1.598A8.094 8.094 0 0 0 7.105 5.71L5.71 4.904a.999.999 0 0 0-1.366.365l-2 3.46a1.004 1.004 0 0 0 .365 1.366l1.372.793a7.683 7.683 0 0 0 0 2.224l-1.372.793c-.476.275-.641.89-.365 1.366zM12 8c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z">
+                                    </path>
                                 </svg>
-                                <span class="mdup:hidden">Configuration</span>
+                                <span class="mdup:hidden" data-i18n="index.configuration"></span>
                             </a></li>
                         <li id="dmode">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="1em"
-                                viewBox="0 0 384 512">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="24"
+                                viewBox="0 0 24 24">
                                 <path fill="currentColor"
-                                    d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z" />
+                                    d="M12 11.807A9.002 9.002 0 0 1 10.049 2a9.942 9.942 0 0 0-5.12 2.735c-3.905 3.905-3.905 10.237 0 14.142 3.906 3.906 10.237 3.905 14.143 0a9.946 9.946 0 0 0 2.735-5.119A9.003 9.003 0 0 1 12 11.807z">
+                                </path>
                             </svg>
-                            <span class="mdup:hidden">Dark mode</span>
+                            <span class="mdup:hidden" data-i18n="index.darkMode"></span>
                         </li>
                         <hr class="separator">
-                        <li><a href="/logout">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="1em"
-                                    viewBox="0 0 512 512">
+                        <li><a href="/logout" data-i18n="[title]index.logout">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="smdn:hidden w-6 h-6" height="24"
+                                    viewBox="0 0 24 24">
                                     <path fill="currentColor"
-                                        d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+                                        d="M5.002 21h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2h-14c-1.103 0-2 .897-2 2v6.001H10V7l6 5-6 5v-3.999H3.002V19c0 1.103.897 2 2 2z">
+                                    </path>
                                 </svg>
-                                <span class="mdup:hidden">Logout</span>
+                                <span class="mdup:hidden" data-i18n="index.logout"></span>
                             </a>
                         </li>
                     </menu>
@@ -111,76 +104,75 @@
             <!-- DASHBOARD BEGIN -->
             <div id="home" class="pagecontainer grid">
                 <div class="indicators-wrapper">
-                    <div class="grid grid-cols-12 gap-x-2">
+                    <div class="grid grid-cols-12 gap-x-2 smdn:mt-3">
                         <div class="sttop syscard">
                             <div class="hdr"></div>
-                            <div class="param">
-                                Device temp.:<span class="systmp"></span>
+                            <div class="param" data-i18n="[prepend]index.deviceTemperature">
+                                :<span class="systmp"></span>
                             </div>
-                            <div class="param">
-                                Free RAM:<span><span class="ram"></span> kb</span>
+                            <div class="param" data-i18n="[prepend]index.freeRam">
+                                :<span><span class="ram"></span> kb</span>
                             </div>
-                            <div class="param">
-                                Uptime:<span class="uptm"></span>
+                            <div class="param" data-i18n="[prepend]index.uptime">
+                                :<span class="uptm"></span>
                             </div>
-                            <div class="param">
-                                Battery status:<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
-                                        width="6" height="6" class="mr-2 mt-[10px]">
+                            <div class="param" data-i18n="[prepend]index.batteryStatus">
+                                :<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="6"
+                                        height="6" class="mr-2 mt-[10px]">
                                         <path id="led934" fill="currentColor"
                                             d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z" />
                                     </svg><span class="battst"></span></span>
                             </div>
-                            <div class="param">
-                                Power status:<span class="outst"></span>
+                            <div class="param" data-i18n="[prepend]index.powerStatus">
+                                :<span class="outst"></span>
                             </div>
                         </div>
                         <div class="sttop battcard">
                             <div class="hdr"></div>
-                            <div class="param">
-                                Battery temp.:<span><svg id="fan748" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 512 512" height="16" width="16">
+                            <div class="param" data-i18n="[prepend]index.batteryTemperature">
+                                :<span><svg id="fan748" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                        height="16" width="16">
                                         <path
                                             d="M258.6 0c-1.7 0-3.4 .1-5.1 .5C168 17 115.6 102.3 130.5 189.3c2.9 17 8.4 32.9 15.9 47.4L32 224H29.4C13.2 224 0 237.2 0 253.4c0 1.7 .1 3.4 .5 5.1C17 344 102.3 396.4 189.3 381.5c17-2.9 32.9-8.4 47.4-15.9L224 480v2.6c0 16.2 13.2 29.4 29.4 29.4c1.7 0 3.4-.1 5.1-.5C344 495 396.4 409.7 381.5 322.7c-2.9-17-8.4-32.9-15.9-47.4L480 288h2.6c16.2 0 29.4-13.2 29.4-29.4c0-1.7-.1-3.4-.5-5.1C495 168 409.7 115.6 322.7 130.5c-17 2.9-32.9 8.4-47.4 15.9L288 32V29.4C288 13.2 274.8 0 258.6 0zM256 224a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
                                     </svg><span class="battmp"></span></span>
                             </div>
-                            <div class="param">
-                                Input voltage:<span class="involt"></span>
+                            <div class="param" data-i18n="[prepend]index.inputVoltage">
+                                :<span class="involt"></span>
                             </div>
-                            <div class="param">
-                                Output voltage:<span class="outvolt"></span>
+                            <div class="param" data-i18n="[prepend]index.outputVoltage">
+                                :<span class="outvolt"></span>
                             </div>
-                            <div class="param">
-                                Diagnostics:<span class="battdiast"></span>
+                            <div class="param" data-i18n="[prepend]index.diagnosticStatus">
+                                :<span class="battdiast"></span>
                             </div>
-                            <div class="param">
-                                Battery lifetime:<span class="ltime"></span>
+                            <div class="param" data-i18n="[prepend]index.batteryLifetime">
+                                :<span class="ltime"></span>
                             </div>
                         </div>
                         <div class="sttop netwcard">
                             <div class="hdr"></div>
-                            <div class="param">
-                                Access point:<span class="ap"></span>
+                            <div class="param" data-i18n="[prepend]index.accessPoint">
+                                :<span class="ap"></span>
                             </div>
-                            <div class="param">
-                                Gateway:<span class="gw"></span>
+                            <div class="param" data-i18n="[prepend]index.gateway">
+                                :<span class="gw"></span>
                             </div>
-                            <div class="param">
-                                Date:<span class="ctime"></span>
+                            <div class="param" data-i18n="[prepend]index.date">
+                                :<span class="ctime"></span>
                             </div>
-                            <div class="param">
-                                Device MAC:<span class="mac"></span>
+                            <div class="param" data-i18n="[prepend]index.deviceMAC">
+                                :<span class="mac"></span>
                             </div>
-                            <div class="param">
-                                Subnet mask:<span class="sm"></span>
+                            <div class="param" data-i18n="[prepend]index.subnetMask">
+                                :<span class="sm"></span>
                             </div>
                         </div>
                     </div>
                     <!-- SERVICE MENU BEGIN -->
                     <div class="servicemenu-wrapper">
                         <div class="servicemenu-group inline-flex rounded-md shadow-sm" role="group">
-                            <button class="border-r dark:border-base-400" data-modal-toggle="modal-rbt-alert">
-                                Restart device
-                            </button>
+                            <button class="border-r dark:border-base-400" data-modal-toggle="modal-rbt-alert"
+                                data-i18n="index.doRestartDevice"></button>
                             <button class="w-16" type="button" data-dropdown-toggle="service-nav"
                                 data-dropdown-placement="bottom">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -193,16 +185,13 @@
                         <div class="servicemenu-container hidden" id="service-nav">
                             <ul>
                                 <li>
-                                    <a href="#" class="cooler-switch-onoff link">
-                                        Toggle cooling
-                                    </a>
+                                    <a href="#" class="cooler-switch-onoff link" data-i18n="index.toggleCooling"></a>
                                 </li>
                             </ul>
                             <ul class="">
                                 <li>
-                                    <a href="#" class="link" data-modal-toggle="modal-rst-alert">
-                                        Erase configuration
-                                    </a>
+                                    <a href="#" class="link" data-modal-toggle="modal-rst-alert"
+                                        data-i18n="index.eraseConfig"></a>
                                 </li>
                             </ul>
                         </div>
@@ -210,104 +199,125 @@
                     <!-- SERVICE MENU END -->
                 </div>
                 <div class="card col-span-full">
-                    <!-- <h2 class="header text-base">Control panel</h2> -->
                     <div class="body w-full">
-                        <div id="smthch" class="px-6 py-4 mb-6">
-                            <div class="grid w-full mdup:grid-cols-2 gap-4 smdn:grid-rows-2">
-                                <canvas id="op-chart-tmp" height="150" width="auto" class="h-40 w-full"></canvas>
-                                <canvas id="op-chart-ram" height="150" width="auto" class="h-40 w-full"></canvas>
-                            </div>
-                            <!-- LEGEND -->
-                            <div class="legend-wrapper">
-                                <div class="inline-flex pr-4">
-                                    <span class="w-3 h-3 mr-1 mt-[2px] bg-[#f56d04]"></span>&mdash;&nbsp;System
-                                    temperature
+                        <div id="smthch" class="px-4 smdn:px-1 py-4">
+                            <div class="grid w-full h-56 smdn:h-96 mdup:grid-cols-2 gap-4 smdn:grid-rows-2">
+                                <div class="relative">
+                                    <canvas id="op-chart-tmp"></canvas>
                                 </div>
-                                <div class="inline-flex mdup:pr-4">
-                                    <span class="w-3 h-3 mr-1 mt-[2px] bg-[#e10328]"></span>&mdash;&nbsp;Battery
-                                    temperature
-                                </div>
-                                <div class="inline-flex pr-4">
-                                    <span class="w-3 h-3 mr-1 mt-[2px] bg-[#38c949]"></span>&mdash;&nbsp;free RAM
-                                </div>
-                                <div class="inline-flex">
-                                    <span class="w-3 h-3 mr-1 mt-[2px] bg-[#308123]"></span>&mdash;&nbsp;max free block
+                                <div class="relative">
+                                    <canvas id="op-chart-ram"></canvas>
                                 </div>
                             </div>
                         </div>
-                        <div id="dtch" class="px-4 relative hidden">
+                        <div id="pwmx" class="px-4 smdn:px-1 mb-4 hidden">
                             <div class="inline-flex justify-between pb-2 w-full m-0 pt-2">
-                                <div class="py-1 pl-1">
-                                    Device temperature
+                                <div class="py-1 pl-1" data-i18n="index.powerStateHistory"></div>
+                                <div class="pl-2">
+                                    <button type="button" class="btn-card-hdr" id="pwst-chart-reload"
+                                        data-tooltip-target="reload-chart-tooltip0" data-tooltip-placement="right"
+                                        data-tooltip-trigger="hover">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg>
+                                    </button>
+                                    <div id="reload-chart-tooltip0" role="tooltip" class="tooltip-sm invisible"
+                                        data-i18n="[prepend]index.reloadChartTooltip">
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
                                 </div>
-                                <div class="px-2">
-                                    <select id="dc-period" class="py-1">
-                                        <option name="0">Today</option>
-                                        <option name="1">Yesterday</option>
-                                        <option name="2">Last 7 days</option>
-                                        <option name="3">Last month</option>
-                                        <option name="4">All time</option>
+                            </div>
+                            <div class="relative h-64">
+                                <canvas id="pwr-chart"></canvas>
+                            </div>
+                        </div>
+                        <div id="dtch" class="px-4 smdn:px-1 mb-4 hidden">
+                            <div class="inline-flex justify-between pb-2 w-full m-0 pt-2">
+                                <div class="py-1 pl-1" data-i18n="index.temperatureRecords"></div>
+                                <div class="pl-2 inline-flex">
+                                    <div class="pr-2">
+                                        <button type="button" class="btn-card-hdr" id="trecs-chart-reload"
+                                            data-tooltip-target="reload-chart-tooltip1" data-tooltip-placement="right"
+                                            data-tooltip-trigger="hover">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                            </svg>
+                                        </button>
+                                        <div id="reload-chart-tooltip1" role="tooltip" class="tooltip-sm invisible"
+                                            data-i18n="[prepend]index.reloadChartTooltip">
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
+                                    </div>
+                                    <select id="dc-period">
+                                        <option value="0" data-i18n="today"></option>
+                                        <option value="1" data-i18n="yesterday"></option>
+                                        <option value="2" data-i18n="lastXdays" data-i18n-options='{"d":7}'>
+                                        </option>
+                                        <option value="3" data-i18n="lastMonth"></option>
+                                        <option value="4" data-i18n="allTime"></option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="tct-chart ct-chart ct-double-octave">
-                                <div id="dc-nodata" class=" relative w-full h-full bg-gray-300 bg-opacity-30 font-exo">
-                                    <div class="px-4 flex flex-col max-w-[400px] mx-auto py-16">
-                                        <div class="dark:bg-gray-800 rounded bg-white px-4 py-2 text-gray-800">
-                                            <h2 class="text-xl dark:text-white font-semibold text-center">
-                                                Nothing to display yet...
-                                            </h2>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="relative h-64">
+                                <canvas id="trecs-chart"></canvas>
                             </div>
                         </div>
                         <div class="flatnav">
                             <div class="nav">
-                                <a href="#smthch" class="active" aria-click-callback="tinyUPS.opchPoll()">
-                                    <!-- <img src="svg/chbr.svg" width="16px" /> -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
-                                    </svg>
-                                    <span>Real Time</span>
-                                </a>
-                            </div>
-                            <div class="nav">
-                                <a href="#dtch" aria-click-callback="tinyUPS.tctPoll()">
-                                    <!-- <img src="svg/clk.svg" width="16px" /> -->
+                                <a href="#smthch" class="active">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
                                         <path fill="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                             stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <span>Data Chart</span>
+                                    <span data-i18n="index.realTimeTab"></span>
+                                </a>
+                            </div>
+                            <div class="nav">
+                                <a href="#pwmx">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                                    </svg>
+                                    <span data-i18n="index.powerStatusTab"></span>
+                                </a>
+                            </div>
+                            <div class="nav">
+                                <a href="#dtch">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                                        <!-- <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" /> -->
+                                    </svg>
+                                    <span data-i18n="index.tempChartTab"></span>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="card col-span-full">
-                    <h2 class="header text-base relative">
-                        Logs
+                    <h2 class="header text-base relative" data-i18n="[prepend]index.titleLogs">
                         <span class="absolute right-[25px] pt-1">
-                            <label for="logafertg" class="toggle-btn-wrapper">
-                                <input type="checkbox" value="" id="logafertg" class="sr-only peer">
+                            <label for="log-aref-tg" class="toggle-btn-wrapper">
+                                <input type="checkbox" id="log-aref-tg" class="sr-only peer">
                                 <div
                                     class="toggle-btn-sw peer peer-checked:bg-green-300 dark:peer-checked:bg-green-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none">
                                 </div>
-                                <span class="toggle-btn-label">Autorefresh</span>
+                                <span class="toggle-btn-label" data-i18n="index.autorefresh"></span>
                             </label>
                         </span>
                     </h2>
                     <div class="grow">
-                        <div id="syslog" class="logarea" aria-url="/ajax-syslog" aria-name="system log">
+                        <div id="syslog" class="logarea" aria-url="/syslog" aria-name="system log">
                             <div class="logdata"></div>
                             <div class="fade"></div>
                         </div>
-                        <div id="snmplog" class="logarea hidden" aria-url="/ajax-snmplog" aria-name="snmp log">
+                        <div id="snmplog" class="logarea hidden" aria-url="/snmplog" aria-name="snmp log">
                             <div class="logdata"></div>
                             <div class="fade"></div>
                         </div>
@@ -320,7 +330,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
                                     </svg>
-                                    <span>System log</span>
+                                    <span data-i18n="index.systemLogTab"></span>
                                 </a>
                             </div>
                             <div class="nav">
@@ -329,9 +339,9 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                                            d="M9.348 14.651a3.75 3.75 0 010-5.303m5.304 0a3.75 3.75 0 010 5.303m-7.425 2.122a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.808-3.808-9.98 0-13.789m13.788 0c3.808 3.808 3.808 9.981 0 13.79M12 12h.008v.007H12V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                     </svg>
-                                    <span>SNMP log</span>
+                                    <span data-i18n="index.snmpLogTab"></span>
                                 </a>
                             </div>
                         </div>
@@ -345,33 +355,30 @@
                     <div class="grow">
                         <div class="tabselector">
                             <div class="tabs">
-                                <a href="conft1" class="tab active">
-                                    <!-- <img src="svg/gear.svg" width="16px" /> -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px">
+                                <a href="conft1" class="tab active" data-i18n="[append]index.systemTab">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
                                         <path fill="currentColor"
                                             d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
                                     </svg>
-                                    System
                                 </a>
-                                <a href="conft2" class="tab">
-                                    <!-- <img src="svg/brcast.svg" width="16px" /> -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px">
+                                <a href="conft2" class="tab" data-i18n="[append]index.snmpTab">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
                                         <path fill="currentColor" stroke="none"
                                             d="M4.58,4.58a10.49,10.49,0,0,0,0,14.85h0a.75.75,0,0,1-1.07,1.06,12,12,0,0,1,0-17h0a.76.76,0,0,1,1.07,0A.75.75,0,0,1,4.58,4.58ZM7.76,7.76a6,6,0,0,0,0,8.49A.75.75,0,1,1,6.7,17.31a7.51,7.51,0,0,1,0-10.61h0A.75.75,0,0,1,7.76,7.76ZM16.24,6.7a.75.75,0,0,1,1.06,0h0a7.51,7.51,0,0,1,0,10.61h0a.75.75,0,1,1-1.06-1.06,6,6,0,0,0,0-8.49.75.75,0,0,1,0-1.06Zm3.19-3.18a.75.75,0,0,1,1.06,0,12,12,0,0,1,0,17,.75.75,0,0,1-1.06,0,.73.73,0,0,1,0-1,10.5,10.5,0,0,0,0-14.85h0a.74.74,0,0,1,0-1.06ZM15,12a3,3,0,1,1-3-3A3,3,0,0,1,15,12Z" />
                                     </svg>
-                                    SNMP
                                 </a>
-                                <!-- <a href="conft3" class="tab">
-                                    <i class="lni lni-world"></i>
-                                    Web
-                                </a> -->
-                                <a href="conft4" class="tab">
-                                    <!-- <img src="svg/shldto.svg" width="16px" /> -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px">
+                                <a href="conft3" class="tab" data-i18n="[append]index.securityTab">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
                                         <path fill="currentColor"
                                             d="M21,11C21,16.55 17.16,21.74 12,23C6.84,21.74 3,16.55 3,11V5L12,1L21,5V11M12,21C15.75,20 19,15.54 19,11.22V6.3L12,3.18L5,6.3V11.22C5,15.54 8.25,20 12,21M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9" />
                                     </svg>
-                                    Security
+                                </a>
+                                <a href="conft4" class="tab" data-i18n="[append]index.apiTab">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5"
+                                        stroke="currentColor" class="w-5 h-5">
+                                        <path fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                            d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
+                                    </svg>
                                 </a>
                             </div>
                             <div id="conft1" class="tab-conts">
@@ -379,62 +386,51 @@
                                 <form name="confsys" class="form-wrapper" method="POST" action="/">
                                     <div class="w-full">
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                System
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrSystem"></h4>
                                         </div>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>Battery lower threshold temperature
-                                            in &#x2103;</label>
+                                        <label data-i18n="[html]index.inpBattmplt"></label>
                                         <input type="number" name="battmplt" min="30" max="80" required>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>Battery upper threshold temperature
-                                            in &#x2103;</label>
+                                        <label data-i18n="[html]index.inpBattmput"></label>
                                         <input type="number" name="battmput" min="30" max="80" required>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>Device lower threshold temperature
-                                            in &#x2103;</label>
+                                        <label data-i18n="[html]index.inpDevtmplt"></label>
                                         <input type="number" name="devtmplt" min="30" max="80" required>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>Device upper threshold temperature
-                                            in &#x2103;</label>
+                                        <label data-i18n="[html]index.inpDevtmput"></label>
                                         <input type="number" name="devtmput" min="30" max="90" required>
                                     </div>
 
                                     <div class="w-full mt-8">
                                         <div class="header-cut-off"></div>
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                NTP
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrNTP"></h4>
                                         </div>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>Time server</label>
+                                        <label data-i18n="index.inpNtpsrv"></label>
                                         <input type="text" name="ntpsrv" maxlength="20" minlength="5" required>
                                     </div>
                                     <div class="smdn:p-0 smdn:w-full w-1/2">
-                                        <label>Fallback time server (if the
-                                            previous is failed)</label>
+                                        <label data-i18n="index.inpNtpsrvfb"></label>
                                         <input type="text" name="ntpsrvfb" maxlength="20" minlength="5" required>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>Time server sync interval in
-                                            seconds</label>
+                                        <label data-i18n="index.inpNtpsrvsitl"></label>
                                         <input type="number" name="ntpsrvsitl" min="180" max="65500" required>
                                     </div>
                                     <div class="smdn:p-0 smdn:w-full w-1/2">
-                                        <label>Is now a daylight saving time
-                                            (offset in seconds)</label>
+                                        <label data-i18n="index.inpNtpdloff"></label>
                                         <input type="number" name="ntpdloff" min="-82800" max="82800" placeholder="3600"
                                             required>
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Timezone</label>
+                                        <label data-i18n="index.inpNtptmoff"></label>
                                         <select name="ntptmoff" required>
                                             <option value="-12">(GMT-12:00) International Date Line West
                                             </option>
@@ -508,17 +504,15 @@
                                     <div class="w-full mt-8">
                                         <div class="header-cut-off"></div>
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                Access Point
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrAccessPoint"></h4>
                                         </div>
                                     </div>
                                     <div class="smdn:p-0 pr-1 w-1/2 smdn:w-full">
                                         <div class="relative">
-                                            <label>SSID</label>
+                                            <label data-i18n="inpSSID"></label>
                                             <div class="flex mx-auto overflow-hidden">
                                                 <select name="ssid"></select>
-                                                <button id="dosurvey" title="Refresh WiFi networks">
+                                                <button id="dosurvey" data-i18n="[title]buttonDoSurvey">
                                                     <!-- <img src="svg/refr.svg" width="20px"> -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
                                                         width="20px">
@@ -533,7 +527,8 @@
                                     </div>
                                     <div class="smdn:p-0 pl-1 w-1/2 smdn:w-full">
                                         <div class="relative">
-                                            <label class="leading-7 text-sm text-gray-600">Key</label>
+                                            <label class="leading-7 text-sm text-gray-600"
+                                                data-i18n="inpSSIDKey"></label>
                                             <div class="relative inline-flex place-content-center w-full">
                                                 <input type="password" name="ssidkey" maxlength="30" />
                                                 <button type="button" class="showkey">
@@ -543,7 +538,7 @@
                                         </div>
                                     </div>
                                     <div class="flex flex-col w-full mt-8">
-                                        <input type="submit" name="configsys" value="Save">
+                                        <input type="submit" name="configsys" data-i18n="[value]inpSubmitSave">
                                     </div>
                                 </form>
                                 <!-- FORM SYSTEM CONFIG END-->
@@ -554,76 +549,62 @@
                                 <form name="confsnmp" class="form-wrapper" method="POST" action="/">
                                     <div class="w-full">
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                General
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrGeneral"></h4>
                                         </div>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label>SNNP Port</label>
+                                        <label data-i18n="index.inpSNMPport"></label>
                                         <input type="number" name="snmpport" min="161" max="20000" required>
                                     </div>
                                     <div class="smdn:p-0 smdn:w-full w-1/2">
-                                        <label>SNNP Trap Port</label>
+                                        <label data-i18n="index.inpSNMPTrapPort"></label>
                                         <input type="number" name="snmptrapport" min="162" max="20000" required>
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Device location
-                                            (optional)</label>
+                                        <label data-i18n="index.inpSNMPloctn"></label>
                                         <input type="text" name="snmploctn" maxlength="20" minlength="5">
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Administrator contacts
-                                            (optional)</label>
+                                        <label data-i18n="index.inpSNMPcontct"></label>
                                         <input type="text" name="snmpcontct" maxlength="30" minlength="5">
                                     </div>
                                     <div class="w-full mt-8">
                                         <div class="header-cut-off"></div>
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                Battery
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrBattery"></h4>
                                         </div>
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Last maintenance/replacement
-                                            date</label>
+                                        <label data-i18n="index.inpSNMPbatrpldt"></label>
                                         <input type="date" name="snmpbatrpldt" min="01/01/2020" required>
                                     </div>
-                                    <div class="flex flex-col  w-full mt-8">
-                                        <input type="submit" name="configsnmp" value="Save">
+                                    <div class="flex flex-col w-full mt-8">
+                                        <input type="submit" name="configsnmp" data-i18n="[value]inpSubmitSave">
                                     </div>
                                 </form>
                                 <!-- FORM SNMP SETTINGS END -->
                             </div>
-                            <!-- <div id="conft3" class="tab-conts hidden"></div> -->
-                            <div id="conft4" class="tab-conts hidden">
+                            <div id="conft3" class="tab-conts hidden">
                                 <!-- FORM SECURITY SETTINGS BEGIN -->
                                 <form name="confsec" class="form-wrapper" method="POST" action="/">
                                     <div class="w-full">
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                Web
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrWeb"></h4>
                                         </div>
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Time until automatic logout in
-                                            seconds</label>
+                                        <label data-i18n="index.inpAuthmout"></label>
                                         <input type="number" name="authtmout" min="1800" max="10800" required>
                                     </div>
 
                                     <div class="w-full mt-8">
                                         <div class="header-cut-off"></div>
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                SNMP access
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrSNMPaccess"></h4>
                                         </div>
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Community key for GET
-                                            commands (optional, empty - public access)</label>
+                                        <label data-i18n="index.inpSNMPgckey"></label>
                                         <div class="relative inline-flex place-content-center w-full">
                                             <input type="password" name="snmpgckey" maxlength="20" minlength="5">
                                             <button type="button" class="showkey">
@@ -632,8 +613,7 @@
                                         </div>
                                     </div>
                                     <div class="p2 w-full">
-                                        <label>Community key for SET
-                                            commands (optional, empty - public access)</label>
+                                        <label data-i18n="index.inpSNMPsckey"></label>
                                         <div class="relative inline-flex place-content-center w-full">
                                             <input type="password" name="snmpsckey" maxlength="20" minlength="5">
                                             <button type="button" class="showkey">
@@ -649,17 +629,15 @@
                                     <div class="w-full mt-8">
                                         <div class="header-cut-off"></div>
                                         <div class="flex flex-wrap sm:flex-row flex-col py-2 mb-2">
-                                            <h4 class="sub-header">
-                                                Administrator access
-                                            </h4>
+                                            <h4 class="sub-header" data-i18n="index.hdrAdminAccess"></h4>
                                         </div>
                                     </div>
                                     <div class="flex-form-block">
-                                        <label class="leading-7 text-sm text-gray-600">Login</label>
+                                        <label class="leading-7 text-sm text-gray-600" data-i18n="inpUsername"></label>
                                         <input type="text" name="adlogin" minlength="2" maxlength="12" required />
                                     </div>
                                     <div class="smdn:p-0 pl-1 smdn:w-full w-1/2">
-                                        <label class="leading-7 text-sm text-gray-600">Password</label>
+                                        <label class="leading-7 text-sm text-gray-600" data-i18n="inpPassword"></label>
                                         <div class="relative inline-flex place-content-center w-full">
                                             <input type="password" name="adpass" minlength="6" maxlength="12"
                                                 required />
@@ -669,10 +647,55 @@
                                         </div>
                                     </div>
                                     <div class="flex flex-col w-full mt-8">
-                                        <input type="submit" name="configsec" value="Save">
+                                        <input type="submit" name="configsec" data-i18n="[value]inpSubmitSave">
                                     </div>
                                 </form>
                                 <!-- FORM SECURITY SETTINGS END -->
+                            </div>
+                            <div id="conft4" class="tab-conts hidden">
+                                <!-- FORM API SETTINGS BEGIN -->
+                                <div class="relative overflow-x-auto mt-5 mb-2">
+                                    <table class="w-full text-left text-gray-700 dark:text-gray-200" id="api-keys">
+                                        <thead class="text-x uppercase bg-gray-100 dark:bg-base-700 border-gray-400">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3" data-i18n="index.apiKeyMemo">
+                                                </th>
+                                                <th scope="col" class="px-6 py-3" data-i18n="index.apiKey">
+                                                </th>
+                                                <th scope="col" class="px-6 py-3" data-i18n="index.apiKeyAction">
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="w-full pt-7 inline-flex justify-end">
+                                    <button type="button" class="btn-alert" data-popover-placement="left"
+                                        data-popover-target="add-key-popoverform" data-popover-trigger="click"
+                                        data-i18n="index.apiKeyBtnAdd"></button>
+                                    <div data-popover id="add-key-popoverform" role="tooltip" class="absolute z-10 invisible inline-block min-w-[256px] max-w-xl transition-opacity
+                                            duration-300 rounded shadow-md opacity-0 text-gray-800 dark:text-white bg-white dark:bg-base-400 border
+                                            border-gray-200 dark:border-base-300">
+                                        <div class="px-3 py-3">
+                                            <form name="add-api-key-form" action="" method="POST">
+                                                <input type="hidden" value="" name="apik">
+                                                <p class="">
+                                                    <input type="text" class="w-full" value="" placeholder=""
+                                                        data-i18n="[placeholder]index.apiYetAnotherKey" name="apikm"
+                                                        minlength="3" maxlength="16">
+                                                </p>
+                                                <p class="pt-2"><label data-i18n="js.key"></label></p>
+                                                <p class="px-4 text-roboto" id="api-key-value"></p>
+                                                <p>
+                                                    <input type="submit" name="apiksmt" class="w-full"
+                                                        data-i18n="[value]inpSubmitSave">
+                                                </p>
+                                            </form>
+                                        </div>
+                                        <div data-popper-arrow></div>
+                                    </div>
+                                </div>
+                                <!-- FORM API SETTINGS END -->
                             </div>
                         </div>
                     </div>
@@ -683,7 +706,7 @@
         <footer>
             <div>
                 <span class="text-sm pr-2">
-                    <a href="https://github.com/way5/tinyUPS" title="Jump to GitHub">
+                    <a href="https://github.com/way5/tinyUPS" data-i18n="[title]gotoGithubLink">
                         <img class="m-2 inline" src="svg/gth.svg" width="15px" height="15px">
                         tinyUPS&nbsp;/&nbsp;
                         2022&ndash;
@@ -711,12 +734,9 @@
                     <div id="cntr831">
                     </div>
                 </div>
-                <h3 class="mb-5 mt-5 px-4 text-base text-gray-700 dark:text-base-200">You are about to
-                    reboot your
-                    device.Press button below to continue.</h3>
-                <button type="button" class="btn-normal btn-text submit">
-                    Reboot
-                </button>
+                <h3 class="mb-5 mt-5 px-4 text-base text-gray-700 dark:text-base-200"
+                    data-i18n="index.modalRebootAlert"></h3>
+                <button type="button" class="btn-normal btn-text submit" data-i18n="index.modalRebootButton"></button>
             </div>
         </div>
     </div>
@@ -737,22 +757,15 @@
                             d="M20.817 11.186a8.94 8.94 0 0 0-1.355-3.219 9.053 9.053 0 0 0-2.43-2.43 8.95 8.95 0 0 0-3.219-1.355 9.028 9.028 0 0 0-1.838-.18V2L8 5l3.975 3V6.002c.484-.002.968.044 1.435.14a6.961 6.961 0 0 1 2.502 1.053 7.005 7.005 0 0 1 1.892 1.892A6.967 6.967 0 0 1 19 13a7.032 7.032 0 0 1-.55 2.725 7.11 7.11 0 0 1-.644 1.188 7.2 7.2 0 0 1-.858 1.039 7.028 7.028 0 0 1-3.536 1.907 7.13 7.13 0 0 1-2.822 0 6.961 6.961 0 0 1-2.503-1.054 7.002 7.002 0 0 1-1.89-1.89A6.996 6.996 0 0 1 5 13H3a9.02 9.02 0 0 0 1.539 5.034 9.096 9.096 0 0 0 2.428 2.428A8.95 8.95 0 0 0 12 22a9.09 9.09 0 0 0 1.814-.183 9.014 9.014 0 0 0 3.218-1.355 8.886 8.886 0 0 0 1.331-1.099 9.228 9.228 0 0 0 1.1-1.332A8.952 8.952 0 0 0 21 13a9.09 9.09 0 0 0-.183-1.814z">
                         </path>
                     </svg>
-                    <div id="cntr833">
-                    </div>
+                    <div id="cntr833"></div>
                 </div>
-                <h3 class="mb-5 mt-5 px-4 text-base text-gray-700 dark:text-base-200">You are about to
-                    erase the
-                    configuration data on you device. The device will be restarted with default configuration.
-                    <br>Press button below to continue.
-                </h3>
-                <button type="button" class="btn-alert btn-text submit">
-                    Erase
-                </button>
+                <h3 class="mb-5 mt-5 px-4 text-base text-gray-700 dark:text-base-200"
+                    data-i18n="[html]index.modalResetAlert"></h3>
+                <button type="button" class="btn-alert btn-text submit" data-i18n="index.modalResetButton"></button>
             </div>
         </div>
     </div>
     <!-- MODAL RESET ALERT END -->
-    <script>window.addEventListener("load", function (e) { tinyUPS.initCommon(); tinyUPS.initHome(); });</script>
 </body>
 
 </html>

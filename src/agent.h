@@ -4,7 +4,7 @@
 # Project: Smart station                                                            #
 # File Created: Tuesday, 3rd December 2019 4:54:06 pm                               #
 # Author: sk                                                                        #
-# Last Modified: Tuesday, 4th July 2023 10:11:11 pm                                 #
+# Last Modified: Tuesday, 1st August 2023 11:06:30 am                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -56,7 +56,7 @@ static WiFiUDP snmpUDP;
 const uint8_t serviceTypeOSI = 72;
 const char sysName[] PROGMEM = "tinyUPS";
 const char sysModel[] PROGMEM = "tinyUPS.01";
-const char IdentFirmwareRevision[] PROGMEM = "v1.0.0";
+const char IdentFirmwareRevision[] PROGMEM = "v1.1.0";
 const char sysDescr[] PROGMEM = "tinyUPS Invertor";
 const char IdentDateOfManufact[] PROGMEM = "01/01/22";
 
@@ -69,7 +69,6 @@ const char IdentDateOfManufact[] PROGMEM = "01/01/22";
 
 // SNMP MIB2 System
 const char oidSystem[] PROGMEM = ".1.3.6.1.2.1.1.";
-// -- Description
 /*
 A textual description of the entity. This value
 should include the full name and version
@@ -79,7 +78,6 @@ software. It is mandatory that this only contain
 printable ASCII characters
 */
 const char oidDescr[] PROGMEM = "1.0";      // r / str (0...255)
-// -- Vendor ObjID
 /*
 The vendor's authoritative identification of the
 network management subsystem contained in the
@@ -92,31 +90,26 @@ subtree 1.3.6.1.4.1.4242, it could assign the
 identifier 1.3.6.1.4.1.4242.1.1 to its `Fred Router'.
 */
 const char oidVendor[] PROGMEM = "2.0";     // r / OID (str)
-// -- Uptime
 /*
 The time (in hundredths of a second) since the network management portion of the system was last re-initialized
 */
 const char oidUptime[] PROGMEM = "3.0";     // r / TimeTicks
-// -- Contact
 /*
 The textual identification of the contact person
 for this managed node, together with information
 on how to contact this person.
 */
 const char oidContact[] PROGMEM = "4.0";    // rw / str (0...255)
-// -- Name
 /*
 An administratively-assigned name for this
 managed node. By convention, this is the node's
 fully-qualified domain name
 */
 const char oidName[] PROGMEM = "5.0";       // r / str (0...255)
-// -- Location
 /*
 The physical location of this node (e.g.,`telephone closet, 3rd floor')
 */
 const char oidLocation[] PROGMEM = "6.0";   // rw / str (0...255)
-// -- Services
 /*
 A value which indicates the set of services that
 this entity primarily offers.
@@ -154,7 +147,6 @@ const char oidServiceOSI[] PROGMEM = "7.0"; // r / int (0...127)
 // UPS System
 const char oidEnterprise[] PROGMEM = ".1.3.6.1.4.1.318.1.1.1.";
 
-// upsBasicIdent
 /*
 The UPS model name (e.g. 'APC Smart-UPS 600').
 */
@@ -164,7 +156,6 @@ An 8 byte ID string identifying the UPS. This objectcan
 be set by the administrator
 */
 const char upsBasicIdentName[] PROGMEM = "1.1.2.0";              // rw / string
-// UPS system query
 /*
 Setting this variable to turnUpsOff(2) causes
 the UPS to shut off. When in this state, the UPS
@@ -187,7 +178,6 @@ when the variable is read.
 - turnUpsSyncGroupOffGracefully     (6)
 */
 const char upsAdvControlUpsOff[] PROGMEM = "6.2.1.0";            // rw / int /
-// upsAdvControl
 /*
 Setting this variable to turnOnUPS(2) causes the
 UPS to be turned on immediately.
@@ -204,7 +194,6 @@ when the variable is read
 - turnOnUPSSyncGroup    (3)
 */
 const char upsAdvControlTurnOnUPS[] PROGMEM = "6.2.6.0";         // rw / int
-// upsBasicControl
 /*
 Setting this variable to turnUpsOffToConserveBattery(2)
 causes a UPS on battery to be put into 'sleep' mode. The
@@ -219,7 +208,6 @@ when the variable is read.
 - turnOffUpsToConserveBattery 	(2)
 */
 const char upsBasicControlConserveBattery[] PROGMEM = "6.1.1.0"; // rw / int
-// upsAdvControl
 /*
 Setting this variable to simulatePowerFailure(2) causes
 the UPS switch to battery power.
@@ -260,7 +248,6 @@ This switch puts the UPS in or out of bypass mode.
 - switchOutOfBypass         (3)
 */
 const char upsAdvControlBypassSwitch[] PROGMEM = "6.2.7.0";      // rw / int
-// upsAdvTest
 /*
 Setting this variable to testDiagnostics(2) causes
 the UPS to perform a diagnostic self test.
@@ -291,7 +278,6 @@ upsAdvTestCalibrationResult.
 - cancelCurrentCalibration 	(3)
 */
 const char upsAdvTestRuntimeCalibration[] PROGMEM = "7.2.5.0";   // rw / int
-// upsPhaseResetValues
 /*
 Reset the maximum and minimum UPS values:
 upsPhaseInputMaxVoltage, upsPhaseInputMinVoltage,
@@ -306,7 +292,6 @@ upsPhaseOutputMaxPercentPower, upsPhaseOutputMinPercentPower
 - reset 	(2)
 */
 const char upsPhaseResetMaxMinValues[] PROGMEM = "9.1.1.0";      // rw / int
-// upsAdvIdent
 /*
 An 8-character string identifying the serial number of
 the UPS internal microprocessor. This number is set at
@@ -318,7 +303,6 @@ const char upsAdvIdentSerialNumber[] PROGMEM = "1.2.3.0";        // r / str
 The date when the UPS was manufactured in mm/dd/yy (or yyyy) format.
 */
 const char upsAdvIdentDateOfManufacture[] PROGMEM = "1.2.2.0";   // r / str
-// upsHighPrecInput
 /*
 The current utility line voltage in tenths of VAC
 */
@@ -333,7 +317,6 @@ The minimum utility line voltage in tenths of VAC over the
 previous 1 minute period
 */
 const char upsHighPrecInputMinLineVoltage[] PROGMEM = "3.3.3.0"; // r / gauge
-// upsAdvInput
 /*
 The current utility line voltage in VAC.
 */
@@ -397,17 +380,14 @@ const char upsPhaseInputMinCurrent[] PROGMEM = "9.2.3.1.8.1.1.1"; // r / int
 The input frequency in 0.1 Hertz, or -1 if it's unsupported by this UPS.
 */
 const char upsPhaseInputFrequency[] PROGMEM = "9.2.2.1.4.1";     // r / int
-// upsHighPrecInput
 /*
 The current input frequency to the UPS system in tenths of Hz
 */
 const char upsHighPrecInputFrequency[] PROGMEM = "3.3.4.0";      // r / gauge
-// upsAdvInput
 /*
 The current input frequency to the UPS system in Hz
 */
 const char upsAdvInputFrequency[] PROGMEM = "3.2.4.0";           // r / gauge
-// upsAdvConfig
 /*
 The minimum line voltage in VAC allowed before the
 UPS system transfers to battery backup.
@@ -432,7 +412,6 @@ the highest acceptable value, the highest acceptable
 value is used
 */
 const char upsAdvConfigHighTransferVolt[] PROGMEM = "5.2.2.0";   // rw / int
-// upsAdvInput
 /*
 The reason for the occurrence of the last transfer to UPS
 battery power. The variable is set to:
@@ -470,7 +449,6 @@ the line voltage
 - rateOfVoltageChange 	(10)
 */
 const char upsAdvInputLineFailCause[] PROGMEM = "3.2.5.0";       // r / int
-// upsAdvConfig
 /*
 The sensitivity of the UPS to utility line abnormalities
 or noises
@@ -480,7 +458,6 @@ or noises
 - high          (4)
 */
 const char upsAdvConfigSensitivity[] PROGMEM = "5.2.7.0";        // rw / int
-// upsBasicOutput
 /*
 The current state of the UPS. If the UPS is unable to
 determine the state of the UPS this variable is set
@@ -502,7 +479,6 @@ to unknown(1).
 - onBatteryTest             (15)
 */
 const char upsBasicOutputStatus[] PROGMEM = "4.1.1.0";           // r / int
-// upsBasicBattery
 /*
 The status of the ups batteries. A batteryLow(3) value
 indicates the UPS will be unable to sustain the current
@@ -517,7 +493,6 @@ installed has an internal error condition
 - batteryInFaultCondition   (4)
 */
 const char upsBasicBatteryStatus[] PROGMEM = "2.1.1.0";          // r / int
-// upsAdvTest
 /*
 The results of the last runtime calibration.
 Value ok(1) means a successful runtime calibration.
@@ -531,40 +506,33 @@ is occurring now
 - calibrationInProgress 	(3)
 */
 const char upsAdvTestCalibrationResults[] PROGMEM = "7.2.6.0";   // r / int
-// upsAdvBattery
 /*
 Indicates whether the UPS batteries need replacing
 - noBatteryNeedsReplacing 	(1),
 - batteryNeedsReplacing 	(2)
 */
 const char upsAdvBatteryReplaceIndicator[] PROGMEM = "2.2.4.0";  // r / int
-// upsHighPrecBattery
 /*
 The current internal UPS temperature expressed in
 tenths of degrees Celsius
 */
 //  const char upsHighPrecBatteryTemperature[] PROGMEM = "2.3.2.0"; // r / gauge
-// upsAdvBattery
 /*
 The current internal UPS temperature expressed in Celsius
 */
 const char upsAdvBatteryTemperature[] PROGMEM = "2.2.2.0";       // r / gauge
-// upsHighPrecOutput
 /*
 The current UPS load expressed in tenths of percent of rated capacity
 */
 //  const char upsHighPrecOutputLoad[] PROGMEM = "4.3.3.0"; // r / gauge
-// upsAdvOutput
 /*
 The current UPS load expressed in percent of rated capacity
 */
 const char upsAdvOutputLoad[] PROGMEM = "4.2.3.0";               // r / gauge
-// upsAdvIdent
 /*
 The firmware revision of the UPS system's microprocessor
 */
 const char upsAdvIdentFirmwareRevision[] PROGMEM = "1.2.1.0";    // r / string
-// upsAdvConfig
 /*
 The delay in seconds the UPS remains on after being told
 to turn off.
@@ -591,18 +559,15 @@ the highest acceptable value, the highest acceptable
 value is used
 */
 const char upsAdvConfigReturnDelay[] PROGMEM = "5.2.9.0";        // rw / timeTicks
-// upsHighPrecBattery
 /*
 The remaining battery capacity expressed in
 tenths of percent of full capacity
 */
 //  const char upsHighPrecBatteryCapacity[] PROGMEM = "2.3.1.0"; // r / gauge
-// upsAdvBattery
 /*
 The remaining battery capacity expressed in percent of full capacity
 */
 const char upsAdvBatteryCapacity[] PROGMEM = "2.2.1.0";          // r / gauge
-// upsAdvConfig
 /*
 The minimum battery capacity required before the UPS will
 return from a low battery shutdown condition. The capacity is
@@ -619,12 +584,10 @@ the highest acceptable value, the highest acceptable
 value is used
 */
 const char upsAdvConfigMinReturnCapacity[] PROGMEM = "5.2.6.0";  // rw / int
-// upsAdvBattery
 /*
 The UPS battery run time remaining before battery exhaustion
 */
 const char upsAdvBatteryRunTimeRemaining[] PROGMEM = "2.2.3.0";  // r / timeTicks
-// upsAdvConfig
 /*
 The desired run time of the UPS, in seconds, once the
 low battery condition is reached. During this time the UPS will
@@ -637,12 +600,10 @@ acceptable value. If the provided value is higher than the
 highest acceptable value, the highest acceptable value is used
 */
 const char upsAdvConfigLowBatteryRunTime[] PROGMEM = "5.2.8.0";  // rw / timeTicks
-// upsHighPrecBattery
 /*
 The actual battery bus voltage in tenths of Volts
 */
 //  const char upsHighPrecBatteryActualVoltage[] PROGMEM = "2.3.4.0"; // r / int
-// upsAdvBattery
 /*
 The actual battery bus voltage in Volts
 */
@@ -651,22 +612,18 @@ const char upsAdvBatteryActualVoltage[] PROGMEM = "2.2.8.0";     // r / int
 The nominal battery voltage in Volts
 */
 const char upsAdvBatteryNominalVoltage[] PROGMEM = "2.2.7.0";    // r / int
-// upsHighPrecBattery
 /*
 The battery current in tenths of Amps
 */
 //  const char upsHighPrecBatteryCurrent[] PROGMEM = "2.3.5.0"; // r / int
-// upsAdvBattery
 /*
 The battery current in Amps
 */
 const char upsAdvBatteryCurrent[] PROGMEM = "2.2.9.0";           // r / int
-// upsHighPrecBattery
 /*
 The total DC current in tenths of Amps
 */
 //  const char upsHighPrecTotalDCCurrent[] PROGMEM = "2.3.6.0"; // r / int
-// upsAdvBattery
 /*
 The number of external battery packs connected to the UPS. If
 the UPS does not use smart cells then the agent reports
@@ -679,7 +636,6 @@ are defective. If the UPS does not use smart cells then the
 agent reports ERROR_NO_SUCH_NAME
 */
 const char upsAdvBatteryNumOfBadBattPacks[] PROGMEM = "2.2.6.0"; // r / int
-// upsBasicBattery
 /*
 The date when the UPS system's batteries were last replaced
 in mm/dd/yy (or yyyy) format. For Smart-UPS models, this value
@@ -688,7 +644,6 @@ are replaced, this value should be reset by the administrator.
 For Symmetra PX 250/500 this OID is read only and is configurable in the local display only
 */
 const char upsBasicBatteryLastReplaceDate[] PROGMEM = "2.1.3.0"; // rw / string
-// upsAdvTest
 /*
 The results of the last UPS diagnostics test performed
 - ok 	(1),
@@ -702,17 +657,14 @@ The date the last UPS diagnostics test was performed in
 mm/dd/yy format
 */
 const char upsAdvTestLastDiagnosticsDate[] PROGMEM = "7.2.4.0";  // r / string
-// upsHighPrecOutput
 /*
 The output voltage of the UPS system in tenths of VAC
 */
 const char upsHighPrecOutputVoltage[] PROGMEM = "4.3.1.0";       // r / gauge
-// upsAdvOutput
 /*
 The output voltage of the UPS system in VAC
 */
 const char upsAdvOutputVoltage[] PROGMEM = "4.2.1.0";            // r / gauge
-// upsPhaseOutput
 /*
 The number of output phases utilized in this
 device. The sum of all the upsPhaseNumOutputPhases
@@ -725,22 +677,18 @@ The output frequency in 0.1 Hertz, or -1 if it's
 unsupported by this UPS
 */
 const char upsPhaseOutputFrequency[] PROGMEM = "9.3.2.1.4.1";    // r / int
-// upsHighPrecOutput
 /*
 The current output frequency of the UPS system in tenths of Hz
 */
 //  const char upsHighPrecOutputFrequency[] PROGMEM = "4.3.2.0"; // r / gauge
-// upsAdvOutput
 /*
 The current output frequency of the UPS system in Hz
 */
 const char upsAdvOutputFrequency[] PROGMEM = "4.2.2.0";          // r / gauge
-// upsHighPrecOutput
 /*
 The current in tenths of amperes drawn by the load on the UPS
 */
 //  const char upsHighPrecOutputCurrent[] PROGMEM = "4.3.4.0"; // r / gauge
-// upsAdvOutput
 /*
 The current in amperes drawn by the load on the UPS
 */
@@ -814,7 +762,6 @@ const char upsPhaseOutputMinPercentLoad[] PROGMEM = "9.3.3.1.12.1.1.1"; // r / i
 // const char upsUnknown29[] PROGMEM = "9.3.3.1.12.1.1.2";
 // const char upsUnknown30[] PROGMEM = "9.3.3.1.12.1.1.3";
 
-// AdvConfig
 /*
 The nominal output voltage from the UPS in VAC.
 For a list of allowed values supported by your UPS model,
@@ -827,7 +774,6 @@ value is used.
 */
 const char upsAdvConfigRatedOutputVoltage[] PROGMEM = "5.2.1.0"; // rw / int
 
-// mUpsEnviron
 /*
 The relative humidity as a percentage for Probe 1
 */
@@ -874,7 +820,6 @@ const char emConfigProbeHighHumidThreshold[] PROGMEM = "1.2.2.1.6.1"; // rw / in
 The low humidity alarm threshold for the probe in percent relative humidity
 */
 const char emConfigProbeLowHumidThreshold[] PROGMEM = "1.2.2.1.7.1"; // rw / int
-// iemStatus
 /*
 The current temperature reading from the probe displayed in the units shown in the
 'iemStatusProbeTempUnits' OID (Celsius or Fahrenheit).

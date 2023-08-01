@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 5th July 2023 11:47:19 pm                               #
+# Last Modified: Monday, 31st July 2023 11:06:10 am                                 #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -28,6 +28,7 @@
 #define HELPERS_H
 
 #include <WiFi.h>
+#include <sys/param.h>
 
 // #define DEBUG                                   5
 // #undef  ARDUHAL_LOG_LEVEL
@@ -73,7 +74,7 @@ typedef enum {
 #endif
 
 // config
-typedef struct {                                            // Configurable, Units
+typedef struct configT {                                            // Configurable, Units
     // - WiFi (both 32 octets max)
     char ssid[32] = "";                                     // V
     char ssidkey[32] = "";                                  // V
@@ -82,7 +83,7 @@ typedef struct {                                            // Configurable, Uni
     char ntpServer[20] = "pool.ntp.org";                    // V
     char ntpServerFB[20] = "time.google.com";               // V
     uint16_t ntpSyncInterval = 10800;                       // V, sec
-    // variable defines the offset in seconds for daylight 
+    // variable defines the offset in seconds for daylight
     // saving time. It is generally one hour, that corresponds to 3600 seconds
     int32_t ntpDaylightOffset = 0;                          // X, sec
     // uint16_t ntpPort = 1337;                             // V
@@ -195,6 +196,10 @@ typedef struct {
     uint8_t upsDiagBatteryStatus = 3;
 } monitor_data_t;
 extern monitor_data_t monitorData;
+
+// paths
+const char _logDirPath[] PROGMEM = "/logs";
+const char _dataDirPath[] PROGMEM = "/data";
 
 void val2str(float val, char * buffer, uint8_t prec = 2);
 void val2str(int val, char * buffer);

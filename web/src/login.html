@@ -5,16 +5,10 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="origin">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <!-- FONTS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Exo:wght@200;600&family=Pragati+Narrow&family=Roboto+Condensed:wght@300;700&display=swap"
-        rel="stylesheet">
 </head>
 
 <body>
@@ -31,10 +25,10 @@
                 </button>
                 <div class="px-5 py-7 border-b border-gray-200 dark:border-base-400">
                     <form name="login" action="/" method="POST">
-                        <label>Login</label>
+                        <label data-i18n="inpUsername"></label>
                         <input type="text" name="login" class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
                             minlength="2" maxlength="12" required />
-                        <label>Password</label>
+                        <label data-i18n="inpPassword"></label>
                         <div class="relative inline-flex place-content-center w-full mt-1 mb-5 ">
                             <input type="password" name="pass" class="border rounded-lg px-3 py-2 text-sm w-full"
                                 minlength="6" maxlength="12" required />
@@ -42,12 +36,12 @@
                                 <img src="svg/eye.svg" width="20px" />
                             </button>
                         </div>
-                        <input type="submit" class="w-full" value="Sign In" />
+                        <input type="submit" class="w-full" data-i18n="[value]buttonSignIn" />
                     </form>
                 </div>
                 <div class="py-5 text-center">
                     <span class="text-sm pr-2">
-                        <a class="footer" href="https://github.com/way5/tinyUPS" title="Jump to GitHub">
+                        <a class="footer" href="https://github.com/way5/tinyUPS" data-i18n="[title]gotoGithubLink">
                             <img class="m-2 inline" src="svg/gth.svg" width="15px" height="15px">
                             tinyUPS&nbsp;/&nbsp;
                             2022&ndash;
@@ -68,22 +62,17 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h2 class="mt-4 text-lg lg:text-2xl dark:text-white font-semibold">
-                    We've got a problem...
-                </h2>
+                <h2 class="mt-4 text-lg lg:text-2xl dark:text-white font-semibold" data-i18n="login.errorHeader"></h2>
                 <div class="mt-4 dark:text-gray-200">
-                    <p>
-                        There is someone already logged in. Please close the previous session and try again.
-                    </p>
+                    <p data-i18n="login.errorLoggedMsg"></p>
                     <button type="button" data-modal-target="modal-alert" data-modal-hide="modal-alert"
-                        class="mt-10 mb-8 text-purple-500 underline hover:no-underline text-[20px]">Let's try
-                        again</button>
+                        class="mt-10 mb-8 text-purple-500 underline hover:no-underline text-[20px]"
+                        data-i18n="login.errorLoggedButtonBack"></button>
                 </div>
             </div>
         </div>
     </div>
     <!-- MODAL END -->
-    <script>window.addEventListener("load", function () { tinyUPS.initCommon(); $("form[name=login]").on("submit", function (e) { e.preventDefault(); tinyUPS.doLogin(); }); });</script>
 </body>
 
 </html>

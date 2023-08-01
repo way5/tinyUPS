@@ -3,12 +3,9 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <!-- <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-    <meta http-equiv="Expires" content="Thu, 01 Jan 1970 00:00:00 GMT" /> -->
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="origin">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -27,19 +24,13 @@
                             d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
                         </path>
                     </svg>
-                    <h2 class="text-xl font-semibold">
-                        tinyUPS is now restarting.
-                    </h2>
+                    <h2 class="text-xl font-semibold" data-i18n="[append]setup.tinyUPSisRestarting">tinyUPS</h2>
                 </div>
                 <div class="mt-8">
                     <div class="mx-10 smdn:mx-5">
-                        <p>If the data is correct you can find it connected to the WiFi you specified earlier and it can
-                            be
-                            accessed by IP in a
-                            moment.</p>
-                        <p>If something is wrong it will switch back to AP mode.</p>
+                        <p data-i18n="[html]setup.finalInfo"></p>
                     </div>
-                    <p class="mt-14 sm:w-90 text-sm">Now you may <b><i>close</i></b> this window</p>
+                    <p class="mt-14 sm:w-90 text-sm" data-i18n="[html]setup.closeWindow"></p>
                 </div>
             </div>
             <!-- </div>-->
@@ -70,14 +61,14 @@
     <section class="setup-wrapper">
         <div class="setup-container">
             <button type="button" class="reset-solo" data-tooltip-target="help-admin0" data-tooltip-placement="right"
-                data-tooltip-trigger="hover" class="tooltip-sm-btn">
+                data-tooltip-trigger="hover">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" height="1em" viewBox="0 0 512 512">
                     <path
                         d="M386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H464c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0s-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3s163.8-62.5 226.3 0L386.3 160z" />
                 </svg>
             </button>
-            <div id="help-admin0" role="tooltip" class="tooltip-sm invisible">
-                Restart the device
+            <div id="help-admin0" role="tooltip" class="tooltip-sm invisible"
+                data-i18n="[prepend]setup.restartButtonTooltip">
                 <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
             <button type="button" class="dmode-solo" id="dmode">
@@ -88,43 +79,37 @@
             </button>
             <div class="flex flex-col mx-auto text-center my-6">
                 <h1 class="text-3xl font-bold mb-4">tinyUPS</h1>
-                <p class="text-sm font-narrow">
-                    Welcome! Your device will be ready shortly after you'll provide the following data.
-                </p>
+                <p class="text-sm font-narrow" data-i18n="[html]setup.intro"></p>
             </div>
             <form name="setup" class="form-wrapper smdn:mx-2 mx-4" method="POST" action="/" autocomplete="off">
                 <div class="p-2 w-full">
                     <div class="header-cut-off"></div>
                     <div class="flex py-2 mb-2 justify-between relative">
                         <div class="inline-flex">
-                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4">
-                                </path>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-8 h-8 mr-3">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33" />
                             </svg>
-                            <h4 class="sub-header">
-                                Admin access
-                            </h4>
+                            <h4 class="sub-header font-narrow" data-i18n="setup.hdrAdminAccess"></h4>
                         </div>
                         <button data-tooltip-target="help-admin1" data-tooltip-placement="left"
                             data-tooltip-trigger="hover" type="button" class="tooltip-sm-btn"></button>
-                        <div id="help-admin1" role="tooltip" class="tooltip-sm invisible">
-                            The credentials used to obtain access to Dashboard panel. These can be
-                            changed later in Config.
+                        <div id="help-admin1" role="tooltip" class="tooltip-sm invisible"
+                            data-i18n="[prepend]setup.helpAdminTooltip">
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                     </div>
                 </div>
                 <div class="flex-form-block">
                     <div class="relative">
-                        <label>Login</label>
+                        <label data-i18n="inpUsername"></label>
                         <input type="text" name="login" minlength="2" maxlength="12" required />
                     </div>
                 </div>
                 <div class="flex-form-block">
                     <div class="relative">
-                        <label>Password</label>
+                        <label data-i18n="inpPassword"></label>
                         <div class="relative inline-flex place-content-center w-full">
                             <input type="password" name="pass" minlength="6" maxlength="12" required />
                             <button type="button" class="showkey">
@@ -137,31 +122,27 @@
                     <div class="header-cut-off"></div>
                     <div class="flex py-2 mb-2 justify-between relative">
                         <div class="inline-flex">
-                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0">
-                                </path>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-8 h-8 mr-3">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
                             </svg>
-                            <h4 class="sub-header">
-                                WiFi Access Point
-                            </h4>
+                            <h4 class="sub-header font-narrow" data-i18n="setup.hdrWiFiAccessPoint"></h4>
                         </div>
                         <button data-tooltip-target="help-wifi1" data-tooltip-placement="left"
                             data-tooltip-trigger="hover" type="button" class="tooltip-sm-btn"></button>
-                        <div id="help-wifi1" role="tooltip" class="tooltip-sm invisible">
-                            tinyUPS will be permanently connected to this AP, that's also the network for SNMP
-                            broadcasting. You can change it later in Config.
+                        <div id="help-wifi1" role="tooltip" class="tooltip-sm invisible"
+                            data-i18n="[prepend]setup.helpWiFiTooltip">
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                     </div>
                 </div>
                 <div class="flex-form-block">
                     <div class="relative">
-                        <label>SSID</label>
+                        <label data-i18n="inpSSID"></label>
                         <div class="flex mx-auto overflow-hidden">
                             <select name="ssid"></select>
-                            <button id="dosurvey" title="Refresh WiFi networks">
+                            <button id="dosurvey" data-i18n="[title]buttonDoSurvey">
                                 <!-- <img src="svg/refr.svg" width="20px"> -->
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20px">
                                     <path fill="currentColor"
@@ -175,7 +156,7 @@
                 </div>
                 <div class="flex-form-block">
                     <div class="relative">
-                        <label>Key</label>
+                        <label data-i18n="inpSSIDKey"></label>
                         <div class="relative inline-flex place-content-center w-full">
                             <input type="password" name="ssidkey" maxlength="30" required />
                             <button type="button" class="showkey">
@@ -185,20 +166,19 @@
                     </div>
                 </div>
                 <div class="flex flex-col mt-8 w-full">
-                    <input type="submit" value="Setup" />
+                    <input type="submit" data-i18n="[value]inpSubmitSetup" />
                 </div>
                 <div class="setup-form-footer">
                     <span class="pl-2 cursor-help">
                         <span class="ap-mac-address" data-tooltip-target="help-ap-mac" data-tooltip-placement="top"
                             data-tooltip-trigger="hover"></span>
-                        <div id="help-ap-mac" role="tooltip" class="tooltip-sm invisible">
-                            The device MAC address may be useful when creating a DNS record or assigning a
-                            static IP address.
+                        <div id="help-ap-mac" role="tooltip" class="tooltip-sm invisible"
+                            data-i18n="[prepend]setup.helpApMAC">
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                     </span>
                     <span class="pr-2">
-                        <a href="https://github.com/way5/tinyUPS" title="Jump to GitHub">
+                        <a href="https://github.com/way5/tinyUPS" data-i18n="[title]gotoGithubLink">
                             <img class="m-2 inline" src="svg/gth.svg" width="15px" height="15px">
                             tinyUPS&nbsp;/&nbsp;
                             2022&ndash;
@@ -210,7 +190,6 @@
         </div>
     </section>
     <!-- FORM END -->
-    <script>window.addEventListener("load", function () { tinyUPS.initCommon(); tinyUPS.initSetup(); tinyUPS.getSurvey(); $("form[name=setup]").on("submit", function (e) { e.preventDefault(); tinyUPS.doSetup(); }); });</script>
 </body>
 
 </html>

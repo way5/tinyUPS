@@ -1,0 +1,14 @@
+.setup-wrapper {
+    @apply min-h-screen text-gray-700 dark:text-base-200 flex flex-col justify-center;
+
+    .setup-container {
+        @apply relative smdn:min-h-screen smdn:pt-10 rounded-lg smdn:rounded-none px-2 pt-4 mx-auto
+                max-w-[640px] bg-white dark:bg-base-500 shadow-lg justify-center
+                border smdn:border-none border-gray-400 dark:border-base-400 smdn:shadow-none;
+
+        .setup-form-footer {
+            @apply p-2 w-full flex items-center justify-between mt-10 border-t border-gray-300
+                    dark:border-base-700 text-sm text-gray-500 dark:text-base-50;
+        }
+    }
+}

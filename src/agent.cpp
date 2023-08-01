@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 2nd December 2019 3:22:49 pm                                #
 # Author: sk                                                                        #
-# Last Modified: Tuesday, 4th July 2023 10:20:04 pm                                 #
+# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -227,7 +227,7 @@ inline static int getPhaseNumOutputPhases() {
     return 2;
 }
 inline static int getAdvConfigRatedOutputVoltage() {
-    return static_cast<int>(monitorData.upsAdvConfigRatedOutputVoltage);;
+    return static_cast<int>(monitorData.upsAdvConfigRatedOutputVoltage);
 }
 inline static void setPhaseResetMaxMinValues(int val) {
     monitorData.upsPhaseResetMaxMinValues = val;

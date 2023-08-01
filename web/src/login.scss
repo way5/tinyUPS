@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@100;300;700&family=Pragati+Narrow:wght@400;700&family=Roboto+Condensed:wght@400;700&display=swap');
+
+.login-wrapper {
+    @apply relative min-h-screen text-gray-600 flex flex-col justify-center;
+
+    .login-container {
+        @apply px-8 w-full mx-auto max-w-md min-w-[300px];
+
+        .logo {
+            @apply font-bold text-center font-exo text-4xl mb-5 text-gray-800 dark:text-base-200;
+        }
+
+        .login-main {
+            @apply bg-white dark:bg-base-500 shadow-lg w-full rounded-lg border border-gray-400 dark:border-base-400 relative;
+
+            .footer {
+                @apply text-gray-500 dark:text-gray-200;
+            }
+        }
+    }
+}
