@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:40 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
+# Last Modified: Wednesday, 2nd August 2023 5:02:57 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -37,8 +37,8 @@ status_t NTPClientClass::loop() {
 
 /**
  * @brief returns seconds since 1970s
- * 
- * @return time_t 
+ *
+ * @return time_t
 */
 time_t NTPClientClass::getEpoch() {
     struct tm timeinfo = getTS();
@@ -47,7 +47,7 @@ time_t NTPClientClass::getEpoch() {
 
 /**
  * @brief Do update NTP -> RTC
- * 
+ *
 */
 status_t NTPClientClass::forceUpdate() {
     configTime((config.ntpTimeOffset*3600UL), config.ntpDaylightOffset, config.ntpServer, config.ntpServerFB);
@@ -57,7 +57,6 @@ status_t NTPClientClass::forceUpdate() {
         if(!getLocalTime(&timeinfo)) {
             __DL(F("(!) failed to retrieve local time\n"));
             // ATTN: do not exit here, we need the _startTime to be != 0. Requires testing
-            // return ERR;
         } else
             break;
         cntr++;
@@ -83,9 +82,9 @@ status_t NTPClientClass::forceUpdate() {
 
 /**
  * @brief Formatted date & time string or "-" if is not synchronized with NTP
- * 
- * @param b 
- * @param format 
+ *
+ * @param b
+ * @param format
 */
 void NTPClientClass::getDatetime(char *b, const char * format) {
     if(WiFi.status() == WL_CONNECTED) {
@@ -99,7 +98,7 @@ void NTPClientClass::getDatetime(char *b, const char * format) {
         strcpy(b, ds);
         _CHBD(ds);
     } else {
-        strcpy_P(b, PSTR("___"));
+        strcpy(b, "___");
     }
 }
 
@@ -119,8 +118,8 @@ void NTPClientClass::timestampToString(char *b) {
 
 /**
  * @brief Returns timestamp in seconds or 0 if not syncronized
- * 
- * @return unsigned long 
+ *
+ * @return unsigned long
 */
 unsigned long NTPClientClass::getTimestamp() {
     if (WiFi.status() == WL_CONNECTED) {
@@ -190,7 +189,7 @@ void NTPClientClass::uptimeHR(char *buffer) {
 
 /**
  * @brief Returns uptime in seconds
- * 
+ *
  * @return unsigned long
 */
  unsigned long NTPClientClass::uptimeSeconds() {
@@ -202,8 +201,8 @@ void NTPClientClass::uptimeHR(char *buffer) {
 
 /**
  * @brief Returns local time data
- * 
- * @return tm 
+ *
+ * @return tm
 */
 tm NTPClientClass::getTS() {
     struct tm timeinfo;

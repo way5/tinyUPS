@@ -55,6 +55,7 @@
         "lastMonth": "El mes pasado",
         "allTime": "Todo el tiempo",
         "index": {
+            "pageTitle": "tinyUPS | Panel de control",
             "openSidebar": "Abrir la barra lateral",
             "dashboard": "Panel de control",
             "configuration": "Configuración",
@@ -155,6 +156,7 @@
             }
         },
         "setup": {
+            "pageTitle": "tinyUPS | Configuración",
             "intro": "¡Bienvenido! Su dispositivo estará listo poco después de proporcionar los siguientes datos.",
             "restartButtonTooltip": "Reiniciar el dispositivo",
             "hdrAdminAccess": "Acceso del administrador",
@@ -175,12 +177,14 @@
             }
         },
         "login": {
+            "pageTitle": "tinyUPS | Autorizacón",
             "errorHeader": "Tenemos un problema...",
             "errorLoggedMsg": "Hay alguien que ya inició sesión. Cierre la sesión anterior y vuelva a intentarlo.",
             "errorLoggedButtonBack": "Intentar de nuevo",
             "js": {}
         },
         "error": {
+            "pageTitle": "tinyUPS | Ha ocurrido un error",
             "noPageMsg": "Esta página no existe.",
             "buttonBack": "Página de inicio",
             "js": {}

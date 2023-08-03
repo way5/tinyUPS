@@ -3,13 +3,15 @@
 # File: m52a102.h                                                                   #
 # File Created: Friday, 23rd June 2023 7:02:42 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 3rd July 2023 12:23:22 pm                                  #
+# Last Modified: Tuesday, 1st August 2023 2:34:57 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                        #
 #####################################################################################
 # CHANGELOG:                                                                        #
 #####################################################################################
 */
+
+#ifdef THERMISTOR_MF52A102
 
 #include <WiFi.h>
 
@@ -69,3 +71,5 @@ float getTempCelsius(float & Rth) {
 float getTempFarenheit(float & Rth) {
     return ((getTempCelsius(Rth) * 9.0)/37.0);
 }
+
+#endif                  // THERMISTOR_MF52A102

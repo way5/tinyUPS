@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 31st July 2023 6:00:24 pm                                  #
+# Last Modified: Wednesday, 2nd August 2023 6:04:31 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -130,8 +130,10 @@ bool isAuthorized(AsyncWebServerRequest *req)
             __DF("wrong key lengh: %s\n", key);
 #endif
             res = false;
-        } else {
-            api_keys_t ** data;
+        }
+        else
+        {
+            api_keys_t **data;
             _ALLOC_API_ARRAY(data);
             int8_t n = loadAPIKeys(data);
             while (n > 0 && strlen(data[n - 1]->key) != 0)
@@ -192,7 +194,7 @@ void httpdRespond(AsyncWebServerRequest *req, const char *file, const char *mime
 void httpdGetHtmlPage(AsyncWebServerRequest *req)
 {
     String path = req->url();
-    PGM_P fname = nullptr;
+    const char * fname;
 
     if (WiFi.getMode() == WIFI_MODE_APSTA)
     {
@@ -250,10 +252,13 @@ void httpdGetHtmlPage(AsyncWebServerRequest *req)
  */
 void httpdGetHtmlError(AsyncWebServerRequest *req)
 {
-    if(req->method() == HTTP_GET) {
+    if (req->method() == HTTP_GET)
+    {
         httpdRespond(req, resPageError, mimeTextHtml);
-    } else {
-        httpdJsonErrResponse(req, "{\"err\":\"404\"}");
+    }
+    else
+    {
+        httpdJsonErrResponse(req, "not found", 404);
     }
 }
 
@@ -322,13 +327,11 @@ void httpdGetSvgImage(AsyncWebServerRequest *req)
     }
 }
 
-void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr)
-{ // const __FlashStringHelper * descr) {
-    String str = String(FPSTR(descr));
-
-    str = String(F("{\"err\": \"")) + str + String(F("\"}"));
-
-    req->send(403, String(FPSTR(mimeAppJSON)), str);
+void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr, const int code) // const __FlashStringHelper * descr) {
+{
+    String str = String(descr);
+    str = "{\"err\": \"" + str + "\"}";
+    req->send((int)code, String(FPSTR(mimeAppJSON)), str);
 }
 
 /**
@@ -338,7 +341,7 @@ void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr)
  *
  * @return api_keys_t
  */
-int8_t loadAPIKeys(api_keys_t ** keys)
+int8_t loadAPIKeys(api_keys_t **keys)
 {
     int8_t i = 0;
     fs::File _f;
@@ -364,7 +367,7 @@ int8_t loadAPIKeys(api_keys_t ** keys)
                 }
                 else
                 {
-                    api_keys_t * key = new api_keys_t();
+                    api_keys_t *key = new api_keys_t();
                     strcpy(key->key, keyData.substring(0, 32).c_str());   // 32 max
                     strcpy(key->memo, keyData.substring(32, 47).c_str()); // 16 max
                     key->created = static_cast<time_t>(keyData.substring(47).toInt());
@@ -394,10 +397,9 @@ char *apiKeysToJSON()
     char *api;
     _CHB(t, 0x10);
     _CHB(api, 0x400);
-    api_keys_t ** data;
+    api_keys_t **data;
     _ALLOC_API_ARRAY(data);
     int8_t n = loadAPIKeys(data);
-    // api keys
     if (n > 0)
     {
         while (i < 5 && data[i] != nullptr)
@@ -428,9 +430,9 @@ char *apiKeysToJSON()
  * @return true
  * @return false
  */
-bool addAPIKey(api_keys_t * k)
+bool addAPIKey(api_keys_t *k)
 {
-    api_keys_t ** data;
+    api_keys_t **data;
     _ALLOC_API_ARRAY(data);
     int8_t n = loadAPIKeys(data);
 
@@ -453,14 +455,14 @@ bool addAPIKey(api_keys_t * k)
  */
 bool removeAPIKey(time_t &id)
 {
+    bool result = false;
     uint8_t i = 0, k = 0;
-    api_keys_t ** data;
+    api_keys_t **data;
     _ALLOC_API_ARRAY(data);
     int8_t n = loadAPIKeys(data);
     if (n > 0)
     {
-        bool result;
-        api_keys_t ** dataNew;
+        api_keys_t **dataNew;
         _ALLOC_API_ARRAY(dataNew);
         while (data[i] != nullptr && i < 5)
         {
@@ -472,13 +474,15 @@ bool removeAPIKey(time_t &id)
             i++;
         }
         result = writeAPIData(dataNew);
-        delete[] data;
-        return result;
     }
 #ifdef DEBUG
-    __DL("no API keys or failed to open");
+    else
+    {
+        __DL("no API keys or failed to open");
+    }
 #endif
-    return false;
+    delete[] data;
+    return result;
 }
 
 /**
@@ -488,7 +492,7 @@ bool removeAPIKey(time_t &id)
  * @return true
  * @return false
  */
-bool writeAPIData(api_keys_t ** data)
+bool writeAPIData(api_keys_t **data)
 {
     fs::File _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
     if (!_f || data[0] == nullptr)
@@ -511,7 +515,7 @@ bool writeAPIData(api_keys_t ** data)
             m++;
         }
         strcat(s, t);
-        s[strlen(s)] = 0x0A;            // addint LF
+        s[strlen(s)] = 0x0A; // addint LF
         _f.write(reinterpret_cast<const uint8_t *>(s), strlen(s));
         _CHBC(t);
         _CHBC(s);
@@ -543,7 +547,7 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     uint8_t cntr = 0;
     String doc = "";
     char *buffer;
-    _CHB(buffer, 64);
+    _CHB(buffer, 0x100);
 
     result = WiFi.scanComplete();
 
@@ -634,12 +638,12 @@ void httpdPostSetupInit(AsyncWebServerRequest *req)
 {
     if (WiFi.getMode() == WIFI_MODE_APSTA)
     {
-        String doc = String(F("{\"mac\": \"")) + WiFi.macAddress() + String(F("\"}"));
+        String doc = String("{\"mac\": \"") + WiFi.macAddress() + String("\"}");
         req->send(200, String(FPSTR(mimeAppJSON)), doc);
     }
     else
     {
-        httpdJsonErrResponse(req, "not allowed");
+        httpdJsonErrResponse(req, "setup is already completed", 403);
     }
 }
 
@@ -652,12 +656,10 @@ void httpdPostSetup(AsyncWebServerRequest *req)
 {
     if (WiFi.getMode() == WIFI_MODE_APSTA)
     {
-        // uint8_t cntr = 0;
         String login = req->arg(String(F("login")));
         String pass = req->arg(String(F("pass")));
         String ssid = req->arg(String(F("ssid")));
         String ssidkey = req->arg(String(F("ssidkey")));
-
         String doc = String(F("{\"setup\": \"done\"}"));
 
 #if DEBUG == 3
@@ -673,7 +675,7 @@ void httpdPostSetup(AsyncWebServerRequest *req)
 
         if (ssid.length() == 0 || ssidkey.length() == 0 || login.length() == 0 || pass.length() == 0)
         {
-            doc = String(F("{\"setup\": \"fail\",\"err\":\"data\"}"));
+            doc = String("{\"setup\": \"fail\",\"err\":\"data\"}");
             req->send(200, String(FPSTR(mimeAppJSON)), doc);
             return;
         }
@@ -692,7 +694,7 @@ void httpdPostSetup(AsyncWebServerRequest *req)
     }
     else
     {
-        httpdJsonErrResponse(req, "not allowed");
+        httpdJsonErrResponse(req, "setup is already completed", 403);
     }
 }
 
@@ -704,16 +706,16 @@ void httpdPostSetup(AsyncWebServerRequest *req)
 void httpdPostLogin(AsyncWebServerRequest *req)
 {
     char *cookie;
-    _CHB(cookie, 128);
     char *doc;
     _CHB(doc, 64);
+    _CHB(cookie, 128);
     bool cookieAuth = false;
     String login = req->arg(String(F("login")));
     String pass = req->arg(String(F("pass")));
 
     if (login.length() == 0 || pass.length() == 0)
     {
-        httpdJsonErrResponse(req, "empty");
+        httpdJsonErrResponse(req, "empty request", 400);
         return;
     }
 
@@ -745,9 +747,9 @@ void httpdPostLogin(AsyncWebServerRequest *req)
             hashgen(cookie);
             token = sha1(String(cookie));
             memcpy(session.authToken, token.c_str(), token.length());
-            strcpy_P(cookie, cookieName);
+            strcpy(cookie, cookieName);
             strcat(cookie, session.authToken);
-            strcat_P(cookie, cookieName2);
+            strcat(cookie, cookieName2);
             val2str(config.authTimeoutMax, cookie);
             // set login timeout (resets automatically)
             session.authTimeout = millis();
@@ -772,7 +774,7 @@ void httpdPostLogin(AsyncWebServerRequest *req)
     AsyncWebServerResponse *res = req->beginResponse(200, String(FPSTR(mimeAppJSON)), doc);
     if (cookieAuth)
     {
-        res->addHeader(String(FPSTR(headerSetCookie)), String(cookie));
+        res->addHeader(String(headerSetCookie), String(cookie));
     }
 
     _CHBD(cookie);
@@ -789,59 +791,57 @@ void httpdPostLogin(AsyncWebServerRequest *req)
  */
 void httpdPostGetDashbrd(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        char *doc;
-        char *cb;
-        char *dt;
-        _CHB(cb, 48);
-        _CHB(doc, 512);
-        _CHB(dt, 16);
-
-        ntp.getDatetime(cb);
-        multi_heap_info_t mem;
-        heap_caps_get_info(&mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-        str2dt(config.BatteryLastReplaceDate, dt);
-
-        sprintf_P(doc,
-                    maskDashbrd,
-                    WiFi.localIP().toString().c_str(),
-                    WiFi.subnetMask().toString().c_str(),
-                    WiFi.gatewayIP().toString().c_str(),
-                    WiFi.BSSIDstr().c_str(),
-                    WiFi.SSID().c_str(),
-                    WiFi.macAddress().c_str(),
-                    WiFi.channel(),
-                    (mem.total_free_bytes / 1024.00),
-                    (mem.largest_free_block / 1024.0),
-                    ESP.getCpuFreqMHz(),
-                    monitor.getSysTemp(),
-                    monitorData.upsAdvInputLineVoltage,
-                    (monitorData.upsHighPrecInputFrequency / 10),
-                    monitorData.upsAdvOutputVoltage,
-                    monitorData.upsAdvOutputFrequency,
-                    dt,
-                    monitor.getBatTemp(),
-                    snmpagent.isActive(),
-                    monitorData.upsBasicOutputStatus,
-                    monitorData.upsBasicBatteryStatus,
-                    monitorData.upsDiagBatteryStatus,
-                    monitorData.upsAdvBatteryCapacity,
-                    monitorData.upsAdvOutputLoad,
-                    monitor.getUPSLifeTimeSeconds(),
-                    monitor.isCooling(),
-                    ntp.uptimeSeconds(),
-                    cb);
-
-        _CHBD(dt);
-        _CHBD(cb);
-        req->send(200, String(FPSTR(mimeAppJSON)), doc);
-        _CHBD(doc);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    char *doc;
+    char *cb;
+    char *dt;
+    _CHB(cb, 48);
+    _CHB(doc, 512);
+    _CHB(dt, 16);
+
+    ntp.getDatetime(cb);
+    multi_heap_info_t mem;
+    heap_caps_get_info(&mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    str2dt(config.BatteryLastReplaceDate, dt);
+
+    sprintf_P(doc,
+              maskDashbrd,
+              WiFi.localIP().toString().c_str(),
+              WiFi.subnetMask().toString().c_str(),
+              WiFi.gatewayIP().toString().c_str(),
+              WiFi.BSSIDstr().c_str(),
+              WiFi.SSID().c_str(),
+              WiFi.macAddress().c_str(),
+              WiFi.channel(),
+              (mem.total_free_bytes / 1024.00),
+              (mem.largest_free_block / 1024.0),
+              ESP.getCpuFreqMHz(),
+              monitor.getSysTemp(),
+              monitorData.upsAdvInputLineVoltage,
+              (monitorData.upsHighPrecInputFrequency / 10),
+              monitorData.upsAdvOutputVoltage,
+              monitorData.upsAdvOutputFrequency,
+              dt,
+              monitor.getBatTemp(),
+              snmpagent.isActive(),
+              monitorData.upsBasicOutputStatus,
+              monitorData.upsBasicBatteryStatus,
+              monitorData.upsDiagBatteryStatus,
+              monitorData.upsAdvBatteryCapacity,
+              monitorData.upsAdvOutputLoad,
+              monitor.getUPSLifeTimeSeconds(),
+              monitor.isCooling(),
+              ntp.uptimeSeconds(),
+              cb);
+
+    _CHBD(dt);
+    _CHBD(cb);
+    req->send(200, String(FPSTR(mimeAppJSON)), doc);
+    _CHBD(doc);
 }
 
 //  ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
@@ -858,51 +858,49 @@ void httpdPostGetDashbrd(AsyncWebServerRequest *req)
  */
 void httpdPostGetConfig(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        char *doc;
-        char *b;
-        _CHB(b, 0x10);
-        _CHB(doc, 0x800);
-        str2dt(config.BatteryLastReplaceDate, b);
-        char *keys = apiKeysToJSON();
-
-        sprintf_P(doc,
-                    maskGetConfig,
-                    config.batteryTempLT,
-                    config.batteryTempUT,
-                    config.deviceTempLT,
-                    config.deviceTempUT,
-                    config.ntpServer,
-                    config.ntpServerFB,
-                    config.ntpSyncInterval,
-                    config.ntpTimeOffset,
-                    config.ntpDaylightOffset,
-                    config.ssid,
-                    config.ssidkey,
-                    config.snmpPort,
-                    config.snmpTrapPort,
-                    config.sysLocation,
-                    config.sysContact,
-                    b,
-                    config.authTimeoutMax,
-                    config.snmpGetCN,
-                    config.snmpSetCN,
-                    config.admLogin,
-                    config.admPassw,
-                    keys);
-
-        _CHBD(b);
-        _CHBD(keys);
-
-        req->send(200, String(F(mimeAppJSON)), doc);
-
-        _CHBD(doc);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    char *doc;
+    char *b;
+    _CHB(b, 0x10);
+    _CHB(doc, 0x800);
+    str2dt(config.BatteryLastReplaceDate, b);
+    char *keys = apiKeysToJSON();
+
+    sprintf_P(doc,
+              maskGetConfig,
+              config.batteryTempLT,
+              config.batteryTempUT,
+              config.deviceTempLT,
+              config.deviceTempUT,
+              config.ntpServer,
+              config.ntpServerFB,
+              config.ntpSyncInterval,
+              config.ntpTimeOffset,
+              config.ntpDaylightOffset,
+              config.ssid,
+              config.ssidkey,
+              config.snmpPort,
+              config.snmpTrapPort,
+              config.sysLocation,
+              config.sysContact,
+              b,
+              config.authTimeoutMax,
+              config.snmpGetCN,
+              config.snmpSetCN,
+              config.admLogin,
+              config.admPassw,
+              keys);
+
+    _CHBD(b);
+    _CHBD(keys);
+
+    req->send(200, String(F(mimeAppJSON)), doc);
+
+    _CHBD(doc);
 }
 
 /**
@@ -912,106 +910,103 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
  */
 void httpdPostSetConfigSystem(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
+    if (!isAuthorized(req))
     {
-        String doc = "{";
+        httpdJsonErrResponse(req, "auth");
+        return;
+    }
+    String doc = "{";
 
-        String battmplt = req->arg(String(F("battmplt")));
-        String battmput = req->arg(String(F("battmput")));
-        String devtmplt = req->arg(String(F("devtmplt")));
-        String devtmput = req->arg(String(F("devtmput")));
-        String ntpsrv = req->arg(String(F("ntpsrv")));
-        String ntpsrvfb = req->arg(String(F("ntpsrvfb")));
-        String ntpsrvsitl = req->arg(String(F("ntpsrvsitl")));
-        String ntptmoff = req->arg(String(F("ntptmoff")));
-        String ntpdloff = req->arg(String(F("ntpdloff")));
-        String ssid = req->arg(String(F("ssid")));
-        String ssidkey = req->arg(String(F("ssidkey")));
+    String battmplt = req->arg(String(F("battmplt")));
+    String battmput = req->arg(String(F("battmput")));
+    String devtmplt = req->arg(String(F("devtmplt")));
+    String devtmput = req->arg(String(F("devtmput")));
+    String ntpsrv = req->arg(String(F("ntpsrv")));
+    String ntpsrvfb = req->arg(String(F("ntpsrvfb")));
+    String ntpsrvsitl = req->arg(String(F("ntpsrvsitl")));
+    String ntptmoff = req->arg(String(F("ntptmoff")));
+    String ntpdloff = req->arg(String(F("ntpdloff")));
+    String ssid = req->arg(String(F("ssid")));
+    String ssidkey = req->arg(String(F("ssidkey")));
 
 #if DEBUG == 3
-        __D(F("sysfntmp:"));
-        __DL(sysfntmp);
-        __D(F("ntpsrv:"));
-        __DL(ntpsrv);
-        __D(F("ntpsrvsitl:"));
-        __DL(ntpsrvsitl);
-        __D(F("ntptmoff:"));
-        __DL(ntptmoff);
-        __D(F("ssid:"));
-        __DL(ssid);
-        __D(F("ssidkey:"));
-        __DL(ssidkey);
+    __D(F("sysfntmp:"));
+    __DL(sysfntmp);
+    __D(F("ntpsrv:"));
+    __DL(ntpsrv);
+    __D(F("ntpsrvsitl:"));
+    __DL(ntpsrvsitl);
+    __D(F("ntptmoff:"));
+    __DL(ntptmoff);
+    __D(F("ssid:"));
+    __DL(ssid);
+    __D(F("ssidkey:"));
+    __DL(ssidkey);
 #endif
 
-        // eemem.begin();
-        float t1 = 0;
-        t1 = (float)atof(battmplt.c_str());
-        t1 = (t1 != 0 ? t1 : 60);
-        doc += String(F("\"battmplt\":")) + (eemem.setBatteryTempLT(t1) ? String(F("true")) : String(F("false")));
+    float t1 = 0;
+    t1 = (float)atof(battmplt.c_str());
+    t1 = (t1 != 0 ? t1 : 60);
+    doc += String(F("\"battmplt\":")) + (eemem.setBatteryTempLT(t1) ? String(F("true")) : String(F("false")));
 
-        t1 = (float)atof(battmput.c_str());
-        t1 = (t1 != 0 ? t1 : 60);
-        doc += String(F(",\"battmput\":")) + (eemem.setBatteryTempUT(t1) ? String(F("true")) : String(F("false")));
+    t1 = (float)atof(battmput.c_str());
+    t1 = (t1 != 0 ? t1 : 60);
+    doc += String(F(",\"battmput\":")) + (eemem.setBatteryTempUT(t1) ? String(F("true")) : String(F("false")));
 
-        t1 = (float)atof(devtmplt.c_str());
-        t1 = (t1 != 0 ? t1 : 65);
-        doc += String(F(",\"devtmplt\":")) + (eemem.setDeviceTempLT(t1) ? String(F("true")) : String(F("false")));
+    t1 = (float)atof(devtmplt.c_str());
+    t1 = (t1 != 0 ? t1 : 65);
+    doc += String(F(",\"devtmplt\":")) + (eemem.setDeviceTempLT(t1) ? String(F("true")) : String(F("false")));
 
-        t1 = (float)atof(devtmput.c_str());
-        t1 = (t1 != 0 ? t1 : 65);
-        doc += String(F(",\"devtmput\":")) + (eemem.setDeviceTempUT(t1) ? String(F("true")) : String(F("false")));
+    t1 = (float)atof(devtmput.c_str());
+    t1 = (t1 != 0 ? t1 : 65);
+    doc += String(F(",\"devtmput\":")) + (eemem.setDeviceTempUT(t1) ? String(F("true")) : String(F("false")));
 
-        if (ntpsrv.length() == 0)
-            ntpsrv = "pool.ntp.org";
-        doc += String(F(",\"ntpsrv\":")) + (eemem.setNTPServer(ntpsrv.c_str()) ? String(F("true")) : String(F("false")));
+    if (ntpsrv.length() == 0)
+        ntpsrv = "pool.ntp.org";
+    doc += String(F(",\"ntpsrv\":")) + (eemem.setNTPServer(ntpsrv.c_str()) ? String(F("true")) : String(F("false")));
 
-        if (ntpsrvfb.length() == 0)
-            ntpsrvfb = "time.google.com";
-        doc += String(F(",\"ntpsrvfb\":")) + (eemem.setNTPServerFB(ntpsrvfb.c_str()) ? String(F("true")) : String(F("false")));
+    if (ntpsrvfb.length() == 0)
+        ntpsrvfb = "time.google.com";
+    doc += String(F(",\"ntpsrvfb\":")) + (eemem.setNTPServerFB(ntpsrvfb.c_str()) ? String(F("true")) : String(F("false")));
 
-        uint16_t t2 = atoi(ntpsrvsitl.c_str());
-        t2 = (t2 != 0 ? t2 : 1800);
-        doc += String(F(",\"ntpsrvsitl\":")) + (eemem.setNTPSyncInterval(t2) ? String(F("true")) : String(F("false")));
+    uint16_t t2 = atoi(ntpsrvsitl.c_str());
+    t2 = (t2 != 0 ? t2 : 1800);
+    doc += String(F(",\"ntpsrvsitl\":")) + (eemem.setNTPSyncInterval(t2) ? String(F("true")) : String(F("false")));
 
-        if (eemem.setNTPTimeOffset(ntptmoff.c_str()))
-        {
-            doc += String(F(",\"ntptmoff\":true"));
-        }
-        else
-        {
-            doc += String(F(",\"ntptmoff\":false"));
-        }
-
-        if (eemem.setNTPDaylightOffset(ntpdloff.c_str()))
-        {
-            doc += String(F(",\"ntpdloff\":true"));
-        }
-        else
-        {
-            doc += String(F(",\"ntpdloff\":false"));
-        }
-
-        if (ssid.length() != 0 && ssidkey.length() != 0)
-        {
-            doc += String(F(",\"ssid\":")) + (eemem.setSSID(ssid.c_str()) ? String(F("true")) : String(F("false")));
-            doc += String(F(",\"ssidkey\":")) + (eemem.setSSIDKEY(ssidkey.c_str()) ? String(F("true")) : String(F("false")));
-        }
-        else
-        {
-            doc += String(F(",\"ssid\":false,\"ssidkey\":false"));
-        }
-        eemem.commit();
-
-        doc += String(F("}"));
-
-        req->send(200, String(F(mimeAppJSON)), doc);
-
-        ntp.forceUpdate();
+    if (eemem.setNTPTimeOffset(ntptmoff.c_str()))
+    {
+        doc += String(F(",\"ntptmoff\":true"));
     }
     else
     {
-        httpdJsonErrResponse(req, "auth");
+        doc += String(F(",\"ntptmoff\":false"));
     }
+
+    if (eemem.setNTPDaylightOffset(ntpdloff.c_str()))
+    {
+        doc += String(F(",\"ntpdloff\":true"));
+    }
+    else
+    {
+        doc += String(F(",\"ntpdloff\":false"));
+    }
+
+    if (ssid.length() != 0 && ssidkey.length() != 0)
+    {
+        doc += String(F(",\"ssid\":")) + (eemem.setSSID(ssid.c_str()) ? String(F("true")) : String(F("false")));
+        doc += String(F(",\"ssidkey\":")) + (eemem.setSSIDKEY(ssidkey.c_str()) ? String(F("true")) : String(F("false")));
+    }
+    else
+    {
+        doc += String(F(",\"ssid\":false,\"ssidkey\":false"));
+    }
+    eemem.commit();
+
+    doc += String(F("}"));
+
+    req->send(200, String(F(mimeAppJSON)), doc);
+
+    ntp.forceUpdate();
 }
 
 /**
@@ -1021,60 +1016,58 @@ void httpdPostSetConfigSystem(AsyncWebServerRequest *req)
  */
 void httpdPostSetConfigSNMP(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
+    if (!isAuthorized(req))
     {
-        String doc = "{";
+        httpdJsonErrResponse(req, "auth");
+        return;
+    }
+    String doc = "{";
 
-        String snmpport = req->arg(String(F("snmpport")));
-        String snmptrapport = req->arg(String(F("snmptraport")));
-        String snmploctn = req->arg(String(F("snmploctn")));
-        String snmpcontct = req->arg(String(F("snmpcontct")));
-        String snmpbatrpldt = req->arg(String(F("snmpbatrpldt")));
+    String snmpport = req->arg(String(F("snmpport")));
+    String snmptrapport = req->arg(String(F("snmptraport")));
+    String snmploctn = req->arg(String(F("snmploctn")));
+    String snmpcontct = req->arg(String(F("snmpcontct")));
+    String snmpbatrpldt = req->arg(String(F("snmpbatrpldt")));
 
 #if DEBUG == 3
-        __D(F("snmpport:"));
-        __DL(snmpport);
-        __D(F("snmploctn:"));
-        __DL(snmploctn);
-        __D(F("snmpcontct:"));
-        __DL(snmpcontct);
-        __D(F("snmpbatrpldt:"));
-        __DL(snmpbatrpldt);
+    __D(F("snmpport:"));
+    __DL(snmpport);
+    __D(F("snmploctn:"));
+    __DL(snmploctn);
+    __D(F("snmpcontct:"));
+    __DL(snmpcontct);
+    __D(F("snmpbatrpldt:"));
+    __DL(snmpbatrpldt);
 #endif
 
-        uint16_t t1 = atoi((char *)snmpport.c_str());
-        t1 = (t1 != 0 ? t1 : 161);
-        doc += String(F("\"snmpport\":")) + (eemem.setSNMPPort(t1) ? String(F("true")) : String(F("false")));
+    uint16_t t1 = atoi((char *)snmpport.c_str());
+    t1 = (t1 != 0 ? t1 : 161);
+    doc += String(F("\"snmpport\":")) + (eemem.setSNMPPort(t1) ? String(F("true")) : String(F("false")));
 
-        t1 = atoi(snmptrapport.c_str());
-        t1 = (t1 != 0 ? t1 : 162);
-        doc += String(F(",\"snmptraport\":")) + (eemem.setSNMPTrapPort(t1) ? String(F("true")) : String(F("false")));
+    t1 = atoi(snmptrapport.c_str());
+    t1 = (t1 != 0 ? t1 : 162);
+    doc += String(F(",\"snmptraport\":")) + (eemem.setSNMPTrapPort(t1) ? String(F("true")) : String(F("false")));
 
-        doc += String(F(",\"snmploctn\":")) + (eemem.setSysLocation(snmploctn.c_str()) ? String(F("true")) : String(F("false")));
-        doc += String(F(",\"snmpcontct\":")) + (eemem.setSysContact(snmpcontct.c_str()) ? String(F("true")) : String(F("false")));
+    doc += String(F(",\"snmploctn\":")) + (eemem.setSysLocation(snmploctn.c_str()) ? String(F("true")) : String(F("false")));
+    doc += String(F(",\"snmpcontct\":")) + (eemem.setSysContact(snmpcontct.c_str()) ? String(F("true")) : String(F("false")));
 
-        if (snmpbatrpldt.length() != 0)
-        {
-            char *buffer;
-            _CHB(buffer, 24);
-            dt2str(snmpbatrpldt.c_str(), buffer);
-            doc += String(F(",\"snmpbatrpldt\":")) + (eemem.setBatteryLastReplaceDate(buffer) ? String(F("true")) : String(F("false")));
-            _CHBD(buffer);
-        }
-        else
-        {
-            doc += String(F(",\"snmpbatrpldt\":false"));
-        }
-        eemem.commit();
-
-        doc += String(F("}"));
-
-        req->send(200, String(F(mimeAppJSON)), doc);
+    if (snmpbatrpldt.length() != 0)
+    {
+        char *buffer;
+        _CHB(buffer, 24);
+        dt2str(snmpbatrpldt.c_str(), buffer);
+        doc += String(F(",\"snmpbatrpldt\":")) + (eemem.setBatteryLastReplaceDate(buffer) ? String(F("true")) : String(F("false")));
+        _CHBD(buffer);
     }
     else
     {
-        httpdJsonErrResponse(req, "auth");
+        doc += String(",\"snmpbatrpldt\":false");
     }
+    eemem.commit();
+
+    doc += String("}");
+
+    req->send(200, String(mimeAppJSON), doc);
 }
 
 /**
@@ -1084,54 +1077,52 @@ void httpdPostSetConfigSNMP(AsyncWebServerRequest *req)
  */
 void httpdPostSetConfigSecurity(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
+    if (!isAuthorized(req))
     {
-        String doc = "{";
+        httpdJsonErrResponse(req, "auth");
+        return;
+    }
+    String doc = "{";
 
-        String authtmout = req->arg(String(F("authtmout")));
-        String snmpgckey = req->arg(String(F("snmpgckey")));
-        String snmpsckey = req->arg(String(F("snmpsckey")));
-        String adlogin = req->arg(String(F("adlogin")));
-        String adpass = req->arg(String(F("adpass")));
+    String authtmout = req->arg(String(F("authtmout")));
+    String snmpgckey = req->arg(String(F("snmpgckey")));
+    String snmpsckey = req->arg(String(F("snmpsckey")));
+    String adlogin = req->arg(String(F("adlogin")));
+    String adpass = req->arg(String(F("adpass")));
 
 #if DEBUG == 3
-        __D(F("authtmout:"));
-        __DL(authtmout);
-        __D(F("snmpgckey:"));
-        __DL(snmpgckey);
-        __D(F("snmpsckey:"));
-        __DL(snmpsckey);
-        __D(F("adlogin:"));
-        __DL(adlogin);
-        __D(F("adpass:"));
-        __DL(adpass);
+    __D(F("authtmout:"));
+    __DL(authtmout);
+    __D(F("snmpgckey:"));
+    __DL(snmpgckey);
+    __D(F("snmpsckey:"));
+    __DL(snmpsckey);
+    __D(F("adlogin:"));
+    __DL(adlogin);
+    __D(F("adpass:"));
+    __DL(adpass);
 #endif
 
-        uint16_t t1 = atoi(authtmout.c_str());
-        t1 = (t1 != 0 ? t1 : 1800);
+    uint16_t t1 = atoi(authtmout.c_str());
+    t1 = (t1 != 0 ? t1 : 1800);
 
-        doc += String(F("\"authtmout\":")) + (eemem.setAuthTimeoutMax((uint16_t &)t1) ? String(F("true")) : String(F("false")));
-        doc += String(F(",\"snmpgckey\":")) + (eemem.setGetCN(snmpgckey.c_str()) ? String(F("true")) : String(F("false")));
-        doc += String(F(",\"snmpsckey\":")) + (eemem.setSetCN(snmpsckey.c_str()) ? String(F("true")) : String(F("false")));
+    doc += String(F("\"authtmout\":")) + (eemem.setAuthTimeoutMax((uint16_t &)t1) ? String(F("true")) : String(F("false")));
+    doc += String(F(",\"snmpgckey\":")) + (eemem.setGetCN(snmpgckey.c_str()) ? String(F("true")) : String(F("false")));
+    doc += String(F(",\"snmpsckey\":")) + (eemem.setSetCN(snmpsckey.c_str()) ? String(F("true")) : String(F("false")));
 
-        if (adlogin.length() != 0 && adpass.length() != 0)
-        {
-            doc += String(F(",\"adlogin\":")) + (eemem.setAdmLogin(adlogin.c_str()) ? String(F("true")) : String(F("false")));
-            doc += String(F(",\"adpass\":")) + (eemem.setAdmPassw(adpass.c_str()) ? String(F("true")) : String(F("false")));
-        }
-        else
-        {
-            doc += String(F(",\"adlogin\":false,\"adpass\":false"));
-        }
-        eemem.commit();
-        doc += String(F("}"));
-
-        req->send(200, mimeAppJSON, doc);
+    if (adlogin.length() != 0 && adpass.length() != 0)
+    {
+        doc += String(F(",\"adlogin\":")) + (eemem.setAdmLogin(adlogin.c_str()) ? String(F("true")) : String(F("false")));
+        doc += String(F(",\"adpass\":")) + (eemem.setAdmPassw(adpass.c_str()) ? String(F("true")) : String(F("false")));
     }
     else
     {
-        httpdJsonErrResponse(req, "auth");
+        doc += String(F(",\"adlogin\":false,\"adpass\":false"));
     }
+    eemem.commit();
+    doc += String(F("}"));
+
+    req->send(200, mimeAppJSON, doc);
 }
 
 /**
@@ -1141,14 +1132,12 @@ void httpdPostSetConfigSecurity(AsyncWebServerRequest *req)
  */
 void httpdPostSysLog(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        httpdRespond(req, sysLog.getName(), mimeTextPlain, false);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    httpdRespond(req, sysLog.getName(), mimeTextPlain, false);
 }
 
 /**
@@ -1158,14 +1147,12 @@ void httpdPostSysLog(AsyncWebServerRequest *req)
  */
 void httpdPostSnmpLog(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        httpdRespond(req, snmpLog.getName(), mimeTextPlain, false);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    httpdRespond(req, snmpLog.getName(), mimeTextPlain, false);
 }
 
 /**
@@ -1175,33 +1162,31 @@ void httpdPostSnmpLog(AsyncWebServerRequest *req)
  */
 void httpdPostInfoGraph(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        char *ts;
-        _CHB(ts, 64);
-        char *buffer;
-        _CHB(buffer, 128);
-        multi_heap_info_t mem;
-        heap_caps_get_info(&mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-        ntp.timestampToString(ts);
-
-        sprintf_P(buffer,
-                    maskInfoGraph,
-                    ts,
-                    monitor.getSysTemp(),
-                    monitor.getBatTemp(),
-                    (mem.total_free_bytes / 1024.00),
-                    (mem.largest_free_block / 1024.0));
-
-        _CHBD(ts);
-
-        req->send(200, mimeAppJSON, buffer);
-        _CHBD(buffer);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    char *ts;
+    _CHB(ts, 64);
+    char *buffer;
+    _CHB(buffer, 128);
+    multi_heap_info_t mem;
+    heap_caps_get_info(&mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    ntp.timestampToString(ts);
+
+    sprintf_P(buffer,
+              maskInfoGraph,
+              ts,
+              monitor.getSysTemp(),
+              monitor.getBatTemp(),
+              (mem.total_free_bytes / 1024.00),
+              (mem.largest_free_block / 1024.0));
+
+    _CHBD(ts);
+
+    req->send(200, mimeAppJSON, buffer);
+    _CHBD(buffer);
 }
 
 /**
@@ -1211,14 +1196,12 @@ void httpdPostInfoGraph(AsyncWebServerRequest *req)
  */
 void httpdPostMonTmpLog(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        httpdRespond(req, monTempLog.getName(), mimeTextPlain, false);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    httpdRespond(req, monTempLog.getName(), mimeTextPlain, false);
 }
 
 /**
@@ -1228,14 +1211,12 @@ void httpdPostMonTmpLog(AsyncWebServerRequest *req)
  */
 void httpdPostMonBDtaLog(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        httpdRespond(req, monDataLog.getName(), mimeTextPlain, false);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    httpdRespond(req, monDataLog.getName(), mimeTextPlain, false);
 }
 
 /**
@@ -1245,59 +1226,59 @@ void httpdPostMonBDtaLog(AsyncWebServerRequest *req)
  */
 void httpdPostAPIadd(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
+    if (!isAuthorized(req))
     {
-        String doc = "{";
+        httpdJsonErrResponse(req, "auth");
+        return;
+    }
+    String doc = "{";
 
-        String memo = req->arg(String(F("apikm")));
-        String key = req->arg(String(F("apik")));
+    String memo = req->arg(String(F("apikm")));
+    String key = req->arg(String(F("apik")));
 
-        if (memo != "" && key != "")
+    if (memo != "" && key != "")
+    {
+        char *keys;
+        api_keys_t *ak = new api_keys_t();
+        if (key.length() > sizeof(ak->key))
         {
-            char *keys;
-            api_keys_t * ak = new api_keys_t();
-            if(key.length() > sizeof(ak->key)) {
-                doc += "\"err\":\"key too large\"}";
-                goto sendData;
-            }
-            if(memo.length() > sizeof(ak->memo)) {
-                doc += "\"err\":\"memo too large\"}";
-                goto sendData;
-            }
-            // memset(ak->key, '\0', sizeof(ak->key));
-            ak->created = ntp.getTimestamp();
-            strcpy(ak->memo, memo.c_str());
-            strcpy(ak->key, key.c_str());
-            if (!addAPIKey(ak))
-            {
-                doc += "\"err\":\"too many keys\"}";
-                goto sendData;
-            }
-            keys = apiKeysToJSON();
-            doc += "\"api\": [";
-            doc += keys;
-            doc += "]}";
-            _CHBD(keys);
+            doc += "\"err\":\"key too large\"}";
+            goto sendData;
         }
-        else
+        if (memo.length() > sizeof(ak->memo))
         {
-            doc += "\"err\":\"";
-            if (memo == "")
-            {
-                doc += "empty memo\"}";
-            }
-            else
-            {
-                doc += "empty key\"}";
-            }
+            doc += "\"err\":\"memo too large\"}";
+            goto sendData;
         }
-sendData:
-        req->send(200, mimeAppJSON, doc);
+        // memset(ak->key, '\0', sizeof(ak->key));
+        ak->created = ntp.getTimestamp();
+        strcpy(ak->memo, memo.c_str());
+        strcpy(ak->key, key.c_str());
+        if (!addAPIKey(ak))
+        {
+            doc += "\"err\":\"too many keys\"}";
+            goto sendData;
+        }
+        keys = apiKeysToJSON();
+        doc += "\"api\": [";
+        doc += keys;
+        doc += "]}";
+        _CHBD(keys);
     }
     else
     {
-        httpdJsonErrResponse(req, "auth");
+        doc += "\"err\":\"";
+        if (memo == "")
+        {
+            doc += "empty memo\"}";
+        }
+        else
+        {
+            doc += "empty key\"}";
+        }
     }
+sendData:
+    req->send(200, mimeAppJSON, doc);
 }
 
 /**
@@ -1307,36 +1288,34 @@ sendData:
  */
 void httpdPostAPIdel(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        String doc = "{";
-        char *keys;
-
-        String id = req->arg(String(F("id")));
-        if (id == "")
-        {
-            doc += "\"err\":\"wrong id\"}";
-            req->send(200, mimeAppJSON, doc);
-            return;
-        }
-        time_t idv = static_cast<time_t>(atoi(id.c_str()));
-        if (!removeAPIKey(idv))
-        {
-            doc += "\"err\":\"failed\"}";
-            req->send(200, mimeAppJSON, doc);
-            return;
-        }
-        keys = apiKeysToJSON();
-        doc += "\"api\": [";
-        doc += keys;
-        doc += "]}";
-        _CHBD(keys);
-        req->send(200, mimeAppJSON, doc);
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    String doc = "{";
+    char *keys;
+
+    String id = req->arg(String(F("id")));
+    if (id == "")
+    {
+        doc += "\"err\":\"wrong id\"}";
+        req->send(200, mimeAppJSON, doc);
+        return;
+    }
+    time_t idv = static_cast<time_t>(atoi(id.c_str()));
+    if (!removeAPIKey(idv))
+    {
+        doc += "\"err\":\"failed\"}";
+        req->send(200, mimeAppJSON, doc);
+        return;
+    }
+    keys = apiKeysToJSON();
+    doc += "\"api\": [";
+    doc += keys;
+    doc += "]}";
+    _CHBD(keys);
+    req->send(200, mimeAppJSON, doc);
 }
 
 /**
@@ -1366,27 +1345,25 @@ void httpdPostReboot(AsyncWebServerRequest *req)
  */
 void httpdPostControlCooling(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
+    if (!isAuthorized(req))
     {
-        String doc = "{\"isclng\":";
-        if (monitor.isCooling())
-        {
-            monitor.coolingSwitchOff();
-            doc += "false}";
-            sysLog.putts(PSTR("(i) switch cooler OFF manually"));
-        }
-        else
-        {
-            monitor.coolingSwitchOn();
-            doc += "true}";
-            sysLog.putts(PSTR("(i) switch cooler ON manually"));
-        }
-        req->send(200, mimeAppJSON, doc);
+        httpdJsonErrResponse(req, "auth");
+        return;
+    }
+    String doc = "{\"isclng\":";
+    if (monitor.isCooling())
+    {
+        monitor.coolingSwitchOff();
+        doc += "false}";
+        sysLog.putts(PSTR("(i) switch cooler OFF manually"));
     }
     else
     {
-        httpdJsonErrResponse(req, "auth");
+        monitor.coolingSwitchOn();
+        doc += "true}";
+        sysLog.putts(PSTR("(i) switch cooler ON manually"));
     }
+    req->send(200, mimeAppJSON, doc);
 }
 
 /**
@@ -1396,17 +1373,15 @@ void httpdPostControlCooling(AsyncWebServerRequest *req)
  */
 void httpdPostReset(AsyncWebServerRequest *req)
 {
-    if (isAuthorized(req))
-    {
-        String doc = "{\"done\":true}";
-        sysLog.putts(PSTR("(i) eemem erase started"));
-        eemem.restore();
-        req->send(200, mimeAppJSON, doc);
-        delay(1000);
-        systemReboot();
-    }
-    else
+    if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
+        return;
     }
+    String doc = "{\"done\":true}";
+    sysLog.putts(PSTR("(i) eemem erase started"));
+    eemem.restore();
+    req->send(200, mimeAppJSON, doc);
+    delay(1000);
+    systemReboot();
 }

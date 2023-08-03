@@ -270,7 +270,7 @@ $.extend(tinyUPS, {
                 ttl: 1100000,
                 frameRate: 10,
                 pause: false,
-                delay: self.refreshtempChartIntl,
+                delay: 10000,
             },
             legend: {
                 display: true,
@@ -448,18 +448,17 @@ $.extend(tinyUPS, {
         $(window).on("hashchange", (e) => {
             switch (location.hash) {
                 case "#home":
-                    self.getDashData();
-                    // self.opchPrintData();
-                    self.sysLog.reload();
-                    self.snmpLog.reload();
+                    this.getDashData();
+                    this.sysLog.reload();
+                    this.snmpLog.reload();
                     break;
                 case "#conf":
-                    self.getSurvey();
-                    self.getCfg();
+                    this.getSurvey();
+                    this.getCfg();
                     break;
             }
         });
-        if (location.hash == "#home" || location.hash == "") self.getDashData();
+        if (location.hash == "#home" || location.hash == "") this.getDashData();
         window.dispatchEvent(new Event("hashchange"));
         // submit config
         $("input[name=configsys]").on("click", function (e) {
@@ -476,7 +475,7 @@ $.extend(tinyUPS, {
         });
         // do refresh logs
         if (localStorage.getItem("logarf") === "true") {
-            self.setRefreshLogs(localStorage.getItem("logarf"));
+            this.setRefreshLogs(localStorage.getItem("logarf"));
             $("#log-aref-tg").attr("checked", true);
         } else {
             $("#log-aref-tg").removeAttr("checked");
@@ -490,9 +489,9 @@ $.extend(tinyUPS, {
             $("#log-aref-tg").attr("checked", true);
         }
         // update dashboard every refreshdashintl
-        self.intls["dd"] = setInterval(function () {
+        this.intls["dd"] = setInterval(function () {
             self.getDashData();
-        }, self.refreshDashIntl);
+        }, this.refreshDashIntl);
         // reboot button
         $("#modal-rbt-alert button.submit").on("click", function (e) {
             // let el = e.target || e.srcElement;
@@ -548,11 +547,11 @@ $.extend(tinyUPS, {
             type: 'POST',
             success: (r) => {
                 if (r.isclng === true) {
-                    self.info($.t("coolerIsOn"));
+                    this.info($.t("index.js.coolerIsOn"));
                 } else if (r.isclng === false) {
-                    self.info($.t("index.js.coolerIsOff"));
+                    this.info($.t("index.js.coolerIsOff"));
                 } else
-                    self.err($.t("index.js.failedCoolerOnOff"));
+                    this.err($.t("index.js.failedCoolerOnOff"));
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
@@ -1319,12 +1318,12 @@ $.extend(tinyUPS, {
     setRefreshLogs: function (s) {
         const self = this;
         if (s) {
-            self.intls["logarf"] = setInterval(function () {
+            this.intls["logarf"] = setInterval(function () {
                 self.sysLog.reload();
                 self.snmpLog.reload();
             }, self.refreshLogsIntl);
         } else {
-            clearInterval(self.intls.logarf);
+            clearInterval(this.intls.logarf);
         }
     },
     initSidebar: function () {
@@ -1368,7 +1367,6 @@ $.extend(tinyUPS, {
         });
     }, // initSidebar
     doReset: function (el, countdownEl) {
-        const self = this;
         $(el).attr("disabled", "disabled");
         $(el).addClass("disabled");
         $.ajax({
@@ -1378,10 +1376,10 @@ $.extend(tinyUPS, {
             type: 'POST',
             success: (r) => {
                 if (r.length == 0 || r.done !== true || r.err !== undefined) {
-                    self.err($.t("index.js.errErasingConfigErr") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    this.err($.t("index.js.errErasingConfigErr") + ((r.err !== undefined) ? " (" + r.err + ")":""));
                 } else {
-                    self.info($.t("index.js.infoErasingConfig"));
-                    let countdown = self.resetCountdownIntl / 1000;
+                    this.info($.t("index.js.infoErasingConfig"));
+                    let countdown = this.resetCountdownIntl / 1000;
                     $(countdownEl).html(countdown);
                     setInterval(() => {
                         countdown -= 1;
@@ -1412,7 +1410,7 @@ $.extend(tinyUPS, {
         let outputstatus = outputStatusToSting(this.dashboardData.outst);
         let battdiast = batteryDiagStatusToString(this.dashboardData.battdiast);
         let battlifetime = secondsToHRts(this.dashboardData.ltime);
-        // CARD: SYSTEM
+        // card: system
         sc.find(".hdr").html(
             $.t("index.js.titleLoad") + ": " + this.dashboardData.outload + "%"
         );
@@ -1423,7 +1421,10 @@ $.extend(tinyUPS, {
         sc.find(".uptm").html(uptime);
         sc.find(".battst").html(battstate);
         sc.find(".outst").html(outputstatus);
-        // CARD: BATTERY
+        // adding text decoration
+        if(this.dashboardData.outst != 2) sc.find(".outst").addClass("text-blink");
+        else sc.find(".outst").removeClass("text-blink");
+        // card: battery
         bt.find(".hdr").html(
             $.t("index.js.titleCharge") +
                 ": " +
@@ -1463,7 +1464,6 @@ $.extend(tinyUPS, {
         nw.find(".ctime").html(this.dashboardData.ctime);
     }, // parseDashboardData
     getDashData: function () {
-        const self = this;
         $.ajax({
             url: window.location.protocol + "//" + window.location.hostname + this.getDashDataUrl,
             // url: "http://local.ims:8888/?test=3",
@@ -1471,10 +1471,10 @@ $.extend(tinyUPS, {
             type: 'POST',
             success: (r) => {
                 if (r.err !== undefined || r.length == 0) {
-                    self.err($.t("index.js.errNoDataDashbrd") + (r.err !== undefined  ? " ("+ r.err + ")" : ""));
+                    this.err($.t("index.js.errNoDataDashbrd") + (r.err !== undefined  ? " ("+ r.err + ")" : ""));
                 } else {
-                    self.dashboardData = r;
-                    self.parseDashboardData();
+                    this.dashboardData = r;
+                    this.parseDashboardData();
                 }
             },
             error: (o, ts, e) => {
@@ -1484,7 +1484,6 @@ $.extend(tinyUPS, {
     }, // getDashData
     // @remind getCfg
     getCfg: function () {
-        const self = this;
         $.ajax({
             url:
                 window.location.protocol +
@@ -1496,7 +1495,7 @@ $.extend(tinyUPS, {
             type: 'POST',
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    self.err($.t("index.js.errNoConfigData") + ((r.err !== undefined) ? " (" + r.err + ")" : ""));
+                    this.err($.t("index.js.errNoConfigData") + ((r.err !== undefined) ? " (" + r.err + ")" : ""));
                 } else {
                     $("input[name=battmplt]").val(r.battmplt);
                     $("input[name=battmput]").val(r.battmput);
@@ -1551,7 +1550,7 @@ $.extend(tinyUPS, {
                     // @remind get config
                     // empty the table body
                     $('#api-keys tbody').html("");
-                    self.appendAPIKeys(r.api);
+                    this.appendAPIKeys(r.api);
                 }
             },
             error: (o, ts, e) => {
@@ -1560,7 +1559,6 @@ $.extend(tinyUPS, {
         });
     },
     setSysCfg: function () {
-        const self = this;
         let form = $("form[name=confsys]");
         // let formdata = new FormData(form[0]);
         let formdata = form.serializeArray();
@@ -1575,10 +1573,10 @@ $.extend(tinyUPS, {
             data: formdata,
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    self.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    this.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")":""));
                 } else {
                     // success
-                    self.done($.t("index.js.doneConfigUpdated"));
+                    this.done($.t("index.js.doneConfigUpdated"));
                 }
             },
             error: (o, ts, e) => {
@@ -1587,7 +1585,6 @@ $.extend(tinyUPS, {
         });
     },
     setSNMPCfg: function () {
-        const self = this;
         let form = $("form[name=confsnmp]");
         // let formdata = new FormData(form[0]);
         let formdata = form.serializeArray();
@@ -1602,10 +1599,10 @@ $.extend(tinyUPS, {
             data: formdata,
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    self.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    this.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")":""));
                 } else {
                     // success
-                    self.done($.t("index.js.doneConfigUpdated"));
+                    this.done($.t("index.js.doneConfigUpdated"));
                 }
             },
             error: (o, ts, e) => {
@@ -1614,7 +1611,6 @@ $.extend(tinyUPS, {
         });
     },
     setSecCfg: function () {
-        const self = this;
         let form = $("form[name=confsec]");
         // let formdata = new FormData(form[0]);
         let formdata = form.serializeArray();
@@ -1629,10 +1625,10 @@ $.extend(tinyUPS, {
             data: formdata,
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    self.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")" : ""));
+                    this.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")" : ""));
                 } else
                     // TODO
-                    self.done($.t("index.js.doneConfigUpdated"));
+                    this.done($.t("index.js.doneConfigUpdated"));
             },
             error: (o, ts, e) => {
                 errorRequest(o);

@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 31st July 2023 4:29:51 pm                                  #
+# Last Modified: Wednesday, 2nd August 2023 5:05:08 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -101,7 +101,7 @@ static const char maskGetConfig[] PROGMEM = "{\"battmplt\":%.2f,\"battmput\":%.2
                                             "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"api\":[%s]}";
 static const char maskSurvey[] PROGMEM = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
 
-typedef struct api_keys_t {
+typedef struct {
     char memo[16] = "";
     time_t created = 0;
     char key[32] = "";
@@ -122,6 +122,7 @@ bool isAuthorized(AsyncWebServerRequest * req);
 void httpdRespond(AsyncWebServerRequest * req, const char * file, const char* mime, bool gzipped = true, AsyncWebServerResponse * res = nullptr);
 void httpdLoop();
 int8_t loadAPIKeys(api_keys_t ** keys);
+char * apiKeysToJSON();
 bool addAPIKey(api_keys_t * k);
 bool removeAPIKey(time_t &id);
 bool writeAPIData(api_keys_t ** data);
@@ -133,8 +134,7 @@ void httpdGetScriptChunk(AsyncWebServerRequest *req);
 void httpdGetFavicon(AsyncWebServerRequest *req);
 void httpdGetSvgImage(AsyncWebServerRequest *req);
 void httpdGetLogout(AsyncWebServerRequest *req);
-char * apiKeysToJSON();
-// POST
+// API
 void httpdPostSiteSurvey(AsyncWebServerRequest *req);
 void httpdPostSetupInit(AsyncWebServerRequest *req);
 void httpdPostSetup(AsyncWebServerRequest *req);
@@ -146,18 +146,16 @@ void httpdPostMonTmpLog(AsyncWebServerRequest *req);
 void httpdPostMonBDtaLog(AsyncWebServerRequest *req);
 void httpdPostAPIadd(AsyncWebServerRequest * req);
 void httpdPostAPIdel(AsyncWebServerRequest * req);
-// dashboard data
 void httpdPostGetDashbrd(AsyncWebServerRequest *req);
-// POST: config
+// config
 void httpdPostGetConfig(AsyncWebServerRequest *req);
 void httpdPostSetConfigSystem(AsyncWebServerRequest *req);
 void httpdPostSetConfigSNMP(AsyncWebServerRequest *req);
 void httpdPostSetConfigSecurity(AsyncWebServerRequest *req);
-// system commands
 void httpdPostReboot(AsyncWebServerRequest *req);
 void httpdPostControlCooling(AsyncWebServerRequest *req);
 void httpdPostReset(AsyncWebServerRequest *req);
 // common JSON responses
-void httpdJsonErrResponse(AsyncWebServerRequest *req, const char * descr);
+void httpdJsonErrResponse(AsyncWebServerRequest *req, const char * descr, const int code = 401);
 
 #endif                              // HTTPD_SERVER_H

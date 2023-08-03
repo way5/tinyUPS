@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:48:56 pm                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 12th July 2023 12:38:51 pm                              #
+# Last Modified: Tuesday, 1st August 2023 2:34:57 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -27,11 +27,6 @@
 #else
     // another UPS model driver
 #endif
-// #ifdef THERMISTOR_MF52A102
-//     #include "thdriver/m52a102.h"
-// #else
-//     // another thermistor
-// #endif
 
 extern fLogClass sysLog;
 extern fLogClass monTempLog;
@@ -40,7 +35,7 @@ extern fLogClass monDataLog;
  *
  *             R1 2k2         TH 1k
  *       3V3 ---[∎]--- AV -∙---[/]---∙- GND
- * 
+ *
  */
 static const uint16_t _r1 = 2164;
 static const uint16_t _vin = 3300;

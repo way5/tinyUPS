@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Friday, 10th June 2022 8:44:02 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
+# Last Modified: Wednesday, 2nd August 2023 7:03:03 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -21,6 +21,7 @@
 #include "eemem.h"
 #include "ntpc.h"
 #include "monitor.h"
+#include "agent.h"
 #include "flog.h"
 
 extern void setAP();
@@ -88,7 +89,7 @@ void loopSerial() {
             sysLog.putts(PSTR("(i) serial cmd: %s"), buffer);
 
             if(strncmp_P(buffer, PSTR("?"), 1) == 0)  {
-                __DL(F("(i) config, configreset, wlstatus, printfs, freemem, dropauth, uptime, modeap, modesta, apkey, fanon, fanoff, battemp, reboot, genserial"));
+                __DL(F("(i) config, configreset, wlstatus, printfs, freemem, dropauth, uptime, modeap, modesta, apkey, fanon, fanoff, battemp, reboot, genserial, id"));
             } else if(strncmp_P(buffer, PSTR("configreset"), 10) == 0)  {
                 eemem.restore();
                 systemReboot();
@@ -205,6 +206,8 @@ void loopSerial() {
                     __DF(PSTR(" (i) ups serial number: %s\n"), config.upsSerialNumber);
                     eemem.commit();
                 }
+            } else if(strncmp_P(buffer, PSTR("id"), 2) == 0) {
+                __DF(PSTR("   tinyUPS core v.%s, ui v.%s\n"), IdentFirmwareRevision, IdentWebUIRevision);
             } else {
                 __DL(F(" .(o_0). "));   // tiny confused
             }

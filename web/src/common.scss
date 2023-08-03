@@ -154,6 +154,38 @@
     }
 }
 
+/**
+ * ----------------------------------------
+ * animation text-blink
+ * ----------------------------------------
+ */
+ .text-blink {
+	-webkit-animation: text-blink 1s ease-out infinite;
+	        animation: text-blink 1s ease-out infinite;
+}
+ @-webkit-keyframes text-blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes text-blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
 /* ██╗  ██╗██╗   ██╗███╗   ███╗ █████╗ ███╗   ██╗███████╗
 /* ██║  ██║██║   ██║████╗ ████║██╔══██╗████╗  ██║██╔════╝
 /* ███████║██║   ██║██╔████╔██║███████║██╔██╗ ██║█████╗

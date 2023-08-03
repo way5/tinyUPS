@@ -11,16 +11,8 @@ $.extend(tinyUPS, {
         let self = this;
         // reset button
         $("button.reset-solo").on("click", (e) => {
-            // let countdown = 7;
             self.doReboot("button.reset-solo", "button.reset-solo");
             $("button.reset-solo").attr("disabled", "disabled");
-            // setInterval(() => {
-            //     countdown -= 1;
-            //     $(resetBtn).html(countdown);
-            //     if (countdown == 0) {
-            //         location.reload();
-            //     }
-            // }, 1000);
         });
         // only for POSTS
         $.ajax({
@@ -32,8 +24,6 @@ $.extend(tinyUPS, {
             dataType: "json",
             type: "POST",
             success: (r) => {
-                // returned as an object, so the painful version of length
-                // var length = self.count(r);
                 // create node
                 if (r.length != 0) {
                     $(".ap-mac-address").html("MAC: " + r.mac);

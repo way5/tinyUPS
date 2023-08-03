@@ -36,7 +36,7 @@ const i8nResources = () => {
 };
 
 i18next.use(LanguageDetector).init({
-    debug: true,
+    debug: false,
     fallbackLng: i18nlang[0],
     useDataAttrOptions: true,
     resources: i8nResources(),
@@ -71,6 +71,7 @@ var tinyUPS =  {
     err: null,
     info: null,
     done: null,
+    uiVer: null,
     /**
      * Doc-scope initializer. Called manually
      */
@@ -123,9 +124,14 @@ var tinyUPS =  {
             e.preventDefault();
             this.getSurvey();
         });
+        var pkg = require('../package.json');
+        this.uiVer = pkg.version;
+        pkg = null;
+        // footer
+        $('a[data-i18n="[title]gotoGithubLink"]').append(new Date().getFullYear() + " (ui: " + this.uiVer + ")");
         this.initPage();
         // i18n
-        $('body').localize();
+        $('html').localize();
     },
     /**
      *
@@ -161,7 +167,7 @@ var tinyUPS =  {
             url: window.location.protocol + "//" + window.location.hostname + this.surveyUrl,
             // url: "http://local.ims:8888/?test=1",
             type: 'POST',
-            type: 'json',
+            dataType: 'json',
             success: (r) => {
                 // returned as an object, so the painful version of length
                 // create node

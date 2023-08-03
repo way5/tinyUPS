@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 31st July 2023 11:06:10 am                                 #
+# Last Modified: Wednesday, 2nd August 2023 8:00:25 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -30,9 +30,10 @@
 #include <WiFi.h>
 #include <sys/param.h>
 
-// #define DEBUG                                   5
-// #undef  ARDUHAL_LOG_LEVEL
-// #define ARDUHAL_LOG_LEVEL                       ARDUHAL_LOG_LEVEL_DEBUG
+// #define DEBUG                            5
+#define _STRING(x)                          #x
+#define STRING(x)                           _STRING(x)
+#define VERSION_UI                          STRING(VERSION_WEBUI)
 
 typedef enum {
     OKAY =           1,

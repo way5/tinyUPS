@@ -4,7 +4,7 @@
 # Project: Smart station                                                            #
 # File Created: Tuesday, 3rd December 2019 4:54:06 pm                               #
 # Author: sk                                                                        #
-# Last Modified: Tuesday, 1st August 2023 11:06:30 am                               #
+# Last Modified: Wednesday, 2nd August 2023 7:53:04 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -56,7 +56,8 @@ static WiFiUDP snmpUDP;
 const uint8_t serviceTypeOSI = 72;
 const char sysName[] PROGMEM = "tinyUPS";
 const char sysModel[] PROGMEM = "tinyUPS.01";
-const char IdentFirmwareRevision[] PROGMEM = "v1.1.0";
+const char IdentFirmwareRevision[] PROGMEM = "1.1.1";
+const char IdentWebUIRevision[] = VERSION_UI;
 const char sysDescr[] PROGMEM = "tinyUPS Invertor";
 const char IdentDateOfManufact[] PROGMEM = "01/01/22";
 

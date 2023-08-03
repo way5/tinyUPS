@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 3:13:05 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
+# Last Modified: Wednesday, 2nd August 2023 2:46:53 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -21,6 +21,8 @@
 MonitorClass::MonitorClass() {
     pinMode(PIN_MONITOR_FANCTL, OUTPUT);
     digitalWrite(PIN_MONITOR_FANCTL, LOW);
+    pinMode(PIN_MONITOR_INFREQ, INPUT);
+    pinMode(PIN_MONITOR_OUTFREQ, INPUT);
     // onboard led power/activity indicator
     pinMode(15, OUTPUT);
     digitalWrite(15, HIGH);
@@ -33,7 +35,7 @@ MonitorClass::MonitorClass() {
 status_t MonitorClass::init() {
     esp_err_t e;
     // Pins
-    if(!adcAttachPin(PIN_ADC_TEMP_SENSOR)) {
+    if(!adcAttachPin(PIN_MONITOR_ADC_TEMP_SENSOR)) {
         __DL(F("(!) adc temp sensor config failed"));
         sysLog.putts(PSTR("(!) adc temp sensor config failed"));
         return ERR;
@@ -169,7 +171,7 @@ float MonitorClass::readADCmV() {
     uint32_t d = 0;
     uint8_t cntr = 0;
     while(cntr < 3) {
-        d += analogReadMilliVolts(PIN_ADC_TEMP_SENSOR);
+        d += analogReadMilliVolts(PIN_MONITOR_ADC_TEMP_SENSOR);
         delay(rand() % 100 + 500);
         cntr ++;
     }

@@ -55,6 +55,7 @@
         "lastMonth": "Last month",
         "allTime": "All time",
         "index": {
+            "pageTitle": "tinyUPS | Control Panel",
             "openSidebar": "Open Sidebar",
             "dashboard": "Control Panel",
             "configuration": "Configuration",
@@ -127,9 +128,9 @@
             "modalResetAlert": "You are about to erase the configuration data on you device. <b>tinyUPS</b> will be restarted with default configuration.<br>Press button below to continue.",
             "modalResetButton": "Erase",
             "js": {
-                "coolerIsOn": "Cooler is ON",
-                "coolerIsOff": "Cooler is OFF",
-                "failedCoolerOnOff": "Failed to switch the cooler ON",
+                "coolerIsOn": "Cooler is On",
+                "coolerIsOff": "Cooler is Off",
+                "failedCoolerOnOff": "Failed to switch the cooler On",
                 "opchDeviceTemp": "Device temperature",
                 "opchBatteryTemp": "Battery temperature",
                 "opchTitleTemp": "Temperature, °C",
@@ -155,6 +156,7 @@
             }
         },
         "setup": {
+            "pageTitle": "tinyUPS | Setup",
             "intro": "Welcome! Your device will be ready shortly after you'll provide the following data.",
             "restartButtonTooltip": "Restart the device",
             "hdrAdminAccess": "Admin's access",
@@ -175,12 +177,14 @@
             }
         },
         "login": {
+            "pageTitle": "tinyUPS | Login",
             "errorHeader": "We've got a problem...",
             "errorLoggedMsg": "There is someone already logged in. Please close the previous session and try again.",
             "errorLoggedButtonBack": "Let's try again",
             "js": {}
         },
         "error": {
+            "pageTitle": "tinyUPS | Error...",
             "noPageMsg": "There is no page as you requested.",
             "buttonBack": "Home Page",
             "js": {}
