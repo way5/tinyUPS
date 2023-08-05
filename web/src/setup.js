@@ -1,5 +1,5 @@
 import "./setup.scss";
-import { tinyUPS } from "./common.js";
+import { tinyUPS, ohSnap, ohSnapX } from "./common.js";
 
 $.extend(tinyUPS, {
     setupUrl: "/setup",
@@ -22,13 +22,13 @@ $.extend(tinyUPS, {
                 window.location.hostname +
                 this.setupPageDataUrl,
             dataType: "json",
-            type: "POST",
+            type: 'POST',
             success: (r) => {
                 // create node
                 if (r.length != 0) {
                     $(".ap-mac-address").html("MAC: " + r.mac);
                 } else {
-                    self.err($.t('setup.js.errNoInitReceived'));
+                    ohSnap($.t("setup.js.errNoInitReceived"), self.err);
                 }
             },
             error: (o, ts, e) => {
@@ -54,18 +54,14 @@ $.extend(tinyUPS, {
         */
         let loginFormat = new RegExp("^([a-z0-9]+)(?=.{2,})");
         if (!loginFormat.test(form.find("[name=login]").val())) {
-            self.info(
-                $.t('setup.js.infLoginAlert')
-            );
+            ohSnap($.t("setup.js.infLoginAlert"), self.info);
             return;
         }
         let passformat = new RegExp(
             "^(((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])))(?=.{6,})"
         );
         if (!passformat.test(form.find("[name=pass]").val())) {
-            self.info(
-                $.t('setup.js.infPassAlert')
-            );
+            ohSnap($.t("setup.js.infPassAlert"), self.info);
             return;
         }
         // testing parameters
@@ -81,21 +77,17 @@ $.extend(tinyUPS, {
                 this.setupUrl,
             // url: "http://local.ims:8888/?test=22",
             dataType: "json",
-            type: "POST",
+            type: 'POST',
             data: formdata,
             success: (r) => {
                 if (r.setup === "fail") {
                     // modalTest.hide();
                     switch (r.err) {
                         case "sta":
-                            self.info(
-                                $.t('setup.js.infNoWiFiConnect')
-                            );
+                            ohSnap($.t("setup.js.infNoWiFiConnect"), self.info);
                             return;
                         case "data":
-                            self.info(
-                                $.t('setup.js.infWrongParams')
-                            );
+                            ohSnap($.t("setup.js.infWrongParams"), self.info);
                             return;
                         default:
                             break;
@@ -105,7 +97,7 @@ $.extend(tinyUPS, {
                     $("#modal").show();
                     return;
                 }
-                self.err($.t('setup.js.errServerResponse'));
+                ohSnap($.t("setup.js.errServerResponse"), self.err);
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);

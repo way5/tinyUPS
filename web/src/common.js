@@ -2,15 +2,14 @@
  * ? Change the languages that are going to be built into UI
  * ? the very first language here is also a fallback language
  */
-const i18nlang = ['en', 'es', 'ru'];
+const i18nlang = ["en", "es", "ru"];
 import "./common.scss";
-import 'flowbite';
-// See: http://wavded.github.io/humane-js/
-const humane = require("./humane.js");
+import "flowbite";
 // See: https://github.com/way5/ohSnap-tailwind
-import { ohSnap, ohSnapX } from "oh-snap";
+import "ohsnap-tailwind/ohsnap.scss";
+import { ohSnap, ohSnapX } from "ohsnap-tailwind";
 // See: https://www.i18next.com/overview
-import i18next from 'i18next';
+import i18next from "i18next";
 // See: https://github.com/i18next/jquery-i18next
 /**
  *
@@ -18,9 +17,9 @@ import i18next from 'i18next';
  *
  * @type {*}
  */
-const $i18next = require('jquery-i18next');
+const $i18next = require("jquery-i18next");
 // See: https://github.com/i18next/i18next-browser-languageDetector
-import LanguageDetector from 'i18next-browser-languagedetector';
+import LanguageDetector from "i18next-browser-languagedetector";
 /**
  *
  * @author sk
@@ -29,8 +28,8 @@ import LanguageDetector from 'i18next-browser-languagedetector';
  */
 const i8nResources = () => {
     let a = {};
-    for(let l in i18nlang) {
-        a[i18nlang[l]] = require("./lang/"+i18nlang[l]+".json");
+    for (let l in i18nlang) {
+        a[i18nlang[l]] = require("./lang/" + i18nlang[l] + ".json");
     }
     return a;
 };
@@ -41,78 +40,85 @@ i18next.use(LanguageDetector).init({
     useDataAttrOptions: true,
     resources: i8nResources(),
     detection: {
-        lookupQuerystring: 'lng',
-        caches: ['localStorage', 'cookie'],
+        lookupQuerystring: "lng",
+        caches: ["localStorage", "cookie"],
         order: [
-            'querystring',
-            'navigator',
-            'localStorage',
-            'sessionStorage',
-            'cookie',
-            'htmlTag',
+            "querystring",
+            "navigator",
+            "localStorage",
+            "sessionStorage",
+            "cookie",
+            "htmlTag",
         ],
-    }
+    },
 });
 $i18next.init(i18next, $, {
-    useOptionsAttr: true
+    useOptionsAttr: true,
 });
+
+const ohSnapConfig = {
+    info: {
+        title: $.t("js.alertInfo"),
+        styles: {
+            bg: "bg-green-500 dark:bg-green-600",
+            border: "border-green-700",
+            icon: "ohsnap-info bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center",
+        },
+        duration: 7000,
+        container: "body",
+        "fade-duration": "fast",
+    },
+    warn: {
+        title: $.t("js.alertWarn"),
+        styles: {
+            bg: "bg-yellow-500 dark:bg-yellow-600",
+            border: "border-yellow-700",
+            icon: "ohsnap-warn bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center",
+        },
+        duration: 7000,
+        container: "body",
+        "fade-duration": "fast",
+    },
+    err: {
+        title: $.t("js.alertErr"),
+        styles: {
+            bg: "bg-red-500 dark:bg-red-700",
+            border: "border-red-700",
+            icon: "ohsnap-err bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center",
+        },
+        duration: 7000,
+        container: "body",
+        "fade-duration": "fast",
+    },
+};
 
 /**
  *
  * @author sk
  *
- * @type {{ surveyUrl: string; rebootURL: string; rebootCountdownIntl: number; showNotifyIntl: number; err: any; info: any; done: any; commons: any; displayMode: (toggle?: any) => void; getSurvey: () => void; doReboot: (el: any, countdownEl: any) => void; }}
+ * @type {{ surveyUrl: string; rebootURL: string; rebootCountdownIntl: number; err: { title: any; styles: { bg: string; border: string; icon: string; }; duration: number; container: string; 'fade-duration': string; }; ... 7 more ...; doReboot: (el: any, countdownEl: any) => void; }}
  */
-var tinyUPS =  {
+var tinyUPS = {
     surveyUrl: "/survey",
     rebootURL: "/reboot",
     rebootCountdownIntl: 10000,
-    showNotifyIntl: 7000,
-    err: null,
-    info: null,
-    done: null,
+    err: ohSnapConfig.err,
+    warn: ohSnapConfig.warn,
+    info: ohSnapConfig.info,
     uiVer: null,
     /**
      * Doc-scope initializer. Called manually
      */
     init: function () {
         this.displayMode();
-        $('#dmode').on('click', (e) => {
+        $("#dmode").on("click", (e) => {
             this.displayMode(true);
         });
-        let cont = document.querySelector("header");
-        this.info = humane.create({
-            addnCls: "info",
-            clickToClose: true,
-            waitForMove: true,
-            timeoutAfterMove: this.showNotifyIntl,
-            timeout: this.showNotifyIntl,
-            container: cont,
-            baseCls: "humane"
-        }).spawn({});
-        this.err = humane.create({
-            addnCls: "error",
-            clickToClose: true,
-            waitForMove: true,
-            timeoutAfterMove: this.showNotifyIntl,
-            timeout: this.showNotifyIntl,
-            container: cont,
-            baseCls: "humane"
-        }).spawn({});
-        this.done = humane.create({
-            addnCls: "success",
-            clickToClose: true,
-            waitForMove: true,
-            timeoutAfterMove: this.showNotifyIntl,
-            timeout: this.showNotifyIntl,
-            container: cont,
-            baseCls: "humane"
-        }).spawn({});
         // password unhide
         $("button.showkey").on("click", function (e) {
             e.preventDefault();
             let s = $(this).parent().find("input[type]");
-            s.prop("type", (s.prop("type") === "text" ? "password" : "text"));
+            s.prop("type", s.prop("type") === "text" ? "password" : "text");
             if (s.prop("type") === "text") {
                 $(this).addClass("active");
             } else {
@@ -124,57 +130,73 @@ var tinyUPS =  {
             e.preventDefault();
             this.getSurvey();
         });
-        var pkg = require('../package.json');
+        var pkg = require("../package.json");
         this.uiVer = pkg.version;
         pkg = null;
         // footer
-        $('a[data-i18n="[title]gotoGithubLink"]').append(new Date().getFullYear() + " (ui: " + this.uiVer + ")");
+        $('a[data-i18n="[title]gotoGithubLink"]').append(
+            new Date().getFullYear() + " (ui: " + this.uiVer + ")"
+        );
         this.initPage();
         // i18n
-        $('html').localize();
+        $("html").localize();
     },
     /**
      *
      * @param {*} toggle
      */
     displayMode: function (toggle = false) {
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage)
-                && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (
+            localStorage.theme === "dark" ||
+            (!("theme" in localStorage) &&
+                window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
             if (toggle) {
-                localStorage.theme = 'light';
-                document.documentElement.classList.remove('dark');
+                localStorage.theme = "light";
+                document.documentElement.classList.remove("dark");
             } else {
-                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add("dark");
             }
         } else {
             if (toggle) {
-                localStorage.theme = 'dark';
-                document.documentElement.classList.add('dark');
+                localStorage.theme = "dark";
+                document.documentElement.classList.add("dark");
             } else {
-                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove("dark");
             }
         }
     },
-    handleErrorResponse: (o, ts, e) => {
-        if (o.status == 403) {
+    handleErrorResponse: function (o, ts, e) {
+        if (o.status == 401) {
             window.location.reload();
+        } else {
+            ohSnap($.t("js.errCommunication"), this.err);
         }
     },
     getSurvey: function () {
         let self = this;
         let list = $('select[name="ssid"]');
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.surveyUrl,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.surveyUrl,
             // url: "http://local.ims:8888/?test=1",
             type: 'POST',
-            dataType: 'json',
+            dataType: "json",
             success: (r) => {
                 // returned as an object, so the painful version of length
                 // create node
                 if (r.delay !== undefined) {
                     let delay = parseInt(r.delay);
                     console.log("delay detected: ", delay);
-                    self.info((delay > 0 ? $.t('js.scanRepeatIn', { ds: (delay / 1000.0) }) : $.t("js.scanInProgress")));
+                    ohSnap(
+                        delay > 0
+                            ? $.t("js.scanRepeatIn", { ds: delay / 1000.0 })
+                            : $.t("js.scanInProgress"),
+                        self.info
+                    );
                     setTimeout(() => {
                         self.getSurvey();
                     }, delay);
@@ -186,66 +208,73 @@ var tinyUPS =  {
                         let node = document.createElement("option");
                         let enc = "TKIP";
                         switch (r[i].e) {
-                            case 4: enc = "CCMP"; break;
-                            case 5: enc = "WEP"; break;
-                            case 7: enc = "NONE"; break;
-                            case 8: enc = "AUTO"; break;
+                            case 4:
+                                enc = "CCMP";
+                                break;
+                            case 5:
+                                enc = "WEP";
+                                break;
+                            case 7:
+                                enc = "NONE";
+                                break;
+                            case 8:
+                                enc = "AUTO";
+                                break;
                         }
                         node.value = r[i].s;
-                        node.innerHTML = r[i].s + " (ENC: " + enc + " RSSI: " + r[i].r + ")";
+                        node.innerHTML =
+                            r[i].s + " (ENC: " + enc + " RSSI: " + r[i].r + ")";
                         list.append(node);
                     }
-                } else {
-                    self.err($.t('js.errNoWiFiDetect'));
-                }
+                    ohSnap($.t("js.scanComplete"), self.info);
+                } else ohSnap($.t("js.errNoWiFiDetect"), self.err);
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
-            }
+            },
         });
-    },                  // getSurvey
+    }, // getSurvey
     doReboot: function (el, countdownEl) {
         let self = this;
         $(el).attr("disabled", "disabled");
         $(el).addClass("disabled");
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.rebootURL,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.rebootURL,
             // url: "http://local.ims:8888/?test=34",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             success: (r) => {
                 if (r.length != 0) {
                     if (r.done === true) {
-                        self.info($.t('js.deviceIsRebooting'));
-                        let countdown = (self.rebootCountdownIntl / 1000);
+                        ohSnap($.t("js.deviceIsRebooting"), self.info);
+                        let countdown = self.rebootCountdownIntl / 1000;
                         $(countdownEl).html(countdown);
                         setInterval(() => {
                             countdown -= 1;
-                            if(countdown >= 0) {
+                            if (countdown >= 0) {
                                 $(countdownEl).html(countdown);
                                 if (countdown == 0) {
                                     location.reload();
                                 }
                             }
                         }, 1000);
-                    } else {
-                        console.log('wrong answer: ', r);
                     }
-                } else
-                    self.err($.t('js.errDoReboot'));
+                    // else
+                    // console.log('wrong answer: ', r);
+                } else ohSnap($.t("js.errDoReboot"), self.err);
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
-            }
+            },
         });
-    },                  // doReboot
+    }, // doReboot
 };
 
 window.$ = jQuery;
 window.tinyUPS = tinyUPS;
 
-export {
-    tinyUPS,
-    i18next,
-    $i18next
-};
+export { tinyUPS, i18next, $i18next, ohSnap, ohSnapX };

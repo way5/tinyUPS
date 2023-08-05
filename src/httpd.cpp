@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 2nd August 2023 6:04:31 pm                              #
+# Last Modified: Friday, 4th August 2023 9:59:12 am                                 #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -48,12 +48,12 @@ void httpdInit()
     httpd.on(F("/addapikey"), HTTP_POST, httpdPostAPIadd);
     httpd.on(F("/delapikey"), HTTP_POST, httpdPostAPIdel);
     // DASHBOARD DATA
-    httpd.on(F("/get-dashbrd"), HTTP_POST, httpdPostGetDashbrd);
+    httpd.on(F("/getdashbrd"), HTTP_POST, httpdPostGetDashbrd);
     // CONFIG
-    httpd.on(F("/get-config"), HTTP_POST, httpdPostGetConfig);
-    httpd.on(F("/set-configsys"), HTTP_POST, httpdPostSetConfigSystem);
-    httpd.on(F("/set-configsnmp"), HTTP_POST, httpdPostSetConfigSNMP);
-    httpd.on(F("/set-configsec"), HTTP_POST, httpdPostSetConfigSecurity);
+    httpd.on(F("/getconfig"), HTTP_POST, httpdPostGetConfig);
+    httpd.on(F("/setconfigsys"), HTTP_POST, httpdPostSetConfigSystem);
+    httpd.on(F("/setconfigsnmp"), HTTP_POST, httpdPostSetConfigSNMP);
+    httpd.on(F("/setconfigsec"), HTTP_POST, httpdPostSetConfigSecurity);
     // SYSTEM
     httpd.on(F("/reboot"), HTTP_POST, httpdPostReboot);
     httpd.on(F("/coolingctrl"), HTTP_POST, httpdPostControlCooling);

@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 3:13:05 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 2nd August 2023 2:46:53 pm                              #
+# Last Modified: Wednesday, 2nd August 2023 9:46:26 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -129,7 +129,7 @@ void MonitorClass::loop() {
         __DF(PSTR("(e) battery status: %s (%d)\n"), upsBatteryStatusCodeToString(monitorData.upsBasicBatteryStatus).c_str(), monitorData.upsBasicBatteryStatus);
     #endif
         monDataLog.putdts(monitorData.upsBasicBatteryStatus, true, false);
-        monDataLog.put(";1");
+        monDataLog.put("1");
         systemEvent.upsBatteryStatusChange = false;
     }
     if(systemEvent.upsOutputStateChange) {
@@ -138,7 +138,7 @@ void MonitorClass::loop() {
         __DF(PSTR("(e) power status: %s (%d)\n"), upsOutputStatusCodeToString(monitorData.upsBasicOutputStatus).c_str(), monitorData.upsBasicOutputStatus);
     #endif
         monDataLog.putdts(monitorData.upsBasicOutputStatus, true, false);
-        monDataLog.put(";0");
+        monDataLog.put("0");
         systemEvent.upsOutputStateChange = false;
     }
 }

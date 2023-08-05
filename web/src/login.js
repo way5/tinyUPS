@@ -1,15 +1,14 @@
 import "./login.scss";
-import { tinyUPS } from "./common.js";
+import { tinyUPS, ohSnap, ohSnapX } from "./common.js";
 
 $.extend(tinyUPS, {
     loginUrl: "/login",
-    initPage: function() {},
+    initPage: function () {},
     doLogin: function () {
-        let self = this;
         let form = $("form[name=login]");
         // let formdata = new FormData(form[0]);
         let formdata = form.serializeArray();
-        // Flowbite bug! Doesn't work like so
+        // Flowbite bug!? Doesn't work like that
         // let modalAlert = new Modal(document.getElementById("modal-alert"), {
         //     backdrop: 'dynamic',
         //     closable: true
@@ -22,24 +21,23 @@ $.extend(tinyUPS, {
                 this.loginUrl,
             // url: "http://local.ims:8888/?test=23",
             dataType: "json",
-            type: "POST",
+            type: 'POST',
             data: formdata,
-            success: function(r) {
-                if (r.length != 0) {
-                    if (r.login === "err") {
-                        self.err(r.err);
-                    } else {
+            success: (r) => {
+                if (r.length != 0 && r.login !== "err") {
                         // auth results
                         if (r.login === "repeat") {
                             $("#modal-alert").removeClass("hidden");
                             // modalAlert.show();
                         } else {
-                            console.log("logged in");
+                            // console.log("logged in");
                             window.location.reload();
                         }
-                    }
                 } else {
-                    self.err("Login failed");
+                    if(r.length != 0)
+                        ohSnap(r.err, this.warn);
+                    else
+                        ohSnap($.t("js.errLoginFailed"), this.err);
                 }
             },
             error: (o, ts, e) => {

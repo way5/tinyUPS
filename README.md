@@ -101,7 +101,7 @@ platformio run --target uploadfs --environment esp32s2_lolin
 <br>
 
 ## **+ SETUP**
-When you first run **tinyUPS** it boots in AP mode. Look for `tinyUPS.01.XXXX` WiFi network. Default network password (config.apkey) could be changed in [helpers.h](src/helpers.h). Once connected the configuration is available on 192.168.4.1.
+When you first run **tinyUPS** it boots up in AP mode. Look for `tinyUPS.01.XXXX` WiFi network. Default network password (config.apkey) could be changed in [helpers.h](src/helpers.h). Once connected the configuration is available on 192.168.4.1.
 
 ![tinyUPS setup page](doc/s0.jpg)
 
@@ -146,6 +146,13 @@ You may also wish to look at the driver for thermistor (currently this is 1k M52
 Serial monitor is used to perform the most of the tasks and to solve issues. Once you've connected use <code>?</code> to request the commands list.
 
 ![tinyUPS serial monitor](doc/i4.jpg)
+
+<br>
+
+## **+ PHOTOS**
+
+| ![tinyUPS PCB](./doc/e0.jpg) | ![thermistor](./doc/e1.jpg) | ![PCB](./doc/e2.jpg) | ![UPS LCD](./doc/e4.jpg) | 
+|:---:|:---:|:---:|:---:|
 
 <br>
 

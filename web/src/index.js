@@ -1,7 +1,7 @@
 import "./index.scss";
-import { tinyUPS } from "./common.js";
+import { tinyUPS, ohSnap, ohSnapX } from "./common.js";
 // See: https://www.npmjs.com/package/crypto-js
-import sha1 from 'crypto-js/sha1';
+import sha1 from "crypto-js/sha1";
 // See: https://www.chartjs.org/docs/latest
 import { Chart } from "chart.js/auto";
 // See: https://github.com/chartjs/awesome#adapters
@@ -45,16 +45,6 @@ var containerScrollBottom = (o) => {
 var preZerosDigitFormat = (i, digiLen = 2) => {
     return ("0".repeat(digiLen) + i).slice(digiLen * -1);
 };
-
-// HTTPs only
-// async function strToHash(d) {
-    // const encoded = (new TextEncoder()).encode(d);
-    // return await window.crypto.subtle.digest('SHA-256', encoded).then((hashBuffer) => {
-    //     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    //     const hashHex = hashArray.map(bytes => bytes.toString(16).padStart(2, '0')).join('');
-    //     return hashHex;
-    // });
-// };
 
 /**
  *
@@ -228,19 +218,12 @@ var batteryStatusToString = (t, alterIndicators = true) => {
     return r;
 };
 
-/**
- * Main object
- * @todo: \
- *      1. js preloader \
- *      2. dark, light mode identification \
- *      3. config autosave \
- */
 $.extend(tinyUPS, {
-    getCfgUrl: "/get-config",
-    sysSetCfgUrl: "/set-configsys",
-    snmpSetCfgUrl: "/set-configsnmp",
-    secSetCfgUrl: "/set-configsec",
-    getDashDataUrl: "/get-dashbrd",
+    getCfgUrl: "/getconfig",
+    sysSetCfgUrl: "/setconfigsys",
+    snmpSetCfgUrl: "/setconfigsnmp",
+    secSetCfgUrl: "/setconfigsec",
+    getDashDataUrl: "/getdashbrd",
     tempChartUrl: "/montmpr",
     dataChartUrl: "/monbdata",
     infoGraphUrl: "/infograph",
@@ -289,7 +272,6 @@ $.extend(tinyUPS, {
                 display: false,
             },
             zoom: {
-                // TODO
                 pan: {
                     enabled: true,
                     mode: "x",
@@ -439,12 +421,12 @@ $.extend(tinyUPS, {
                     });
                 });
         });
-        // LOGS
+        // logs
         this.sysLog = new logArea($("#syslog"));
         this.sysLog.reload();
         this.snmpLog = new logArea($("#snmplog"));
         this.snmpLog.reload();
-        // HASHCHANGE
+        // hashchange
         $(window).on("hashchange", (e) => {
             switch (location.hash) {
                 case "#home":
@@ -507,9 +489,11 @@ $.extend(tinyUPS, {
         // chart refresh buttons
         $("#pwst-chart-reload").on("click", function () {
             self.pwstChartDataReload();
+            ohSnap($.t("js.chartReloaded"), self.info);
         });
         $("#trecs-chart-reload").on("click", function () {
             self.tctChartDataReload();
+            ohSnap($.t("js.chartReloaded"), self.info);
         });
 
         // hide loader
@@ -518,23 +502,25 @@ $.extend(tinyUPS, {
         }, 1000);
 
         // API table
-        $('[data-i18n="index.apiKeyBtnAdd"]').on('click', async () => {
+        $('[data-i18n="index.apiKeyBtnAdd"]').on("click", async () => {
             const dt = new Date();
             const form = $('form[name="add-api-key-form"]');
             // let key = await strToHash(Math.random().toString().slice(2) + dt.getTime().toString()).catch(console.error);
-            let key = sha1(Math.random().toString().slice(2) + dt.getTime().toString()).toString();
+            let key = sha1(
+                Math.random().toString().slice(2) + dt.getTime().toString()
+            ).toString();
             key = key.slice(0, 32);
-            const formAPIk = form.find('input[name=apik]');
-            const formAPIkStr = form.children('p').eq(2);
+            const formAPIk = form.find("input[name=apik]");
+            const formAPIkStr = form.children("p").eq(2);
             formAPIkStr.html(key);
             formAPIk.val(key);
         });
-        $('form[name="add-api-key-form"]').on('submit', (e) => {
+        $('form[name="add-api-key-form"]').on("submit", (e) => {
             e.preventDefault();
             self.createAPIkey();
             return false;
         });
-    },                              // initPage
+    }, // initPage
     toggleCooling: function () {
         $.ajax({
             url:
@@ -543,22 +529,21 @@ $.extend(tinyUPS, {
                 window.location.hostname +
                 this.toggleCoolingUrl,
             // url: "http://local.ims:8888/?test=33",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             success: (r) => {
                 if (r.isclng === true) {
-                    this.info($.t("index.js.coolerIsOn"));
+                    ohSnap($.t("index.js.coolerIsOn"), this.info);
                 } else if (r.isclng === false) {
-                    this.info($.t("index.js.coolerIsOff"));
-                } else
-                    this.err($.t("index.js.failedCoolerOnOff"));
+                    ohSnap($.t("index.js.coolerIsOff"), this.info);
+                } else ohSnap($.t("index.js.failedCoolerOnOff"), this.err);
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
             },
         });
-    },                      // toggleCooling
-    createAPIkey: function() {
+    }, // toggleCooling
+    createAPIkey: function () {
         const self = this;
         const form = $('form[name="add-api-key-form"]');
         const data = form.serializeArray();
@@ -569,56 +554,71 @@ $.extend(tinyUPS, {
                 window.location.hostname +
                 this.addAPIkey,
             // url: "http://local.ims:8888/?test=36",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             data: data,
             success: (r) => {
-                if(r.api !== undefined) {
-                    self.info($.t('index.js.apiKeyCreated'));
+                if (r.api !== undefined) {
+                    ohSnap($.t("index.js.apiKeyCreated"), self.info);
                     self.appendAPIKeys(r.api);
                     $(form)[0].reset();
                 } else
-                    self.err($.t("js.errDataNotSaved") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    ohSnap(
+                        $.t("js.errDataNotSaved") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
             },
             error: (o, ts, e) => {
                 self.handleErrorResponse(o, ts, e);
             },
         });
-    },                      // createAPIkey
-    appendAPIKeys: function(api) {
+    }, // createAPIkey
+    appendAPIKeys: function (api) {
         const self = this;
-        $('#api-keys tbody').html("");
-        if(api.length != 0) {
-            $.each(api, function(k, v) {
-                const tr = $('<tr>', {"class":"row"});
-                let ts = new Date((v.id * 1000));
-                const td0 = $('<td>', {"scope":"row"});
-                td0.html(v.m + '<p class="text-sm text-gray-500 dark:text-base-200">'+ $.t('js.createdAt') + ': ' + ts.toLocaleString() + '</p>');
-                const td1 = $('<td>');
+        $("#api-keys tbody").html("");
+        if (api.length != 0) {
+            $.each(api, function (k, v) {
+                const tr = $("<tr>", { class: "row" });
+                let ts = new Date(v.id * 1000);
+                const td0 = $("<td>", { scope: "row" });
+                td0.html(
+                    v.m +
+                        '<p class="text-sm text-gray-500 dark:text-base-200">' +
+                        $.t("js.createdAt") +
+                        ": " +
+                        ts.toLocaleString() +
+                        "</p>"
+                );
+                const td1 = $("<td>");
                 td1.html(v.k);
-                const lnk = $('<a>', {"class":"link", "href": v.id});
+                const lnk = $("<a>", { class: "link", href: v.id });
                 lnk.html($.t("js.btnDelete"));
-                lnk.on('click', function(e) {
+                lnk.on("click", function (e) {
                     e.preventDefault();
                     self.removeAPIKey(v.id);
                     return false;
                 });
-                const td2 = $('<td>');
+                const td2 = $("<td>");
                 td2.append(lnk);
                 tr.append(td0);
                 tr.append(td1);
                 tr.append(td2);
-                $('#api-keys tbody').append(tr);
+                $("#api-keys tbody").append(tr);
             });
         } else {
-            const tr = $('<tr>', {"class":"row"});
-            const td0 = $('<td>', {"scope":"row", "colspan": "3"});
-            td0.html('<p class="w-full text-center text-base">'+$.t("index.js.noAPIKeys")+'</p>');
+            const tr = $("<tr>", { class: "row" });
+            const td0 = $("<td>", { scope: "row", colspan: "3" });
+            td0.html(
+                '<p class="w-full text-center text-base">' +
+                    $.t("index.js.noAPIKeys") +
+                    "</p>"
+            );
             tr.append(td0);
-            $('#api-keys tbody').html(tr);
+            $("#api-keys tbody").html(tr);
         }
-    },                      // appendAPIKey
-    removeAPIKey: function(id) {
+    }, // appendAPIKey
+    removeAPIKey: function (id) {
         const self = this;
         $.ajax({
             url:
@@ -627,21 +627,25 @@ $.extend(tinyUPS, {
                 window.location.hostname +
                 this.delAPIkey,
             // url: "http://local.ims:8888/?test=37",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
-            data: {"id":id},
+            data: { id: id },
             success: (r) => {
-                if(r.api !== undefined) {
-                    self.info($.t('index.js.apiKeyDeleted'));
+                if (r.api !== undefined) {
+                    ohSnap($.t("index.js.apiKeyDeleted"), self.info);
                     self.appendAPIKeys(r.api);
                 } else
-                    self.err($.t("js.errDataNotSaved") + ((r.err !== undefined) ?" (" + r.err + ")" : ""));
+                    ohSnap(
+                        $.t("js.errDataNotSaved") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        self.err
+                    );
             },
             error: (o, ts, e) => {
                 self.handleErrorResponse(o, ts, e);
             },
         });
-    },                      // removeAPIKey
+    }, // removeAPIKey
     initCharts: function () {
         // @remind temerature charts
         this.charts["optmp"] = new Chart(
@@ -991,7 +995,7 @@ $.extend(tinyUPS, {
         this.pwstChartDataReload();
         // @remind trecs chart
         let zMinTct = new Date();
-        zMinTct.setHours(0,0,0,0);
+        zMinTct.setHours(0, 0, 0, 0);
         let zMaxTct = new Date();
         zMaxTct.setHours(23, 59, 59, 99);
         this.charts["trecs"] = new Chart(
@@ -1102,14 +1106,18 @@ $.extend(tinyUPS, {
         });
         // update now
         this.tctChartDataReload();
-    },                              // initCharts
+    }, // initCharts
     // @remind poll data for opcharts
     opchChartDataReload: function () {
         const self = this;
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.infoGraphUrl,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.infoGraphUrl,
             // url: "http://local.ims:8888/?test=5",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             success: (r) => {
                 if (r.length != 0) {
@@ -1145,7 +1153,11 @@ $.extend(tinyUPS, {
     // Power status records
     pwstChartDataReload: function () {
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.dataChartUrl,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.dataChartUrl,
             // url: "http://local.ims:8888/?test=8",
             dataType: "text",
             type: 'POST',
@@ -1153,7 +1165,10 @@ $.extend(tinyUPS, {
                 if (r.length != 0) {
                     this.pwstChartData = r.split("\n");
                     this.pwstChartRedraw();
-                } else console.log("no data for pwst");
+                } else {
+                    // ohSnap($.t("js.chartHasNoData"), this.info);
+                    console.log("no data for pwst");
+                }
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
@@ -1216,18 +1231,19 @@ $.extend(tinyUPS, {
                             e: batteryStatusToString(p[1], false),
                         });
                     }
-                    console.log(this.charts["pwrmx"].data.datasets[0].data);
-                    console.log(this.charts["pwrmx"].data.datasets[1].data);
                 }
             });
-            // console.log(this.charts["pwrmx"].data.datasets[0].data);
             this.charts["pwrmx"].update();
         }
     }, // pwstChartRedraw
     // Temperature records
     tctChartDataReload: function () {
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.tempChartUrl,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.tempChartUrl,
             // url: "http://local.ims:8888/?test=4",
             dataType: "text",
             type: 'POST',
@@ -1235,7 +1251,10 @@ $.extend(tinyUPS, {
                 if (r.length != 0) {
                     this.tctChartData = r.split("\n");
                     this.tctChartRedraw();
-                } else console.log("no data for tct");
+                } else {
+                    // ohSnap($.t("js.chartHasNoData"), this.warn);
+                    console.log("no data for tct");
+                }
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
@@ -1291,15 +1310,6 @@ $.extend(tinyUPS, {
                     p = ln.split(";");
                     dt = parseInt(p[0]) * 1000;
                     if ((ts == 0 && te == 0) || (ts <= dt && dt <= te)) {
-                        // x =
-                        //     dt.getHours() +
-                        //     ":" +
-                        //     ("00" + dt.getMinutes()).slice(-2) +
-                        //     ", " +
-                        //     ("00" + dt.getDate()).slice(-2) +
-                        //     "/" +
-                        //     ("00" + (dt.getMonth() + 1)).slice(-2);
-                        // y = parseInt(p[1]);
                         this.charts["trecs"].data.datasets[0].data.push({
                             x: dt,
                             y: parseInt(p[1]),
@@ -1353,11 +1363,6 @@ $.extend(tinyUPS, {
             $(event.currentTarget).addClass("active");
             // set location.hash
             location.hash = tab;
-            // $(event.currentTarget).find("a").on("click", function (e) {
-            //     e.preventDefault();
-            //     return false;
-            // });
-            // $("menu.sidebar").addClass("hidden");
         });
         // activate menu item by location hash
         $("menu.sidebar li.item").each(function (i) {
@@ -1370,15 +1375,23 @@ $.extend(tinyUPS, {
         $(el).attr("disabled", "disabled");
         $(el).addClass("disabled");
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.resetUrl,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.resetUrl,
             // url: "http://local.ims:8888/?test=35",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             success: (r) => {
                 if (r.length == 0 || r.done !== true || r.err !== undefined) {
-                    this.err($.t("index.js.errErasingConfigErr") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    ohSnap(
+                        $.t("index.js.errErasingConfigErr") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
                 } else {
-                    this.info($.t("index.js.infoErasingConfig"));
+                    ohSnap($.t("index.js.infoErasingConfig"), this.info);
                     let countdown = this.resetCountdownIntl / 1000;
                     $(countdownEl).html(countdown);
                     setInterval(() => {
@@ -1422,7 +1435,8 @@ $.extend(tinyUPS, {
         sc.find(".battst").html(battstate);
         sc.find(".outst").html(outputstatus);
         // adding text decoration
-        if(this.dashboardData.outst != 2) sc.find(".outst").addClass("text-blink");
+        if (this.dashboardData.outst != 2)
+            sc.find(".outst").addClass("text-blink");
         else sc.find(".outst").removeClass("text-blink");
         // card: battery
         bt.find(".hdr").html(
@@ -1465,13 +1479,21 @@ $.extend(tinyUPS, {
     }, // parseDashboardData
     getDashData: function () {
         $.ajax({
-            url: window.location.protocol + "//" + window.location.hostname + this.getDashDataUrl,
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.getDashDataUrl,
             // url: "http://local.ims:8888/?test=3",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             success: (r) => {
                 if (r.err !== undefined || r.length == 0) {
-                    this.err($.t("index.js.errNoDataDashbrd") + (r.err !== undefined  ? " ("+ r.err + ")" : ""));
+                    ohSnap(
+                        $.t("index.js.errNoDataDashbrd") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
                 } else {
                     this.dashboardData = r;
                     this.parseDashboardData();
@@ -1491,11 +1513,15 @@ $.extend(tinyUPS, {
                 window.location.hostname +
                 this.getCfgUrl,
             // url: "http://local.ims:8888/?test=7",
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    this.err($.t("index.js.errNoConfigData") + ((r.err !== undefined) ? " (" + r.err + ")" : ""));
+                    ohSnap(
+                        $.t("index.js.errNoConfigData") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
                 } else {
                     $("input[name=battmplt]").val(r.battmplt);
                     $("input[name=battmput]").val(r.battmput);
@@ -1508,7 +1534,7 @@ $.extend(tinyUPS, {
                     let list = $("select[name=ntptmoff]");
                     list.find("option").each(function (i) {
                         if (parseInt($(this)[0].value) == r.ntptmoff) {
-                            console.log("TZ exists: " + $(this)[0].index);
+                            // console.log("TZ exists: " + $(this)[0].index);
                             // $(el).attr("selected", true);
                             list[0].selectedIndex = $(this)[0].index;
                         }
@@ -1517,10 +1543,10 @@ $.extend(tinyUPS, {
                     list = $("select[name=ssid]");
                     const opt = list.find("option[value=" + r.ssid + "]");
                     if (opt.length != 0) {
-                        console.log("AP exists: " + opt[0].index);
+                        // console.log("AP exists: " + opt[0].index);
                         list[0].selectedIndex = opt[0].index;
                     } else {
-                        console.log("AP n/a: " + list.length);
+                        // console.log("AP n/a: " + list.length);
                         let node = document.createElement("option");
                         node.value = r.ssid;
                         node.innerHTML = r.ssid;
@@ -1549,7 +1575,7 @@ $.extend(tinyUPS, {
                     // });
                     // @remind get config
                     // empty the table body
-                    $('#api-keys tbody').html("");
+                    $("#api-keys tbody").html("");
                     this.appendAPIKeys(r.api);
                 }
             },
@@ -1568,15 +1594,19 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.sysSetCfgUrl,
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             data: formdata,
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    this.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    ohSnap(
+                        $.t("js.errEmptyResponse") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
                 } else {
                     // success
-                    this.done($.t("index.js.doneConfigUpdated"));
+                    ohSnap($.t("index.js.doneConfigUpdated"), self.info);
                 }
             },
             error: (o, ts, e) => {
@@ -1594,15 +1624,19 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.snmpSetCfgUrl,
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             data: formdata,
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    this.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")":""));
+                    ohSnap(
+                        $.t("js.errEmptyResponse") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
                 } else {
                     // success
-                    this.done($.t("index.js.doneConfigUpdated"));
+                    ohSnap($.t("index.js.doneConfigUpdated"), this.info);
                 }
             },
             error: (o, ts, e) => {
@@ -1620,15 +1654,19 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.secSetCfgUrl,
-            dataType: 'json',
+            dataType: "json",
             type: 'POST',
             data: formdata,
             success: (r) => {
                 if (r.length == 0 || r.err !== undefined) {
-                    this.err($.t("js.errEmptyResponse") + ((r.err !== undefined) ? " (" + r.err + ")" : ""));
-                } else
-                    // TODO
-                    this.done($.t("index.js.doneConfigUpdated"));
+                    ohSnap(
+                        $.t("js.errEmptyResponse") +
+                            (r.err !== undefined ? " (" + r.err + ")" : ""),
+                        this.err
+                    );
+                }
+                // TODO
+                else ohSnap($.t("index.js.doneConfigUpdated"), this.info);
             },
             error: (o, ts, e) => {
                 errorRequest(o);
@@ -1658,7 +1696,7 @@ class logArea {
                 window.location.hostname +
                 this.url,
             // url: "http://local.ims:8888/?test=6",
-            type: "plain",
+            dataType: "text",
             type: 'POST',
             success: (r) => {
                 if (r.length != 0) {
