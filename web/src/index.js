@@ -60,17 +60,17 @@ var secondsToHRts = (t) => {
     if (t > 31556952) {
         year = Math.floor(t / 31556952);
         t = t % 31556952;
-        ts = year + " " + $.t("js.year") + " ";
+        ts = year + " " + $.t("js.year", { count: year}) + " ";
     }
     if (t > 86400) {
         day = Math.floor(t / 86400);
         t = t % 86400;
-        ts = ts + day + " " + $.t("js.day") + " ";
+        ts = ts + day + " " + $.t("js.day", { count: day }) + " ";
     }
     if (t > 3600) {
         hour = Math.floor(t / 3600);
         t = t % 3600;
-        ts = ts + hour + " " + $.t("js.hrs") + " ";
+        ts = ts + hour + " " + $.t("js.hr", { count: hour }) + " ";
     }
     if (t > 60 && day == 0) {
         min = Math.floor(t / 60);
@@ -1606,7 +1606,7 @@ $.extend(tinyUPS, {
                     );
                 } else {
                     // success
-                    ohSnap($.t("index.js.doneConfigUpdated"), self.info);
+                    ohSnap($.t("index.js.doneConfigUpdated"), this.info);
                 }
             },
             error: (o, ts, e) => {

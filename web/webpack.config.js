@@ -1,16 +1,15 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
+
 const path = require("path");
 const webpack = require("webpack");
 const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-// See: https://github.com/privatenumber/webpack-localize-assets-plugin
-// const LocalizeAssetsPlugin = require('webpack-localize-assets-plugin');
 // See: https://www.npmjs.com/package/imagemin-webpack-plugin
 // const ImageminPlugin = require('imagemin-webpack-plugin').default;
 // const imageminMozjpeg = require('imagemin-mozjpeg');
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserWPPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const RemovePlugin = require("remove-files-webpack-plugin");
 
@@ -45,23 +44,40 @@ const config = {
         // publicPath: "",
     },
     optimization: {
-        // runtimeChunk: 'single',
-        splitChunks: {
-            chunks: "all",
-        },
+        minimize: isProduction,
+        minimizer: [
+            // See: https://github.com/webpack-contrib/css-minimizer-webpack-plugin
+            new CssMinimizerPlugin({
+                minimizerOptions: {
+                    preset: [
+                        "default",
+                        {
+                            discardComments: { 
+                                removeAll: true 
+                            },
+                        },
+                    ],
+                },
+            }),
+            new TerserWPPlugin({
+                minify: TerserWPPlugin.uglifyJsMinify,
+                extractComments: "all",
+                test: /\.js(\?.*)?$/i,
+                // terserOptions options will be passed to uglify-js
+                // See: https://github.com/mishoo/UglifyJS#minify-options
+                terserOptions: {
+                    ie: true,
+                    webkit: true,
+                    v8: true,
+                },
+            }),
+        ],
     },
     plugins: [
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery",
         }),
-        // new LocalizeAssetsPlugin({
-        //     locales: {
-        //         en: path.resolve(__dirname, "src/lang/en.json"),
-        //         es: path.resolve(__dirname, "src/lang/es.json"),
-        //         ru: path.resolve(__dirname, "src/lang/ru.json")
-        //     }
-        // }),
         // see: https://github.com/jantimon/html-webpack-plugin
         new HtmlWebpackPlugin({
             title: "tinyUPS dashboard",
@@ -205,42 +221,6 @@ const config = {
             },
             // Add your rules for custom modules here
             // Learn more about loaders from https://webpack.js.org/loaders/
-        ],
-    },
-    optimization: {
-        minimize: isProduction,
-        minimizer: [
-            // See: https://github.com/webpack-contrib/css-minimizer-webpack-plugin
-            new CssMinimizerPlugin({
-                minimizerOptions: {
-                    preset: [
-                        "default",
-                        {
-                            discardComments: { removeAll: true },
-                        },
-                    ],
-                },
-            }),
-            new UglifyJsPlugin({
-                test: /\.js(\?.*)?$/i,
-                cache: false,
-                // Extract comments into a filename: ...
-                extractComments: false,
-                uglifyOptions: {
-                    mangle: {
-                        // Pass true to mangle names visible in scopes where eval or with are used.
-                        // eval: false,
-                        // Pass true to mangle names declared in the top level scope.
-                        toplevel: true,
-                    },
-                    toplevel: true,
-                    output: {
-                        comments: false,
-                        beautify: false,
-                        // preamble: "/* uglified */"
-                    },
-                },
-            }),
         ],
     },
 };
