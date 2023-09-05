@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 2nd August 2023 5:05:08 pm                              #
+# Last Modified: Monday, 4th September 2023 10:29:37 pm                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -18,8 +18,8 @@
         unauthorized    /           = l.htm
         authorized      /           = i.htm
         authorized      /(.+)       = e.htm (404)
-        authorized      /app.js     = app.js (404)
-        authorized      /app.css    = app.css (404)
+        authorized      /app.js     = app.js
+        authorized      /app.css    = app.css
 
     -   AJAX RESPOMSE: ERROR
         { "err": "(code|description)" }
@@ -43,68 +43,66 @@
 
 extern AsyncWebServer httpd;
 extern void systemReboot();
-extern fLogClass sysLog;
-extern fLogClass snmpLog;
-extern fLogClass monTempLog;
-extern fLogClass monDataLog;
+extern fLogClass logsys;
+extern fLogClass logsnmp;
+extern fLogClass logTempMon;
+extern fLogClass logDataMon;
 
-static const char _httpTokenSalt[] PROGMEM = "rah2Eingie9aeWi";
+const char _httpTokenSalt[] = "rah2Eingie9aeWi";
 
-static const char _apiKeysDBPath[] PROGMEM = "/data/api";
+const char _apiKeysDBPath[] = "/data/api";
 
-static const char resPageLogin[] PROGMEM = "/l.htm";
-static const char resPageIndex[] PROGMEM = "/i.htm";
-static const char resPageError[] PROGMEM = "/e.htm";
-static const char resPageSetup[] PROGMEM = "/s.htm";
-static const char resCommonCss[] PROGMEM = "/c.css";
-static const char resLoginCss[] PROGMEM = "/l.css";
-static const char resIndexCss[] PROGMEM = "/i.css";
-static const char resErrorCss[] PROGMEM = "/e.css";
-static const char resSetupCss[] PROGMEM = "/s.css";
-static const char resCommonJs[] PROGMEM = "/c.js";
-static const char resLoginJs[] PROGMEM = "/l.js";
-static const char resIndexJs[] PROGMEM = "/i.js";
-static const char resErrorJs[] PROGMEM = "/e.js";
-static const char resSetupJs[] PROGMEM = "/s.js";
-static const char resFavicon[] PROGMEM = "/favicon.ico";
-static const char resSvgEye[] PROGMEM = "/eye.svg";
-static const char resSvgGth[] PROGMEM = "/gth.svg";
+const char resPageLogin[] = "/l.htm";
+const char resPageIndex[] = "/i.htm";
+const char resPageError[] = "/e.htm";
+const char resPageSetup[] = "/s.htm";
+const char resFavicon[] = "/favicon.ico";
+const char resSvgEye[] = "/eye.svg";
+const char resSvgGth[] = "/gth.svg";
 
-static const char headerCookie[] PROGMEM = "Cookie";
-static const char headerSetCookie[] PROGMEM = "Set-Cookie";
-static const char headerLocation[] PROGMEM = "Location";
-static const char cookieName[] PROGMEM = "TINYUPSSID=";
-static const char cookieNameReset[] PROGMEM = "TINYUPSSID=0; Max-Age=0";
-static const char cookieName2[] PROGMEM = "; path=/; Max-Age=";
+const char headerCookie[] = "Cookie";
+const char headerSetCookie[] = "Set-Cookie";
+const char headerLocation[] = "Location";
+const char cookieName[] = "TINYUPSSID=";
+const char cookieNameReset[] = "TINYUPSSID=0; Max-Age=0";
+const char cookieName2[] = "; path=/; Max-Age=";
 
-static const char mimeTextPlain[] PROGMEM = "text/plain";
-static const char mimeTextHtml[] PROGMEM = "text/html";
-static const char mimeTextCss[] PROGMEM = "text/css";
-static const char mimeAppJS[] PROGMEM = "application/javascript";
-static const char mimeAppJSON[] PROGMEM = "application/json";
-static const char mimeImgXICN[] PROGMEM = "image/x-icon";
-static const char mimeImgSVG[] PROGMEM = "image/svg+xml";
+const char mimeTextPlain[] = "text/plain";
+const char mimeTextHtml[] = "text/html";
+const char mimeTextCss[] = "text/css";
+const char mimeAppJS[] = "application/javascript";
+const char mimeAppJSON[] = "application/json";
+const char mimeImgXICN[] = "image/x-icon";
+const char mimeImgSVG[] = "image/svg+xml";
 
-static const char jsonLoginRepeat[] PROGMEM = "{\"login\":\"repeat\"}";
-static const char jsonLoginOK[] PROGMEM = "{\"login\":\"ok\"}";
-static const char jsonLoginERR[] PROGMEM = "{\"login\":\"err\",\"err\":\"Wrong login or password\"}";
+const char jsonLoginRepeat[] = "{\"login\":\"repeat\"}";
+const char jsonLoginOK[] = "{\"login\":\"ok\"}";
+const char jsonLoginERR[] = "{\"login\":\"err\",\"err\":\"Wrong login or password\"}";
 
-static const char maskDashbrd[] PROGMEM = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
+const char maskDashbrd[] = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
                                             "\"apmac\":\"%s\",\"apch\": %d,\"ram\": %.2f,\"ram3\": %.2f,\"cpu\": %d,"\
                                             "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"batchd\":\"%s\",\"battmp\":%.2f,"\
                                             "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,"\
                                             "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\":%lu,\"ctime\":\"%s\"}";
-static const char maskInfoGraph[] PROGMEM = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
-static const char maskGetConfig[] PROGMEM = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,\"ntptmoff\":%d,\"ntpdloff\":%d,"\
+const char maskInfoGraph[] = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
+const char maskGetConfig[] = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,\"ntptmoff\":%d,\"ntpdloff\":%d,"\
                                             "\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\","\
                                             "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
                                             "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"api\":[%s]}";
-static const char maskSurvey[] PROGMEM = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
+const char maskSurvey[] = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
 
-typedef struct {
-    char memo[16] = "";
+typedef struct ApiKeysT {
+    char * memo;
     time_t created = 0;
-    char key[32] = "";
+    char * key;
+    ApiKeysT() {
+        this->memo = reinterpret_cast<char *>(malloc((size_t)16));
+        this->key = reinterpret_cast<char *>(malloc((size_t)32));
+    }
+    ~ApiKeysT() {
+        free(this->memo);
+        free(this->key);
+    }
 } api_keys_t;
 
 #define _ALLOC_API_ARRAY(A)        do {                                 \

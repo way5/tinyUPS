@@ -1,0 +1,26 @@
+{
+    "esp32s2_lolin": {
+        "pin_monitor_adc_temp_sensor": 16,
+        "pin_monitor_fanctl": 38,
+        "pin_monitor_infreq": 12,
+        "pin_monitor_outfreq": 13,
+        "vica_b_flow_rev900": true,
+        "thermistor_mf52a102": true
+    },
+    "common": {
+        "system_log_size": 86016,
+        "snmp_log_size": 86016,
+        "mtemp_log_size": 86016,
+        "mdata_log_size": 86016,
+        "ups_rated_input_voltage": 120,
+        "ups_rated_input_freq": 60,
+        "ups_rated_low_input_voltage_threshold": 90,
+        "ups_rated_high_input_voltage_threshold": 130,
+        "ups_rated_output_voltage": 120,
+        "ups_rated_output_freq": 60,
+        "battery_rated_charge_capacity_ah": 18,
+        "ups_rated_battery_amps_max": 9,
+        "wifi_reconnect_method": 2
+    },
+    "version": "1.2.2"
+}

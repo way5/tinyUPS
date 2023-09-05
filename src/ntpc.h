@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:33 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 9:55:37 pm                                  #
+# Last Modified: Monday, 4th September 2023 10:59:39 am                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -32,7 +32,7 @@
         tm_wday: days since Sunday;
         tm_yday: days since January 1;
         tm_isdst: Daylight Saving Time flag;
-        
+
 */
 
 #ifndef NTPCCLASS_H
@@ -42,9 +42,9 @@
 #include "helpers.h"
 #include "esp_sntp.h"
 
-const char formatDatetime[] PROGMEM = "%d %b,%Y %T";
-static const uint32_t _sec_in_year = 31556952;
-static const uint32_t _sec_in_day = 86400;
+const char formatDatetime[] = "%d %b,%Y %T";
+const uint32_t _sec_in_year = 31556952;
+const uint32_t _sec_in_day = 86400;
 
 class NTPClientClass {
     public:

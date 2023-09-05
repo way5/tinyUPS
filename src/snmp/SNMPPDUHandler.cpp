@@ -26,7 +26,7 @@ bool handleGetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
         ValueCallback *callback = ValueCallback::findCallback(callbacks, requestVarBind.oid.get(), isGetNextRequest);
         if (!callback)
         {
-            __DF(PSTR("(!) no callback for: %s\n"), requestVarBind.oid->string().c_str());
+            __DF("(!) no callback for: %s\n", requestVarBind.oid->string().c_str());
 #if 1
             // According to RFC3416 we should be setting the value to 'noSuchObject' or 'noSuchInstance,
             // but this doesn't seem to render nicely in tools, so possibly revert to old NO_SUCH_NAME error
@@ -54,7 +54,7 @@ bool handleGetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
         if (!value)
         {
             __DL("(!) couldn't get value for callback");
-            snmpLog.putts(PSTR("(!) no callback value for OID: %s"), requestVarBind.oid->string().c_str());
+            logsnmp.putts("(!) no callback value for OID: %s", requestVarBind.oid->string().c_str());
             outResponseList.emplace_back(callback->OID, SNMP_ERROR_VERSION_CTRL(GEN_ERR, snmpVersion));
             continue;
         }
@@ -86,7 +86,7 @@ bool handleSetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
         ValueCallback *callback = ValueCallback::findCallback(callbacks, requestVarBind.oid.get(), false);
         if (!callback)
         {
-            __DF(PSTR("(!) no callback for: %s\n"), requestVarBind.oid->string().c_str());
+            __DF("(!) no callback for: %s\n", requestVarBind.oid->string().c_str());
             outResponseList.emplace_back(requestVarBind.oid, SNMP_ERROR_VERSION_CTRL_DEF(NOT_WRITABLE, snmpVersion, NO_SUCH_NAME));
             continue;
         }
@@ -95,7 +95,7 @@ bool handleSetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
 #endif
         if (callback->type != requestVarBind.type)
         {
-            __DF(PSTR("(!) callback type mismatch: %d\n"), callback->type);
+            __DF("(!) callback type mismatch: %d\n", callback->type);
             outResponseList.emplace_back(requestVarBind.oid, SNMP_ERROR_VERSION_CTRL_DEF(WRONG_TYPE, snmpVersion, BAD_VALUE));
             continue;
         }
@@ -110,8 +110,8 @@ bool handleSetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
         SNMP_ERROR_STATUS setError = ValueCallback::setValueForCallback(callback, requestVarBind.value);
         if (setError != NO_ERROR)
         {
-            __DF(PSTR("(!) setting variable failed: %d\n"), setError);
-            snmpLog.putts(PSTR("(!) error: %d, setting variable failed for OID: %s"), setError, requestVarBind.oid->string().c_str());
+            __DF("(!) setting variable failed: %d\n", setError);
+            logsnmp.putts("(!) error: %d, setting variable failed for OID: %s", setError, requestVarBind.oid->string().c_str());
             outResponseList.emplace_back(callback->OID, SNMP_ERROR_VERSION_CTRL(setError, snmpVersion));
             continue;
         }
@@ -121,7 +121,7 @@ bool handleSetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
         if (!value)
         {
             __DL("(!) failed to get value for callback");
-            snmpLog.putts(PSTR("(!) no callback value for OID: %s"), requestVarBind.oid->string().c_str());
+            logsnmp.putts("(!) no callback value for OID: %s", requestVarBind.oid->string().c_str());
             outResponseList.emplace_back(callback->OID, SNMP_ERROR_VERSION_CTRL(GEN_ERR, snmpVersion));
             continue;
         }
@@ -170,7 +170,7 @@ bool handleGetBulkRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<
             if (!value)
             {
                 __DL("(!) couldn't get value for callback");
-                snmpLog.putts(PSTR("(!) no callback value for OID: %s"), requestVarBind.oid->string().c_str());
+                logsnmp.putts("(!) no callback value for OID: %s", requestVarBind.oid->string().c_str());
                 outResponseList.emplace_back(callback->OID, GEN_ERR);
                 continue;
             }
@@ -208,7 +208,7 @@ bool handleGetBulkRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<
                 if (!value)
                 {
                     __DL("(!) couldn't get value for callback");
-                    snmpLog.putts(PSTR("(!) no callback value for OID: %s"), oid->string().c_str());
+                    logsnmp.putts("(!) no callback value for OID: %s", oid->string().c_str());
                     outResponseList.emplace_back(callback->OID, GEN_ERR);
                     break;
                 }

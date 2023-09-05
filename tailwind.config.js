@@ -4,7 +4,7 @@
 module.exports = {
     mode: "jit",
     content: [
-        "./src/**/*.{html,js,css,ico}",
+        "./web/src/**/*.{html,js,css,scss}",
         "./node_modules/flowbite/**/*.js",
     ],
     safelist: [
@@ -36,47 +36,40 @@ module.exports = {
                 exo: ["Exo 2", "Lucida Grande", "Helvetica Neue", "Arial"],
             },
             fontSize: {
-                xs: ".625rem", // 10px
-                sm: ".75rem", // 12px
-                tiny: ".875rem", // 14px
-                base: "1rem", // 16px
-                lg: "1.375rem", // 22px
-                xl: "1.75rem", // 28px
-                "2xl": "2.25rem", // 36px
-                "3xl": "2.625rem", // 42px
-                "4xl": "3rem", // 48px
-                "5xl": "3.25rem", // 52px
-                "6xl": "3.625rem", // 58px
-                "7xl": "3.875rem", // 62px
+                "xs":   ".625rem", // 10px
+                "sm":   ".813rem", // 13px
+                "base": "1rem", // 16px
+                "lg":   "1.375rem", // 22px
+                "xl":   "1.75rem", // 28px
+                "2xl":  "2.25rem", // 36px
+                "3xl":  "2.625rem", // 42px
+                "4xl":  "3rem", // 48px
+                "5xl":  "3.25rem", // 52px
+                "6xl":  "3.625rem", // 58px
+                "7xl":  "3.875rem", // 62px
             },
             borderRadius: {
                 none: "0",
-                sm: "5px",
-                md: "10px",
-                lg: "15px",
-                xl: "20px",
-                "2xl": "30px",
                 default: "5px",
+                "sm": "5px",
+                "md": "10px",
+                "lg": "15px",
+                "xl": "20px",
+                "2xl": "30px",
             },
             boxShadow: {
-                sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-                md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-                lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-                xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
-                "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
-                default:
-                    "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+                default: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
                 inner: "inset 0 2px 4px 0 rgb(0 0 0 / 0.05)",
                 none: "0 0 rgb(0, 0 / 0, 0)",
+                "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+                "md": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+                "xl": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+                "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
             },
             backgroundImage: {},
             colors: {
-                inherit: "inherit",
-                current: "currentColor",
-                transparent: "transparent",
-                white: "#ffffff",
-                black: "#000000",
-                red: {
+                "red": {
                     50: "#fff1f4",
                     100: "#ffe3e8",
                     200: "#ffcbd8",
@@ -89,7 +82,7 @@ module.exports = {
                     900: "#8c0f45",
                     950: "#4e0321",
                 },
-                yellow: {
+                "yellow": {
                     50: "#fffbeb",
                     100: "#fef3c7",
                     200: "#fde58a",
@@ -115,7 +108,7 @@ module.exports = {
                     900: "#064e34",
                     950: "#022c1e",
                 },
-                green: {
+                "green": {
                     50: "#f6faf3",
                     100: "#e9f5e3",
                     200: "#d3eac8",
@@ -128,7 +121,7 @@ module.exports = {
                     900: "#2b4522",
                     950: "#13250e",
                 },
-                violet: {
+                "violet": {
                     50: "#f3f1ff",
                     100: "#ebe5ff",
                     200: "#d9ceff",
@@ -141,7 +134,7 @@ module.exports = {
                     900: "#4b05ad",
                     950: "#2c0076",
                 },
-                brown: {
+                "brown": {
                     50: "#fbf6f5",
                     100: "#f6ecea",
                     200: "#f0dcd8",
@@ -154,7 +147,7 @@ module.exports = {
                     900: "#643f38",
                     950: "#351e1a",
                 },
-                gray: {
+                "gray": {
                     50: "#f8f8f8",
                     100: "#f0f0f0",
                     200: "#e4e4e4",
@@ -167,7 +160,7 @@ module.exports = {
                     900: "#4e4e4e",
                     950: "#282828",
                 },
-                base: {
+                "base": {
                     50: "#f5f4f9",
                     100: "#dfdaed",
                     200: "#bfb5da",
@@ -186,11 +179,10 @@ module.exports = {
         },
     },
     plugins: [
-        // * https://github.com/themesberg/flowbite
         require("flowbite/plugin"),
         require("@tailwindcss/forms"),
-        // require("@tailwindcss/aspect-ratio"),
         require("@tailwindcss/typography"),
+        // require("@tailwindcss/aspect-ratio"),
         // require("@tailwindcss/line-clamp"),
     ],
 };

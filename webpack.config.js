@@ -12,26 +12,29 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserWPPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const RemovePlugin = require("remove-files-webpack-plugin");
+// const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin");
+// const InlineChunkHtmlPlugin = require('inline-chunk-html-plugin');
 
-const isProduction = process.env.NODE_ENV == "production";
+const isProduction = process.env.NODE_ENV === "production";
+const webDataDir = path.resolve(__dirname, "web/data");
 
 const config = {
     entry: {
-        c: "./src/common.js",
-        i: {
-            import: "./src/index.js",
+        "c": path.resolve(__dirname, "web/src/common.js"),
+        "i": {
+            import: path.resolve(__dirname, "web/src/index.js"),
             dependOn: "c",
         },
-        s: {
-            import: "./src/setup.js",
+        "s": {
+            import: path.resolve(__dirname, "web/src/setup.js"),
             dependOn: "c",
         },
-        l: {
-            import: "./src/login.js",
+        "l": {
+            import: path.resolve(__dirname, "web/src/login.js"),
             dependOn: "c",
         },
-        e: {
-            import: "./src/error.js",
+        "e": {
+            import: path.resolve(__dirname, "web/src/error.js"),
             dependOn: "c",
         },
     },
@@ -39,39 +42,20 @@ const config = {
     output: {
         // Clean the output directory before emit.
         clean: false,
-        path: path.join(__dirname, "./data/"),
-        filename: "[name].js",
-        // publicPath: "",
+        path: webDataDir,
+        filename: "[name].js"
     },
-    optimization: {
-        minimize: isProduction,
-        minimizer: [
-            // See: https://github.com/webpack-contrib/css-minimizer-webpack-plugin
-            new CssMinimizerPlugin({
-                minimizerOptions: {
-                    preset: [
-                        "default",
-                        {
-                            discardComments: { 
-                                removeAll: true 
-                            },
-                        },
-                    ],
-                },
-            }),
-            new TerserWPPlugin({
-                minify: TerserWPPlugin.uglifyJsMinify,
-                extractComments: "all",
-                test: /\.js(\?.*)?$/i,
-                // terserOptions options will be passed to uglify-js
-                // See: https://github.com/mishoo/UglifyJS#minify-options
-                terserOptions: {
-                    ie: true,
-                    webkit: true,
-                    v8: true,
-                },
-            }),
+    resolve: {
+        // alias: {
+        //     components: path.resolve(__dirname, "components/"),
+        // },
+        modules: [
+            // Tell webpack what directories should be searched when resolving modules
+            path.resolve(__dirname, "node_modules/"),
         ],
+        // extensions: [
+        //     '.js', '.css', '.scss', '...'
+        // ]
     },
     plugins: [
         new webpack.ProvidePlugin({
@@ -80,30 +64,26 @@ const config = {
         }),
         // see: https://github.com/jantimon/html-webpack-plugin
         new HtmlWebpackPlugin({
-            title: "tinyUPS dashboard",
             filename: "i.htm",
-            template: "src/index.html",
+            template: "web/src/index.html",
             minify: true,
             chunks: ["c", "i"],
         }),
         new HtmlWebpackPlugin({
-            title: "tinyUPS setup",
             filename: "s.htm",
-            template: "src/setup.html",
+            template: "web/src/setup.html",
             minify: true,
             chunks: ["c", "s"],
         }),
         new HtmlWebpackPlugin({
-            title: "tinyUPS sign-in",
             filename: "l.htm",
-            template: "src/login.html",
+            template: "web/src/login.html",
             minify: true,
             chunks: ["c", "l"],
         }),
         new HtmlWebpackPlugin({
-            title: "404 Not Found",
             filename: "e.htm",
-            template: "src/error.html",
+            template: "web/src/error.html",
             minify: true,
             chunks: ["c", "e"],
         }),
@@ -121,6 +101,8 @@ const config = {
             filename: isProduction ? "[base]" : "[base].gz",
             deleteOriginalAssets: isProduction ? true : false,
         }),
+        // (isProduction ? new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/(i.ch|s.ch|l.ch|e.ch)/]) : null),
+        // (isProduction ? new HTMLInlineCSSWebpackPlugin.default() : null),
         // See: https://github.com/Amaimersion/remove-files-webpack-plugin
         new RemovePlugin({
             before: {
@@ -131,11 +113,12 @@ const config = {
             },
             after: {
                 // parameters for "after normal and watch compilation" stage.
-                root: "./data",
+                root: webDataDir,
                 test: [
                     {
                         folder: ".",
                         method: (absoluteItemPath) => {
+                            // return new RegExp(/\.(gz|map|ch.js|ch.css)$/, "m").test(
                             return new RegExp(/\.(gz|map)$/, "m").test(
                                 absoluteItemPath
                             );
@@ -165,24 +148,30 @@ const config = {
             host: "localhost",
             port: 8880,
             server: {
-                baseDir: ["data"],
+                baseDir: [
+                    webDataDir
+                ],
             },
         }),
         // Add your plugins here
         // Learn more about plugins from https://webpack.js.org/configuration/plugins/
     ],
-    resolve: {
-        alias: {
-            // core: path.join(__dirname, "core"),
-            components: path.join(__dirname, "./components/"),
-        },
-        modules: [
-            // Tell webpack what directories should be searched when resolving modules
-            path.join(__dirname, "./node_modules/"),
-        ],
-    },
     module: {
         rules: [
+            {
+                test: /\.(jsx?|tsx?)$/i,
+                exclude: [
+                    /node_modules/,
+                    /web\/data/
+                ],
+                use: [{
+                    // supporting old browsers
+                    loader: 'esbuild-loader',
+                    options: {
+                        target: 'es2015',
+                    },
+                }],
+            },
             {
                 test: /\.(jpe?g|png|gif|ico|svg)$/i,
                 type: "asset/resource",
@@ -204,11 +193,10 @@ const config = {
                         options: {
                             postcssOptions: {
                                 plugins: [
-                                    require("tailwindcss/nesting"),
                                     require("postcss-nesting"),
+                                    require("tailwindcss/nesting"),
                                     require("tailwindcss"),
-                                    require("autoprefixer"),
-                                    // require('postcss-import'),
+                                    require("autoprefixer")
                                 ],
                             },
                         },
@@ -221,6 +209,37 @@ const config = {
             },
             // Add your rules for custom modules here
             // Learn more about loaders from https://webpack.js.org/loaders/
+        ],
+    },
+    optimization: {
+        minimize: isProduction,
+        minimizer: [
+            // See: https://github.com/webpack-contrib/css-minimizer-webpack-plugin
+            new CssMinimizerPlugin({
+                minimizerOptions: {
+                    preset: [
+                        "default",
+                        {
+                            discardComments: {
+                                removeAll: true
+                            },
+                        },
+                    ],
+                },
+            }),
+            new TerserWPPlugin({
+                minify: TerserWPPlugin.uglifyJsMinify,
+                extractComments: false,
+                test: /\.js(\?.*)?$/i,
+                // terserOptions options will be passed to uglify-js
+                // See: https://github.com/mishoo/UglifyJS#minify-options
+                terserOptions: {
+                    ie: true,
+                    webkit: true,
+                    v8: true,
+                    annotations: false
+                },
+            }),
         ],
     },
 };

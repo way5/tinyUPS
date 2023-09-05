@@ -6,7 +6,7 @@
 #include "helpers.h"
 #include "flog.h"
 
-extern fLogClass snmpLog;
+extern fLogClass logsnmp;
 
 typedef enum {
     SNMP_NO_UDP = -10,

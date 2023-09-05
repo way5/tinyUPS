@@ -23,7 +23,7 @@ queue_and_send_trap(std::list<struct InformItem *> &informList, SNMPTrap *trap, 
     bool buildStatus = trap->buildForSending();
     if(!buildStatus) {
         __DL("(!) couldn't build trap");
-        snmpLog.putts(PSTR("(!) couldn't build trap"));
+        logsnmp.putts("(!) couldn't build trap");
         return INVALID_SNMP_REQUEST_ID;
     };
     __DF("%u informs in informList\n", informList.size());

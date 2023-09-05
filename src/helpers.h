@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Saturday, 5th August 2023 2:44:35 pm                               #
+# Last Modified: Monday, 4th September 2023 10:13:57 pm                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -30,10 +30,11 @@
 #include <WiFi.h>
 #include <sys/param.h>
 
-// #define DEBUG                           5
+// #define DEBUG                           6
 #define _STRING(x)                      #x
 #define STRING(x)                       _STRING(x)
 #define VERSION_UI                      STRING(VERSION_WEBUI)
+#define VERSION_FW                      STRING(VERSION_FIRMWARE)
 
 typedef enum
 {
@@ -88,26 +89,25 @@ typedef enum
 #endif
 
 // config
-typedef struct configT
+typedef struct
 {                                                   // Configurable, Units
     // - WiFi (both 32 octets max)
     char ssid[32] = "";                             // V
     char ssidkey[32] = "";                          // V
-    char apkey[32] = "iesh3Iequaef";                // X
+    char apkey[32] = "iesh3Iequaef";                // V
     // - NTP
     char ntpServer[20] = "pool.ntp.org";            // V
     char ntpServerFB[20] = "time.google.com";       // V
-    uint16_t ntpSyncInterval = 21600;               // V, sec
+    uint16_t ntpSyncInterval = 21600;               // V, second
     // variable defines the offset in seconds for daylight
     // saving time. It is generally one hour, that corresponds to 3600 seconds
     int32_t ntpDaylightOffset = 0;                  // X, sec
-    // uint16_t ntpPort = 1337;                             // V
     // (GMT -1 = -3600, GMT 0 = 0, GMT +1 = 3600)
     int8_t ntpTimeOffset = 0; // V, hrs
     // - Auth (both 16 octets max)
     char admLogin[16] = "";                         // V
     char admPassw[16] = "";                         // V
-    uint16_t authTimeoutMax = 3600;                 // V, seconds
+    uint16_t authTimeoutMax = 3600;                 // V, second
     // - SYS: DIGIT
     float batteryTempUT = 55.00;                    // V, degree C
     float batteryTempLT = 45.00;                    // V, degree C
@@ -135,7 +135,7 @@ typedef struct configT
 } config_t;
 extern config_t config;
 
-// web Server
+// session for web server
 typedef struct
 {
     char authToken[64] = "";
@@ -147,10 +147,15 @@ extern session_t session;
 typedef struct
 {
     bool upsBatteryStatusChange = false;
-    bool upsOutputStateChange = false;
-    bool upsBatteryCapacityChange = false;
+    bool upsOutputStateChange = true;
+    bool upsBatteryCapacityChange = true;
     // when failed to connect to config.ssid
-    // bool wifiAPConnectFailed = false;
+    bool isActiveFilesystem = true;
+    bool wifiIsInAPMode = false;
+    bool wifiAPConnectSuccess = false;
+    bool isActiveSnmpAgent = false;
+    bool isActiveHttpd = false;
+    bool isActiveMonitor = false;
 } common_event_t;
 volatile extern common_event_t systemEvent;
 
@@ -215,9 +220,12 @@ typedef struct
 } monitor_data_t;
 extern monitor_data_t monitorData;
 
-// paths
-const char _logDirPath[] PROGMEM = "/logs";
-const char _dataDirPath[] PROGMEM = "/data";
+const char _logDirPath[] = "/logs";
+const char _dataDirPath[] = "/data";
+const char _sysLogPath[] = "/logs/sys";
+const char _snmpLogPath[] = "/logs/snmp";
+const char _logTempMonPath[] = "/logs/montmp";
+const char _logDataMonPath[] = "/logs/monbdta";
 
 void val2str(float val, char *buffer, uint8_t prec = 2);
 void val2str(int val, char *buffer);
@@ -229,28 +237,6 @@ void str2val(char *buffer, long *val);
 void str2val(char *buffer, unsigned long *val);
 void str2val(char *buffer, int *val);
 void str2val(char *buffer, unsigned int *val);
-
-void pgm_str(const char *data, char *buffer, bool append = false);
-// template <typename T> void val2hex(T n, char * b) {
-//     char h[32] = "";
-//     uint8_t i = 0;
-//     while(n > 0) {
-//         switch(n%16) {
-//             case 10: h [i] = 'A'; break;
-//             case 11: h [i] = 'B'; break;
-//             case 12: h [i] = 'C'; break;
-//             case 13: h [i] = 'D'; break;
-//             case 14: h [i] = 'E'; break;
-//             case 15: h [i] = 'F'; break;
-//             default: h [i] = ( n%16 ) + 0x30;
-//         }
-//         n /= 16;
-//         i++;
-//     }
-//     for(uint8_t a = (i-1); a >= 0; a--, b++) {
-//         *b = h[a];
-//     }
-// };
 void str2dt(const char *str, char *buffer);
 void str2snmpdt(const char *str, char *buffer);
 void dt2str(const char *dt, char *buffer);

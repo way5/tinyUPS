@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 7:24:45 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 26th July 2023 5:05:06 pm                               #
+# Last Modified: Monday, 4th September 2023 1:35:44 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -15,48 +15,18 @@
 #include "flog.h"
 
 /**
- * @brief
+ * @brief Should run (optionally) just after the FS has been initialized
+ *        in order to assure the file exists at all times.
  *
- * @param name
- * @param size_max
+ * @return size_t
 */
-// void fLogClass::init(const __FlashStringHelper * name, uint16_t size_max) {
-void fLogClass::init(const char * name, size_t size_max) {
-    // PGM_P nm = reinterpret_cast<PGM_P>(name);
-    // pgm_str(nm, _name);
-    _name = name;
-    // _f = LittleFS.open(_name, FILE_APPEND);
-    _f = FFat.open(_name, FILE_APPEND);
-    _smax = size_max;
-#if DEBUG == 1
-    __DF("%s ready\n", _name);
-#endif
-}
-
-/**
- * @brief Do truncate this log file if needed
- *
- * @param fs
- * @return true
- * @return false
-*/
-bool fLogClass::logRotate(size_t fs) {
-    if(_smax == 0) return false;
-    if(fs >= _smax) {
-        char * bkp_name;
-        _CHB(bkp_name, 16);
-        strcpy(bkp_name, _name);
-        strcat(bkp_name, ".0");
-        close();
-        // check if log file backup already exists
-        if(FFat.exists(bkp_name)) {
-            FFat.remove(bkp_name);
-        }
-        FFat.rename(_name, bkp_name);
-        _CHBD(bkp_name);
-        return true;
-    }
-    return false;
+size_t fLogClass::touch() {
+    // beating FR_NO_FILE exception. an easy way.
+    if(_smax == 0) return 0;
+    size_t _fs = this->open();
+    delay(100);
+    this->close();
+    return _fs;
 }
 
 /**
@@ -66,17 +36,17 @@ bool fLogClass::logRotate(size_t fs) {
  * @param ...
  * @return size_t
 */
-size_t fLogClass::put(PGM_P str, ...) {
+size_t fLogClass::put(const char * str, ...) {
     if(_smax == 0) return 0;
     char * b;
     size_t fs;
     _CHB(b, 256);
     va_list args;
     va_start(args, str);
-    vsnprintf_P(b, 256, str, args);
+    vsnprintf(b, 256, str, args);
     va_end(args);
-    strcat_P(b, CHAR_NL);
-    fs = write(b);
+    strcat(b, CHAR_NL);
+    fs = this->write(b);
     _CHBD(b);
 
     return fs;
@@ -89,86 +59,69 @@ size_t fLogClass::put(PGM_P str, ...) {
  * @param ...
  * @return size_t
 */
-size_t fLogClass::putts(PGM_P str, ...) {
+size_t fLogClass::putts(const char * str, ...) {
     if(_smax == 0) return 0;
     char * b;
     size_t fs;
     _CHB(b, 256);
     // writing timestamp
     ntp.getDatetime(b);
-    strcat_P(b, CHAR_SPRT);
-    fs = write(b);
+    strcat(b, CHAR_SPRT);
+    fs = this->write(b);
     _CHBC(b);
     // writing data
     va_list args;
     va_start(args, str);
-    vsnprintf_P(b, 256, str, args);
+    vsnprintf(b, 256, str, args);
     va_end(args);
-    strcat_P(b, CHAR_NL);
-    fs += write(b);
+    strcat(b, CHAR_NL);
+    fs += this->write(b);
     _CHBD(b);
 
     return fs;
 }
 
 /**
- * @brief
+ * @brief Do truncate this log file if needed
  *
- * @param str
- * @return size_t
+ * @param fs
+ * @return true
+ * @return false
 */
-size_t fLogClass::put(const __FlashStringHelper * str) {
-    if(_smax == 0) return 0;
-    size_t fs;
-    char * b;
-    _CHB(b, 256);
-    PGM_P pgm = reinterpret_cast<PGM_P>(str);
-    memcpy_P(b, pgm, strlen_P(pgm));
-    strcat_P(b, CHAR_NL);
-    fs = write(b);
-    _CHBD(b);
-
-    return fs;
+bool fLogClass::logRotate(size_t & fs) {
+    fs = this->open();
+    if(fs >= _smax) {
+        char * bkp_path;
+        _CHB(bkp_path, 16);
+        strcpy(bkp_path, _path);
+        strcat(bkp_path, ".0");
+        this->close();
+        // check if log file backup already exists
+        if(FFat.exists(bkp_path)) {
+            FFat.remove(bkp_path);
+        }
+        FFat.rename(_path, bkp_path);
+        _CHBD(bkp_path);
+        fs = this->open();
+        return true;
+    }
+    return false;
 }
 
 /**
- * @brief Writes F() string into log
- *
- * @param str
- * @return size_t
-*/
-size_t fLogClass::putts(const __FlashStringHelper * str) {
-    if(_smax == 0) return 0;
-    char * b;
-    _CHB(b, 48);
-    // writing timestamp
-    ntp.getDatetime(b);
-    strcat_P(b, CHAR_SPRT);
-    write(b);
-    _CHBD(b);
-
-    return put(str);
-}
-
-/**
- * @brief
+ * @brief Writes string into file(_path) and returns the number of characters written
  *
  * @param str
 */
 size_t fLogClass::write(const char * str) {
-    if(_smax == 0) return 0;
-    // open log
-    size_t fs = open();
+    size_t fs;
     if(logRotate(fs)) {
-        fs = open();
-        sysLog.put(PSTR("(i) logrotate: %s"), this->_name);
+        logsys.put("(i) logrotate: %s", this->_path);
     }
-    // write data
     fs = _f.print(str);
 #if DEBUG == 1
-    __DF(PSTR("puts to %s: %d chars\n"), _name, fs);
+    __DF("puts to %s: %d chars\n", _path, fs);
 #endif
-    // close log
     close();
     delay(100);
     return fs;
@@ -180,8 +133,7 @@ size_t fLogClass::write(const char * str) {
  * @return size_t
 */
 size_t fLogClass::open() {
-    if(_smax == 0) return 0;
-    _f = FFat.open(_name, "a");
+    _f = FFat.open(_path, FILE_APPEND);
     return _f.size();
 }
 
@@ -190,7 +142,5 @@ size_t fLogClass::open() {
  *
 */
 void fLogClass::close() {
-    if(_smax == 0) return;
-    // _f.flush();
     _f.close();
 }

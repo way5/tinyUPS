@@ -4,7 +4,7 @@
 static SNMP_PERMISSION getPermissionOfRequest(const SNMPPacket& request) { // , const std::string& _community, const std::string& _readOnlyCommunity){
     SNMP_PERMISSION requestPermission = SNMP_PERM_NONE;
 #if DEBUG == 5
-    __DF(PSTR("community string: %s\n"), request.communityString.c_str());
+    __DF("community string: %s\n", request.communityString.c_str());
 #endif
     // if(!_readOnlyCommunity.empty() && _readOnlyCommunity == request.communityString) { // snmprequest->version != 1
     if(strlen(config.snmpGetCN) != 0 && strcmp(config.snmpGetCN, request.communityString.c_str()) == 0) { 
@@ -56,7 +56,7 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
     SNMP_PERMISSION requestPermission = getPermissionOfRequest(request); //, _community, _readOnlyCommunity);
     if(requestPermission == SNMP_PERM_NONE){
         __DF("(!) invalid community provided: %s, no response to give\n", request.communityString.c_str());
-        snmpLog.putts(PSTR("(!) invalid community provided: %s, no response to give"), request.communityString.c_str());
+        logsnmp.putts("(!) invalid community provided: %s, no response to give", request.communityString.c_str());
         return SNMP_REQUEST_INVALID_COMMUNITY;
     }
     
@@ -78,7 +78,7 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
         case GetBulkRequestPDU:
             if(request.snmpVersion != SNMP_VERSION_2C) {
                 __DL("(i) received GetBulkRequest in SNMP_VERSION_1");
-                snmpLog.putts(PSTR("(i) received GetBulkRequest in SNMP_VERSION_1"));
+                logsnmp.putts("(i) received GetBulkRequest in SNMP_VERSION_1");
                 pass = false;
                 globalError = GEN_ERR;
             } else {
@@ -89,7 +89,7 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
         case SetRequestPDU:
             if(requestPermission != SNMP_PERM_READ_WRITE){
                 __DL("(!!) attempt to SET without permissions");
-                snmpLog.putts(PSTR("(!!) attempt to SET without permissions"));
+                logsnmp.putts("(!!) attempt to SET without permissions");
                 pass = false;
                 globalError = NO_ACCESS;
             } else {
@@ -126,7 +126,7 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
     *responseLength = response.serialiseInto(buffer, SNMP_MAX_PACKET_LENGTH);
     if(*responseLength <= 0){
         __DL("(!) failed to build response packet\n");
-        snmpLog.putts(PSTR("(!) failed to build response packet"));
+        logsnmp.putts("(!) failed to build response packet");
         return SNMP_FAILED_SERIALISATION;
     }
 

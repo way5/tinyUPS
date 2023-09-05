@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:40 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 2nd August 2023 5:02:57 pm                              #
+# Last Modified: Monday, 4th September 2023 12:30:24 pm                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -55,18 +55,18 @@ status_t NTPClientClass::forceUpdate() {
     uint8_t cntr = 0;
     while(true) {
         if(!getLocalTime(&timeinfo)) {
-            __DL(F("(!) failed to retrieve local time\n"));
+            __DL("(!) failed to retrieve local time\n");
             // ATTN: do not exit here, we need the _startTime to be != 0. Requires testing
         } else
             break;
         cntr++;
         if(cntr == 3) {
-            __DL(F("(!) giving up..."));
+            __DL("(!) giving up...");
             break;
         }
     }
 #if DEBUG == 2
-    __DF(PSTR("%s update, tz(%i)\n"), config.ntpServer, config.ntpTimeOffset);
+    __DF("%s update, tz(%i)\n", config.ntpServer, config.ntpTimeOffset);
 #endif
     struct timeval tval;
     time_t timeSinceEpoch = mktime(&timeinfo);
@@ -110,9 +110,9 @@ void NTPClientClass::getDatetime(char *b, const char * format) {
 void NTPClientClass::timestampToString(char *b) {
     if (WiFi.status() == WL_CONNECTED) {
         time_t e = this->getEpoch();
-        sprintf_P(b, PSTR("%ld"), e);
+        sprintf(b, "%ld", e);
     } else {
-        strcpy_P(b, PSTR("0"));
+        strcpy(b, "0");
     }
 }
 
@@ -161,29 +161,29 @@ void NTPClientClass::uptimeHR(char *buffer) {
         year = floor(upt / _sec_in_year);
         upt = upt % _sec_in_year;
         val2str(year, buffer);
-        strcat_P(buffer, PSTR(" year "));
+        strcat(buffer, " year ");
     }
     if (upt > _sec_in_day) {
         day = floor(upt / _sec_in_day);
         upt = upt % _sec_in_day;
         val2str(day, buffer);
-        strcat_P(buffer, PSTR(" day "));
+        strcat(buffer, " day ");
     }
     if (upt > 3600) {
         hour = floor(upt / 3600);
         upt = upt % 3600;
         val2str(hour, buffer);
-        strcat_P(buffer, PSTR(" hrs "));
+        strcat(buffer, " hrs ");
     }
     if(upt > 60) {
         min = floor(upt / 60);
         upt = upt % 60;
         val2str(min, buffer);
-        strcat_P(buffer, PSTR(" min "));
+        strcat(buffer, " min ");
     }
     if(upt != 0) {
         val2str(upt, buffer);
-        strcat_P(buffer, PSTR(" sec"));
+        strcat(buffer, " sec");
     }
 }
 

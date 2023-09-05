@@ -314,17 +314,17 @@
                         </span>
                     </h2>
                     <div class="grow">
-                        <div id="syslog" class="logarea" aria-url="/syslog" aria-name="system log">
+                        <div id="logsys" class="logarea" aria-url="/logsys" aria-name="system log">
                             <div class="logdata"></div>
                             <div class="fade"></div>
                         </div>
-                        <div id="snmplog" class="logarea hidden" aria-url="/snmplog" aria-name="snmp log">
+                        <div id="logsnmp" class="logarea hidden" aria-url="/logsnmp" aria-name="snmp log">
                             <div class="logdata"></div>
                             <div class="fade"></div>
                         </div>
                         <div class="flatnav">
                             <div class="nav">
-                                <a href="#syslog" class="active" aria-click-callback="scrollBottom">
+                                <a href="#logsys" class="active" aria-click-callback="scrollBottom">
                                     <!-- <img src="svg/puls.svg" width="16px" /> -->
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -335,7 +335,7 @@
                                 </a>
                             </div>
                             <div class="nav">
-                                <a href="#snmplog" aria-click-callback="scrollBottom">
+                                <a href="#logsnmp" aria-click-callback="scrollBottom">
                                     <!-- <img src="svg/brcast.svg" width="16px" /> -->
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -679,7 +679,7 @@
                                             border-gray-200 dark:border-base-300">
                                         <div class="px-3 py-3">
                                             <form name="add-api-key-form" action="" method="POST">
-                                                <input type="hidden" value="" name="apik">
+                                                <input type="hidden" value="" name="apik" minlength="3" maxlength="16">
                                                 <p class="">
                                                     <input type="text" class="w-full" value="" placeholder=""
                                                         data-i18n="[placeholder]index.apiYetAnotherKey" name="apikm"

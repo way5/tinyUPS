@@ -231,8 +231,8 @@ $.extend(tinyUPS, {
     addAPIkey: "/addapikey",
     delAPIkey: "/delapikey",
     toggleCoolingUrl: "/coolingctrl",
-    sysLog: null,
-    snmpLog: null,
+    logsys: null,
+    logsnmp: null,
     dashboardData: {},
     // local variables
     scanResult: null,
@@ -240,7 +240,7 @@ $.extend(tinyUPS, {
     pwstChartData: [],
     configData: null,
     refreshLogsIntl: 15000,
-    refreshDashIntl: 13000,
+    refreshDashIntl: 12000,
     refreshtempChartIntl: 10000,
     resetCountdownIntl: 12000,
     // charts
@@ -382,7 +382,7 @@ $.extend(tinyUPS, {
                     $(ts)
                         .find(".tab-conts")
                         .each(function (i) {
-                            if ($(this).prop("id") == tgt)
+                            if ($(this).prop("id") === tgt)
                                 $(this).removeClass("hidden");
                             else $(this).addClass("hidden");
                         });
@@ -422,17 +422,17 @@ $.extend(tinyUPS, {
                 });
         });
         // logs
-        this.sysLog = new logArea($("#syslog"));
-        this.sysLog.reload();
-        this.snmpLog = new logArea($("#snmplog"));
-        this.snmpLog.reload();
+        this.logsys = new logArea($("#logsys"));
+        this.logsys.reload();
+        this.logsnmp = new logArea($("#logsnmp"));
+        this.logsnmp.reload();
         // hashchange
         $(window).on("hashchange", (e) => {
             switch (location.hash) {
                 case "#home":
                     this.getDashData();
-                    this.sysLog.reload();
-                    this.snmpLog.reload();
+                    this.logsys.reload();
+                    this.logsnmp.reload();
                     break;
                 case "#conf":
                     this.getSurvey();
@@ -440,7 +440,7 @@ $.extend(tinyUPS, {
                     break;
             }
         });
-        if (location.hash == "#home" || location.hash == "") this.getDashData();
+        if (location.hash === "#home" || location.hash === "") this.getDashData();
         window.dispatchEvent(new Event("hashchange"));
         // submit config
         $("input[name=configsys]").on("click", function (e) {
@@ -844,7 +844,7 @@ $.extend(tinyUPS, {
                                 label(ct, it) {
                                     // console.log(ct);
                                     let ttp = [];
-                                    if (ct.datasetIndex == 0) {
+                                    if (ct.datasetIndex === 0) {
                                         let st = new Date(
                                             ct.raw.x
                                         ).toLocaleDateString();
@@ -888,7 +888,7 @@ $.extend(tinyUPS, {
                                                     ")"
                                             );
                                         });
-                                    } else if (ct.datasetIndex == 1) {
+                                    } else if (ct.datasetIndex === 1) {
                                         let st = new Date(ct.raw.x);
                                         ttp = [
                                             " " +
@@ -1208,11 +1208,11 @@ $.extend(tinyUPS, {
                     p[1] = parseInt(p[1]);
                     p[2] = parseInt(p[2]);
                     // 3 - on battery, 2 - on-line
-                    if (p[2] == 0) {
+                    if (p[2] === 0) {
                         prg.push([p[0], p[1]]);
-                        if (p[1] == 3) {
+                        if (p[1] === 3) {
                             ds = p[0];
-                        } else if (p[1] == 2 && ds != 0) {
+                        } else if (p[1] === 2 && ds !== 0) {
                             this.charts["pwrmx"].data.datasets[0].data.push({
                                 x: ds,
                                 y: dayNumber(ds),
@@ -1223,7 +1223,7 @@ $.extend(tinyUPS, {
                             ds = 0;
                             prg = [];
                         }
-                    } else if (p[2] == 1) {
+                    } else if (p[2] === 1) {
                         this.charts["pwrmx"].data.datasets[1].data.push({
                             x: p[0],
                             y: dayNumber(p[0]),
@@ -1329,8 +1329,8 @@ $.extend(tinyUPS, {
         const self = this;
         if (s) {
             this.intls["logarf"] = setInterval(function () {
-                self.sysLog.reload();
-                self.snmpLog.reload();
+                self.logsys.reload();
+                self.logsnmp.reload();
             }, self.refreshLogsIntl);
         } else {
             clearInterval(this.intls.logarf);
@@ -1399,7 +1399,7 @@ $.extend(tinyUPS, {
                         if (countdown >= 0) {
                             $(countdownEl).html(countdown);
                             if (countdown == 0) {
-                                location.reload();
+                                window.location.reload();
                             }
                         }
                     }, 1000);
@@ -1533,7 +1533,7 @@ $.extend(tinyUPS, {
                     // TIMEZONEs
                     let list = $("select[name=ntptmoff]");
                     list.find("option").each(function (i) {
-                        if (parseInt($(this)[0].value) == r.ntptmoff) {
+                        if (parseInt($(this)[0].value) === r.ntptmoff) {
                             // console.log("TZ exists: " + $(this)[0].index);
                             // $(el).attr("selected", true);
                             list[0].selectedIndex = $(this)[0].index;

@@ -130,7 +130,7 @@ var tinyUPS = {
             e.preventDefault();
             this.getSurvey();
         });
-        var pkg = require("../package.json");
+        var pkg = require("../../package.json");
         this.uiVer = pkg.version;
         pkg = null;
         // footer
@@ -167,7 +167,7 @@ var tinyUPS = {
         }
     },
     handleErrorResponse: function (o, ts, e) {
-        if (o.status == 401) {
+        if (o.status === 401) {
             window.location.reload();
         } else {
             ohSnap($.t("js.errCommunication"), this.err);
@@ -182,7 +182,7 @@ var tinyUPS = {
                 "//" +
                 window.location.hostname +
                 this.surveyUrl,
-            // url: "http://local.ims:8888/?test=1",
+            // url: testURL + "/?test=1",
             type: 'POST',
             dataType: "json",
             success: (r) => {
@@ -244,7 +244,7 @@ var tinyUPS = {
                 "//" +
                 window.location.hostname +
                 this.rebootURL,
-            // url: "http://local.ims:8888/?test=34",
+            // url: testURL + "/?test=34",
             dataType: "json",
             type: 'POST',
             success: (r) => {
@@ -257,8 +257,8 @@ var tinyUPS = {
                             countdown -= 1;
                             if (countdown >= 0) {
                                 $(countdownEl).html(countdown);
-                                if (countdown == 0) {
-                                    location.reload();
+                                if (countdown === 0) {
+                                    window.location.reload();
                                 }
                             }
                         }, 1000);

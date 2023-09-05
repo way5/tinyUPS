@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.h                                                         #
 # File Created: Thursday, 8th June 2023 9:45:49 pm                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 10:28:56 pm                                 #
+# Last Modified: Tuesday, 15th August 2023 12:33:36 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -21,15 +21,6 @@
 #define PIN_MONITOR_SPIMOSI                                 34
 #define PIN_MONITOR_SPICLK                                  37
 #define PIN_MONITOR_SPICS                                   33
-// defaults
-// #define UPS_RATED_INPUT_VOLTAGE                         120
-// #define UPS_RATED_INPUT_FREQ                            60
-// #define UPS_RATED_LOW_INPUT_VOLTAGE_THRESHOLD           100
-// #define UPS_RATED_HIGH_INPUT_VOLTAGE_THRESHOLD          130
-// #define UPS_RATED_OUTPUT_VOLTAGE                        120
-// #define UPS_RATED_OUTPUT_FREQ                           60
-// #define BATTERY_RATED_CHARGE_CAPACITY_Ah                18
-// #define UPS_RATED_BATTERY_AMPS_MAX                      9
 // length of multiples of 4 bytes
 #define MONSPI_RX_BUFFER_LENGTH                             8
 #define MONSPI_TICKS_TO_WAIT                                0xFF

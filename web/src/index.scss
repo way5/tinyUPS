@@ -21,7 +21,7 @@
     @apply inline-flex relative items-center cursor-pointer;
 
     .toggle-btn-sw {
-        @apply w-9 h-5 bg-base-200 rounded-full dark:bg-base-700 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+        @apply relative w-9 h-5 bg-base-200 rounded-full dark:bg-base-700 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all
                 dark:border-base-600;
     }

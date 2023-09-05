@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Sunday, 29th May 2022 2:02:52 am                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 26th July 2023 4:57:22 pm                               #
+# Last Modified: Monday, 4th September 2023 11:19:42 am                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -218,33 +218,6 @@ void str2val(char *buffer, unsigned int *val)
 }
 
 /**
- * @brief Read value from PROGMEM to an empty
- *        or append to existing buffer
- *
- * @param data
- * @param buffer
- */
-void pgm_str(const char *data, char *buffer, bool append)
-{
-    uint8_t l = strlen_P(data);
-    if (l != 0)
-    {
-        uint8_t bdata_length = strlen(buffer);
-        if (!append)
-        {
-            memset(buffer, '\0', bdata_length);
-            bdata_length = 0;
-        }
-        uint8_t cntr = 0;
-        while (cntr < l)
-        {
-            *(buffer + (bdata_length + cntr)) = (char)pgm_read_byte_near((data + cntr));
-            cntr++;
-        }
-    }
-}
-
-/**
  * @brief Helper for date conversion functions
  *
  * @param str
@@ -252,7 +225,7 @@ void pgm_str(const char *data, char *buffer, bool append)
  * @param m
  * @param y
  */
-static inline void _helper_str2dt(const char *str, char *d, char *m, char *y)
+inline void _helper_str2dt(const char *str, char *d, char *m, char *y)
 {
     uint8_t c = 0;
     uint8_t i = 0;

@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 2nd December 2019 3:22:49 pm                                #
 # Author: sk                                                                        #
-# Last Modified: Wednesday, 26th July 2023 4:47:33 pm                               #
+# Last Modified: Monday, 4th September 2023 12:23:36 pm                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -89,7 +89,7 @@ static ValueCallback * cbEntDiagBatteryStatus;
 inline static char * getName() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, sysName);
+    strcpy(buffer, sysName);
     return buffer;
 }
 
@@ -97,7 +97,7 @@ inline static char * getName() {
 inline static char * getDescr() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, sysDescr);
+    strcpy(buffer, sysDescr);
     return buffer;
 }
 
@@ -105,7 +105,7 @@ inline static char * getDescr() {
 inline static char * getVendor() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, sysName);
+    strcpy(buffer, sysName);
     return buffer;
 }
 
@@ -136,7 +136,7 @@ inline static char * snmpGetIdentSerialNumber() {
 inline static char * snmpGetIdentDateOfManufact() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, IdentDateOfManufact);
+    strcpy(buffer, IdentDateOfManufact);
     return buffer;
 }
 
@@ -157,7 +157,7 @@ inline static char * getAdvTestLastDiagnosticsDate() {
 inline static char * getBasicBatteryLastReplaceDate() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, IdentFirmwareRevision);
+    strcpy(buffer, IdentFirmwareRevision);
     return buffer;
 }
 
@@ -337,10 +337,9 @@ inline static int getDiagBatteryStatus() {
 }
 
 /**
- * @brief
- *
- * @return true
- * @return false
+ * @brief Initializer for SNMP Agent
+ * 
+ * @return status_t 
 */
 status_t AgentClass::init() {
     char *_oid;
@@ -348,7 +347,7 @@ status_t AgentClass::init() {
     if (!this->restartUDP())
     {
 #ifdef DEBUG
-        __DL(F("(!) snmp udp failed"));
+        __DL("(!) snmp udp failed");
 #endif
         return ERR;
     }
@@ -534,11 +533,11 @@ status_t AgentClass::init() {
     // and OID callbacks - this makes snmpwalk work
     sortHandlers();
 
-    this->active = true;
+    systemEvent.isActiveSnmpAgent = true;
 
-    __DL(F("(i) snmp init done"));
+    __DL("(i) snmp init done");
     // snmp inform #1
-    snmpLog.put(PSTR("-- init at ports: %d / %d"), config.snmpPort, config.snmpTrapPort);
+    logsnmp.put("-- init at ports: %d / %d", config.snmpPort, config.snmpTrapPort);
 
     return OKAY;
 }
@@ -577,8 +576,8 @@ void AgentClass::kill() {
 */
 inline void AgentClass::compileOID(const char * baseOID, const char * specOID, char * dest) {
     memset(dest, '\0', SNMP_BUFFER_SIZE);
-    strcpy_P(dest, baseOID);
-    strcat_P(dest, specOID);
+    strcpy(dest, baseOID);
+    strcat(dest, specOID);
 }
 
 
@@ -652,13 +651,13 @@ inline void AgentClass::compileOID(const char * baseOID, const char * specOID, c
 SNMP_ERROR_RESPONSE AgentClass::loop(){
     int packetLength = snmpUDP.parsePacket();
     if(packetLength > 0) {
-        // __DF(PSTR("received packet from: %s, of size: %d\n"), _udp->remoteIP().toString().c_str(), packetLength);
+        // __DF("received packet from: %s, of size: %d\n", _udp->remoteIP().toString().c_str(), packetLength);
     #if DEBUG == 5
-        __DF(PSTR("received packet from: %s, of size: %d\n"), snmpUDP.remoteIP().toString().c_str(), packetLength);
+        __DF("received packet from: %s, of size: %d\n", snmpUDP.remoteIP().toString().c_str(), packetLength);
     #endif
         if(packetLength < 0 || packetLength > SNMP_MAX_PACKET_LENGTH) {
-            __DF(PSTR("(!) incoming packet too large: %d\n"), packetLength);
-            snmpLog.putts(PSTR("(!) incoming packet too large: %d"), packetLength);
+            __DF("(!) incoming packet too large: %d\n", packetLength);
+            logsnmp.putts("(!) incoming packet too large: %d", packetLength);
             return SNMP_REQUEST_TOO_LARGE;
         }
 
@@ -667,8 +666,8 @@ SNMP_ERROR_RESPONSE AgentClass::loop(){
         // int readBytes = _udp->read(_snmpPacketBuffeer, packetLength);
         int readBytes = snmpUDP.read(_snmpPacketBuffeer, packetLength);
         if(readBytes != packetLength){
-            __DF(PSTR("(!) packet length mismatch: expected: %d, actual: %d\n"), packetLength, readBytes);
-            snmpLog.putts(PSTR("(!) packet length mismatch: expected: %d, actual: %d"), packetLength, readBytes);
+            __DF("(!) packet length mismatch: expected: %d, actual: %d\n", packetLength, readBytes);
+            logsnmp.putts("(!) packet length mismatch: expected: %d, actual: %d", packetLength, readBytes);
             return SNMP_REQUEST_INVALID;
         }
 
@@ -680,14 +679,14 @@ SNMP_ERROR_RESPONSE AgentClass::loop(){
         if(response > 0 && response != SNMP_INFORM_RESPONSE_OCCURRED){
             // send it
         #if DEBUG == 5
-            __DF(PSTR("sending response to: %s:%d\n"), snmpUDP.remoteIP().toString().c_str(), snmpUDP.remotePort());
+            __DF("sending response to: %s:%d\n", snmpUDP.remoteIP().toString().c_str(), snmpUDP.remotePort());
         #endif
             snmpUDP.beginPacket(snmpUDP.remoteIP(), snmpUDP.remotePort());
             snmpUDP.write(_snmpPacketBuffeer, responseLength);
 
             if(!snmpUDP.endPacket()) {
-                __DL(F("(!) failed to send response packet"));
-                snmpLog.putts(F("(!) failed to send response for: %s"), snmpUDP.remoteIP().toString().c_str());
+                __DL("(!) failed to send response packet");
+                logsnmp.putts("(!) failed to send response for: %s", snmpUDP.remoteIP().toString().c_str());
             }
         }
 

@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.cpp                                                       #
 # File Created: Thursday, 8th June 2023 10:53:51 pm                                 #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 3rd July 2023 12:18:28 pm                                  #
+# Last Modified: Sunday, 3rd September 2023 11:14:06 pm                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -13,13 +13,13 @@
 
 #include "vica_bflow_rev900.h"
 
-static rx_value_t WORD_ALIGNED_ATTR _rxBuffer[MONSPI_RX_BUFFER_LENGTH] = {0};
+rx_value_t WORD_ALIGNED_ATTR _rxBuffer[MONSPI_RX_BUFFER_LENGTH] = {0};
 spi_slave_interface_config_t spiSlaveConfig;
 spi_bus_config_t spiBusConfig;
 spi_slave_transaction_t spiTrans;
 
-static const uint8_t _voltageAvgCounterMax = 20;
-static const uint8_t _loadAvgCounterMax = 5;
+const uint8_t _voltageAvgCounterMax = 20;
+const uint8_t _loadAvgCounterMax = 5;
 
 volatile static uint8_t _lastAddress = 0;
 volatile static uint16_t _inputVoltageTmp = 0;
@@ -38,7 +38,7 @@ volatile static uint8_t _eventOutputStatusChange[3] = {0};
 
 /**
  * @brief Clear the RX buffer
- * 
+ *
 */
 inline static void spiBuffereClear() {
     uint8_t i = 0;
@@ -94,8 +94,8 @@ inline static uint8_t lcdDigitToValue(uint8_t & value) {
 
 /**
  * @brief Driver initializer
- * 
- * @return esp_err_t 
+ *
+ * @return esp_err_t
 */
 esp_err_t upsDriverInit() {
     esp_err_t e;
@@ -103,7 +103,7 @@ esp_err_t upsDriverInit() {
     spiSlaveConfig.mode = MONSPI_SLAVE_MODE;
     spiSlaveConfig.post_setup_cb = upsSPISetupComplete;
     spiSlaveConfig.post_trans_cb = upsSPITransferComplete;
-    // see current driver settings 
+    // see current driver settings
     spiSlaveConfig.queue_size = MONSPI_QUEUE_LENGTH;
     // spiSlaveConfig.flags = SPI_SLAVE_RXBIT_LSBFIRST;
     // spiBusConfig.flags = SPICOMMON_BUSFLAG_SLAVE | SPICOMMON_BUSFLAG_SCLK | SPICOMMON_BUSFLAG_MOSI;
@@ -134,7 +134,7 @@ esp_err_t upsDriverInit() {
 */
 uint32_t upsDriverGetCurrentBatteryLifeTime(uint8_t currentOutputLoad, uint8_t currentCapacity) {
     // (charge capacity) = I*t
-    float r = (BATTERY_RATED_CHARGE_CAPACITY_Ah * (currentCapacity/100.0));
+    float r = (BATTERY_RATED_CHARGE_CAPACITY_AH * (currentCapacity/100.0));
     r /= (UPS_RATED_BATTERY_AMPS_MAX * (currentOutputLoad/100.0));
     r *= 3600;
     return static_cast<uint32_t>(r);
@@ -185,7 +185,7 @@ void IRAM_ATTR upsSPITransferComplete(spi_slave_transaction_t *trans) {
                 break;
             // 3rd digit
             case 162:
-                // this prevents wrong readings to be used when the 
+                // this prevents wrong readings to be used when the
                 // rapid SPI data change occurs. sometimes 160 carries data 0
                 // or data doesn't read correctly
                 _inputVoltageTmp += lcdDigitToValue(data);
@@ -214,9 +214,9 @@ void IRAM_ATTR upsSPITransferComplete(spi_slave_transaction_t *trans) {
                 break;
             // 3rd digit
             case 165:
-                // this prevents wrong readings to be used when the 
+                // this prevents wrong readings to be used when the
                 // rapid SPI data change occurs. sometimes 163 carries data 0
-                // or data doesn't read correctly, theoretically here 
+                // or data doesn't read correctly, theoretically here
                 // should be used the UPS specific threshold value for output voltage
                 _outputVoltageTmp += lcdDigitToValue(data);
                 // cheating here, the reason is the screwed UPS controller SPI implementation
@@ -299,17 +299,17 @@ void IRAM_ATTR upsSPITransferComplete(spi_slave_transaction_t *trans) {
                             _eventBatteryStatusChange[_eventBufferCursor] = 4;
                             break;
                     }
-                    // events. 
+                    // events.
                     if(_eventBufferCursor == 2) {
                         // TODO: avoiding false-positives - check if received data values are consistent using hardcoded method
-                        if(_eventOutputStatusChange[0] == _eventOutputStatusChange[1] 
-                            && _eventOutputStatusChange[1] == _eventOutputStatusChange[2] 
+                        if(_eventOutputStatusChange[0] == _eventOutputStatusChange[1]
+                            && _eventOutputStatusChange[1] == _eventOutputStatusChange[2]
                                 && monitorData.upsBasicOutputStatus != _eventOutputStatusChange[_eventBufferCursor]) {
                             monitorData.upsBasicOutputStatus = _eventOutputStatusChange[_eventBufferCursor];
                             systemEvent.upsOutputStateChange = true;
                         }
-                        if(_eventBatteryStatusChange[0] == _eventBatteryStatusChange[1] 
-                            && _eventBatteryStatusChange[1] == _eventBatteryStatusChange[2] 
+                        if(_eventBatteryStatusChange[0] == _eventBatteryStatusChange[1]
+                            && _eventBatteryStatusChange[1] == _eventBatteryStatusChange[2]
                                 && monitorData.upsBasicBatteryStatus != _eventBatteryStatusChange[_eventBufferCursor]) {
                             monitorData.upsBasicBatteryStatus = _eventBatteryStatusChange[_eventBufferCursor];
                             systemEvent.upsBatteryStatusChange = true;
@@ -360,14 +360,14 @@ void IRAM_ATTR upsSPITransferComplete(spi_slave_transaction_t *trans) {
                     // events
                     if(_eventBufferCursor == 2) {
                         // avoiding false-positives
-                        if(_eventOutputStatusChange[0] == _eventOutputStatusChange[1] 
-                            && _eventOutputStatusChange[1] == _eventOutputStatusChange[2] 
+                        if(_eventOutputStatusChange[0] == _eventOutputStatusChange[1]
+                            && _eventOutputStatusChange[1] == _eventOutputStatusChange[2]
                                 && monitorData.upsBasicOutputStatus != _eventOutputStatusChange[_eventBufferCursor]) {
                             monitorData.upsBasicOutputStatus = _eventOutputStatusChange[_eventBufferCursor];
                             systemEvent.upsOutputStateChange = true;
                         }
-                        if(_eventBatteryCapacityChange[0] == _eventBatteryCapacityChange[1] 
-                            && _eventBatteryCapacityChange[1] == _eventBatteryCapacityChange[2] 
+                        if(_eventBatteryCapacityChange[0] == _eventBatteryCapacityChange[1]
+                            && _eventBatteryCapacityChange[1] == _eventBatteryCapacityChange[2]
                                 && monitorData.upsAdvBatteryCapacity != _eventBatteryCapacityChange[_eventBufferCursor]) {
                             monitorData.upsAdvBatteryCapacity = _eventBatteryCapacityChange[_eventBufferCursor];
                             systemEvent.upsBatteryCapacityChange = true;
@@ -396,7 +396,7 @@ vica_spi_transfer_complete_end:
 /**
  * @brief Polling the SPI transmit queue
  *        using device specific configuration
- * 
+ *
 */
 void upsDriverLoop() {
     spi_slave_transmit(UPS_SPI_HOST, &spiTrans, MONSPI_TICKS_TO_WAIT);
@@ -404,7 +404,7 @@ void upsDriverLoop() {
 
 /**
  * @brief Destructor
- * 
+ *
 */
 void upsDriverDeinit() {
     spi_slave_free(UPS_SPI_HOST);

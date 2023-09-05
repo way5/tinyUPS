@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 3:13:05 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 2nd August 2023 9:46:26 pm                              #
+# Last Modified: Monday, 4th September 2023 2:34:14 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -36,8 +36,8 @@ status_t MonitorClass::init() {
     esp_err_t e;
     // Pins
     if(!adcAttachPin(PIN_MONITOR_ADC_TEMP_SENSOR)) {
-        __DL(F("(!) adc temp sensor config failed"));
-        sysLog.putts(PSTR("(!) adc temp sensor config failed"));
+        __DL("(!) adc temp sensor config failed");
+        logsys.putts("(!) adc temp sensor config failed");
         return ERR;
     }
     analogSetAttenuation(ADC_6db);
@@ -48,22 +48,24 @@ status_t MonitorClass::init() {
     tcfg.clk_div = 6;
     tcfg.dac_offset = TSENS_DAC_L2;
     if((e = temp_sensor_set_config(tcfg)) != ESP_OK) {
-        __DF(PSTR("(!) temp sensor config failed [%d]\n"), e);
-        sysLog.putts(PSTR("(!) temp sensor config failed [%d]"), e);
+        __DF("(!) temp sensor config failed [%d]\n", e);
+        logsys.putts("(!) temp sensor config failed [%d]", e);
         return ERR;
     }
     // init for a driver
     if(upsDriverInit() != ESP_OK) {
-        __DF(PSTR("(!) spi init failed [%d]\n"), e);
-        sysLog.putts(PSTR("(!) spi init failed [%d]"), e);
+        __DF("(!) spi init failed [%d]\n", e);
+        logsys.putts("(!) spi init failed [%d]", e);
         return ERR;
     }
     // sys temp sensor
     e = temp_sensor_start();
     if(e != ESP_OK) {
-        __DF(PSTR("(!) sys temp sensor init failed [%d]\n"), e);
+        __DF("(!) sys temp sensor init failed [%d]\n", e);
         monitorData.upsAdvSystemTemperature = 0;
     }
+    systemEvent.isActiveMonitor = true;
+
     return OKAY;
 }
 
@@ -77,35 +79,35 @@ void MonitorClass::loop() {
     if (this->_last_update == 0 || (millis() - this->_last_update >= 60000UL)) {
         esp_err_t e = temp_sensor_read_celsius(&monitorData.upsAdvSystemTemperature);
         if(e != ESP_OK) {
-            __DF(PSTR("(!) sys temp sensor read failed [%d]\n"), e);
+            __DF("(!) sys temp sensor read failed [%d]\n", e);
         }
         float adcVal = readADCmV();
         monitorData.upsAdvBatteryTemperature = mVtoCelsius(adcVal);
         // writing each 5th minute
         if(_update_cntr == 5) {
-            monTempLog.putdts(monitorData.upsAdvSystemTemperature, true, false);
-            monTempLog.putdts(monitorData.upsAdvBatteryTemperature, false, true);
+            logTempMon.putdts(monitorData.upsAdvSystemTemperature, true, false);
+            logTempMon.putdts(monitorData.upsAdvBatteryTemperature, false, true);
             _update_cntr = 0;
         }
     #if DEBUG == 4
-        __DF(PSTR("(i) sys: %.2f°C, bat: %.2f°C\n"), monitorData.upsAdvSystemTemperature, monitorData.upsAdvBatteryTemperature);
+        __DF("(i) sys: %.2f°C, bat: %.2f°C\n", monitorData.upsAdvSystemTemperature, monitorData.upsAdvBatteryTemperature);
     #endif
         // trigger the control pin
         if(monitorData.upsAdvBatteryTemperature  >= config.batteryTempUT) {
             if(!_fan_on) {
                 coolingSwitchOn();
-                sysLog.putts(PSTR("battery:%.2f°C, cooler: ON"), monitorData.upsAdvBatteryTemperature );
+                logsys.putts("battery:%.2f°C, cooler: ON", monitorData.upsAdvBatteryTemperature );
             }
         } else {
             if(monitorData.upsAdvSystemTemperature >= config.deviceTempUT) {
                 if(!_fan_on) {
                     coolingSwitchOn();
-                    sysLog.putts(PSTR("system:%.2f°C, cooler: ON"), monitorData.upsAdvSystemTemperature );
+                    logsys.putts("system:%.2f°C, cooler: ON", monitorData.upsAdvSystemTemperature );
                 }
             } else if(_fan_on) {
                 if(monitorData.upsAdvBatteryTemperature <= config.batteryTempLT && monitorData.upsAdvSystemTemperature <= config.deviceTempLT) {
                     coolingSwitchOff();
-                    sysLog.putts(PSTR("battery:%.2f°C, system:%.2f°C, cooler: OFF"),
+                    logsys.putts("battery:%.2f°C, system:%.2f°C, cooler: OFF",
                                 monitorData.upsAdvBatteryTemperature, monitorData.upsAdvSystemTemperature );
                 }
             }
@@ -117,28 +119,28 @@ void MonitorClass::loop() {
     upsDriverLoop();
     // handle the recent events
     if(systemEvent.upsBatteryCapacityChange) {
-        sysLog.putts(PSTR("(e) battery capacity: %d%"), monitorData.upsAdvBatteryCapacity);
+        logsys.putts("(i) battery capacity: %d%%", monitorData.upsAdvBatteryCapacity);
     #ifdef DEBUG
-        __DF(PSTR("(e) battery capacity: %d%\n"), monitorData.upsAdvBatteryCapacity);
+        __DF("(i) battery capacity: %d%%\n", monitorData.upsAdvBatteryCapacity);
     #endif
         systemEvent.upsBatteryCapacityChange = false;
     }
     if(systemEvent.upsBatteryStatusChange) {
-        sysLog.putts(PSTR("(e) battery status: %s (%d)"), upsBatteryStatusCodeToString(monitorData.upsBasicBatteryStatus).c_str(), monitorData.upsBasicBatteryStatus);
+        logsys.putts("(i) battery status: %s (%d)", upsBatteryStatusCodeToString(monitorData.upsBasicBatteryStatus).c_str(), monitorData.upsBasicBatteryStatus);
     #ifdef DEBUG
-        __DF(PSTR("(e) battery status: %s (%d)\n"), upsBatteryStatusCodeToString(monitorData.upsBasicBatteryStatus).c_str(), monitorData.upsBasicBatteryStatus);
+        __DF("(i) battery status: %s (%d)\n", upsBatteryStatusCodeToString(monitorData.upsBasicBatteryStatus).c_str(), monitorData.upsBasicBatteryStatus);
     #endif
-        monDataLog.putdts(monitorData.upsBasicBatteryStatus, true, false);
-        monDataLog.put("1");
+        logDataMon.putdts(monitorData.upsBasicBatteryStatus, true, false);
+        logDataMon.put("1");
         systemEvent.upsBatteryStatusChange = false;
     }
     if(systemEvent.upsOutputStateChange) {
-        sysLog.putts(PSTR("(e) power status: %s (%d)"), upsOutputStatusCodeToString(monitorData.upsBasicOutputStatus).c_str(), monitorData.upsBasicOutputStatus);
+        logsys.putts("(i) power status: %s (%d)", upsOutputStatusCodeToString(monitorData.upsBasicOutputStatus).c_str(), monitorData.upsBasicOutputStatus);
     #ifdef DEBUG
-        __DF(PSTR("(e) power status: %s (%d)\n"), upsOutputStatusCodeToString(monitorData.upsBasicOutputStatus).c_str(), monitorData.upsBasicOutputStatus);
+        __DF("(i) power status: %s (%d)\n", upsOutputStatusCodeToString(monitorData.upsBasicOutputStatus).c_str(), monitorData.upsBasicOutputStatus);
     #endif
-        monDataLog.putdts(monitorData.upsBasicOutputStatus, true, false);
-        monDataLog.put("0");
+        logDataMon.putdts(monitorData.upsBasicOutputStatus, true, false);
+        logDataMon.put("0");
         systemEvent.upsOutputStateChange = false;
     }
 }
