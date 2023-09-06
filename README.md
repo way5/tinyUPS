@@ -52,21 +52,22 @@ The project requires an advanced skills in electronics. It's not a plug-n-play d
 
 ## **+ TABLE OF CONTENTS**
 
-- [Description](#description)
-- [Toolkit](#toolkit)
-   - [Controller](#controller)
-   - [PCB](#pcb)
- - [WebUI](#webui)
- - [Build](#build)
-   - [Configuration](#configuration)
-   - [WiFi Reconnect Strategies](#reconnect_strategy)
- - [Setup](#setup)
- - [Control Panel](#control_panel)
- - [Development](#development)
-   - [Drivers](#drivers)
-   - [Debug](#debug)
- - [Photos](#photos)
- - [Credits](#credits)
+- [**+ DESCRIPTION**](#-description)
+- [**+ TABLE OF CONTENTS**](#-table-of-contents)
+- [**+ TOOLKIT**](#-toolkit)
+  - [- CONTROLLER](#--controller)
+  - [- PCB](#--pcb)
+  - [- Web UI](#--web-ui)
+- [**+ BUILD**](#-build)
+  - [- CONFIGURATION](#--configuration)
+  - [- WiFi RECONNECTION STRATEGIES](#--wifi-reconnection-strategies)
+- [**+ SETUP**](#-setup)
+- [**+ CONTROL PANEL**](#-control-panel)
+- [**+ DEVELOPMENT**](#-development)
+  - [- DRIVERS](#--drivers)
+  - [- DEBUG](#--debug)
+- [**+ PHOTOS**](#-photos)
+- [**+ CREDITS**](#-credits)
 
 
 ## **+ TOOLKIT**<a id="toolkit"></a>
@@ -74,7 +75,7 @@ The project requires an advanced skills in electronics. It's not a plug-n-play d
 - PlatformIO
 - KiCAD
 
-## **+ CONTROLLER**<a id="controller"></a>
+### - CONTROLLER<a id="controller"></a>
 **tinyUPS** is originally based on [WEMOS S2 mini](https://www.wemos.cc/en/latest/s2/s2_mini.html) board. However very likely it would work on another ESP32 boards with minor changes in firmware.
 All the configuration you may need is in [platformio.ini](platformio.ini) and the UPS driver header file. If the communication interface of a particular UPS is not SPI, you need to create a new UPS driver and to change the PCB as well.
 
@@ -93,7 +94,7 @@ If you've created a new driver please share it by creating merge request or atta
 </tr>
 </table>
 
-## **+ PCB**<a id="pcb"></a>
+### - PCB<a id="pcb"></a>
 The [current PCB](schematics/CAM/tinyUPS.kicad_pcb) is designed for DIY via CAM method. If you want it printed profesionally, you may need to redesign the PCB.
 Since the most of the UPS controllers have 5V data bus, we need a level shifter to be able to communicate with them and a small step-down PSU for ESP32. 
 
@@ -104,7 +105,7 @@ If you'll be using S2 mini board you need to desolder built-in LDO IC (ME6211C33
 The example driver is for a built in SPI LCD display, for a particular manufacturer and model. 
 You'll probably have the very different device and may be even without any LCD display, so you'd need to figure out how to speak with the controller. This part is DIY. Feel free to call for help in Discussions.
 
-## **+ Web UI**<a id="webui"></a>
+### - Web UI<a id="webui"></a>
 **tinyUPS** has web UI based at [tailwindcss](https://tailwindcss.com/)/[flowbite](https://github.com/themesberg/flowbite) and [webpack](https://webpack.js.org/concepts/).
 
 UI translations are available in [./web/lang](./web/lang) directory. You're able to add a new one or remove existing if you wish by editing the header of [common.js](web/src/common.js) script. Variable <code>i18nlang</code> contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from <code>i18nlang</code> to save space on file system partition.
