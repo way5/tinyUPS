@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 7:24:53 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 12:51:42 pm                             #
+# Last Modified: Thursday, 7th September 2023 5:47:49 pm                            #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -59,7 +59,6 @@ class fLogClass {
         /**
          * @brief Writes a line with [(timestamp-offset);digit[\n]] pair or just a [val;[\n]]
          *
-         * @todo offset 2023/01/01 11:59:59 PM +0.00 = (1672574399)
          * @tparam T
          * @param val   data to store in log
          * @param timestamp if true (default) adding the timestamp

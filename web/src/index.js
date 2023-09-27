@@ -242,7 +242,7 @@ $.extend(tinyUPS, {
     refreshLogsIntl: 15000,
     refreshDashIntl: 12000,
     refreshtempChartIntl: 10000,
-    resetCountdownIntl: 12000,
+    resetCountdown: 12000,
     // charts
     charts: {},
     intls: {},
@@ -333,7 +333,7 @@ $.extend(tinyUPS, {
     initPage: function () {
         // APPLY PAGE CONTENTS
         const self = this;
-        let lhash = location.hash;
+        let lhash = window.location.hash;
         if (lhash !== "") {
             // make corresponding objects active
             $(".sidebar li.item").each(function (i) {
@@ -428,7 +428,7 @@ $.extend(tinyUPS, {
         this.logsnmp.reload();
         // hashchange
         $(window).on("hashchange", (e) => {
-            switch (location.hash) {
+            switch (window.location.hash) {
                 case "#home":
                     this.getDashData();
                     this.logsys.reload();
@@ -440,7 +440,7 @@ $.extend(tinyUPS, {
                     break;
             }
         });
-        if (location.hash === "#home" || location.hash === "") this.getDashData();
+        if (window.location.hash === "#home" || window.location.hash === "") this.getDashData();
         window.dispatchEvent(new Event("hashchange"));
         // submit config
         $("input[name=configsys]").on("click", function (e) {
@@ -456,19 +456,16 @@ $.extend(tinyUPS, {
             self.setSecCfg();
         });
         // do refresh logs
-        if (localStorage.getItem("logarf") === "true") {
-            this.setRefreshLogs(localStorage.getItem("logarf"));
-            $("#log-aref-tg").attr("checked", true);
-        } else {
-            $("#log-aref-tg").removeAttr("checked");
-        }
         $("#log-aref-tg").on("change", function () {
             let v = $(this).prop("checked");
             self.setRefreshLogs(v);
             localStorage.setItem("logarf", v);
         });
         if (localStorage.getItem("logarf") === "true") {
+            this.setRefreshLogs(localStorage.getItem("logarf"));
             $("#log-aref-tg").attr("checked", true);
+        } else {
+            $("#log-aref-tg").removeAttr("checked");
         }
         // update dashboard every refreshdashintl
         this.intls["dd"] = setInterval(function () {
@@ -528,7 +525,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.toggleCoolingUrl,
-            // url: "http://local.ims:8888/?test=33",
+            // url: "http://testURL/?test=33",
             dataType: "json",
             type: 'POST',
             success: (r) => {
@@ -553,7 +550,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.addAPIkey,
-            // url: "http://local.ims:8888/?test=36",
+            // url: "http://testURL/?test=36",
             dataType: "json",
             type: 'POST',
             data: data,
@@ -626,7 +623,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.delAPIkey,
-            // url: "http://local.ims:8888/?test=37",
+            // url: "http://testURL/?test=37",
             dataType: "json",
             type: 'POST',
             data: { id: id },
@@ -1116,7 +1113,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.infoGraphUrl,
-            // url: "http://local.ims:8888/?test=5",
+            // url: "http://testURL/?test=5",
             dataType: "json",
             type: 'POST',
             success: (r) => {
@@ -1158,7 +1155,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.dataChartUrl,
-            // url: "http://local.ims:8888/?test=8",
+            // url: "http://testURL/?test=8",
             dataType: "text",
             type: 'POST',
             success: (r) => {
@@ -1244,7 +1241,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.tempChartUrl,
-            // url: "http://local.ims:8888/?test=4",
+            // url: "http://testURL/?test=4",
             dataType: "text",
             type: 'POST',
             success: (r) => {
@@ -1362,11 +1359,11 @@ $.extend(tinyUPS, {
             });
             $(event.currentTarget).addClass("active");
             // set location.hash
-            location.hash = tab;
+            window.location.hash = tab;
         });
         // activate menu item by location hash
         $("menu.sidebar li.item").each(function (i) {
-            if (location.hash === $(this).find("a").attr("href")) {
+            if (window.location.hash === $(this).find("a").attr("href")) {
                 $(this).addClass("active");
             }
         });
@@ -1380,7 +1377,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.resetUrl,
-            // url: "http://local.ims:8888/?test=35",
+            // url: "http://testURL/?test=35",
             dataType: "json",
             type: 'POST',
             success: (r) => {
@@ -1392,7 +1389,7 @@ $.extend(tinyUPS, {
                     );
                 } else {
                     ohSnap($.t("index.js.infoErasingConfig"), this.info);
-                    let countdown = this.resetCountdownIntl / 1000;
+                    let countdown = this.resetCountdown / 1000;
                     $(countdownEl).html(countdown);
                     setInterval(() => {
                         countdown -= 1;
@@ -1484,7 +1481,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.getDashDataUrl,
-            // url: "http://local.ims:8888/?test=3",
+            // url: "http://testURL/?test=3",
             dataType: "json",
             type: 'POST',
             success: (r) => {
@@ -1512,7 +1509,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.getCfgUrl,
-            // url: "http://local.ims:8888/?test=7",
+            // url: "http://testURL/?test=7",
             dataType: "json",
             type: 'POST',
             success: (r) => {
@@ -1615,9 +1612,9 @@ $.extend(tinyUPS, {
         });
     },
     setSNMPCfg: function () {
-        let form = $("form[name=confsnmp]");
+        const form = $("form[name=confsnmp]");
         // let formdata = new FormData(form[0]);
-        let formdata = form.serializeArray();
+        const formdata = form.serializeArray();
         $.ajax({
             url:
                 window.location.protocol +
@@ -1695,7 +1692,7 @@ class logArea {
                 "//" +
                 window.location.hostname +
                 this.url,
-            // url: "http://local.ims:8888/?test=6",
+            // url: "http://testURL/?test=6",
             dataType: "text",
             type: 'POST',
             success: (r) => {

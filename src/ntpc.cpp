@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:40 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 12:30:24 pm                             #
+# Last Modified: Wednesday, 27th September 2023 10:10:05 am                         #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -21,7 +21,6 @@
  * @return false if QRTC used
 */
 status_t NTPClientClass::loop() {
-    // doing NTP sync
     if (WiFi.status() == WL_CONNECTED) {
         if (this->_last_update == 0 || (millis() - this->_last_update >= (config.ntpSyncInterval * 1000UL))) {
             status_t s = OKAY;
@@ -53,17 +52,11 @@ status_t NTPClientClass::forceUpdate() {
     configTime((config.ntpTimeOffset*3600UL), config.ntpDaylightOffset, config.ntpServer, config.ntpServerFB);
     struct tm timeinfo;
     uint8_t cntr = 0;
-    while(true) {
-        if(!getLocalTime(&timeinfo)) {
-            __DL("(!) failed to retrieve local time\n");
-            // ATTN: do not exit here, we need the _startTime to be != 0. Requires testing
-        } else
-            break;
-        cntr++;
-        if(cntr == 3) {
-            __DL("(!) giving up...");
-            break;
-        }
+    if(!getLocalTime(&timeinfo)) {
+    #if DEBUG == 2
+        __DL("(!) failed to retrieve local time\n");
+    #endif
+        return NTP_SYNC_ERR;
     }
 #if DEBUG == 2
     __DF("%s update, tz(%i)\n", config.ntpServer, config.ntpTimeOffset);
@@ -98,12 +91,12 @@ void NTPClientClass::getDatetime(char *b, const char * format) {
         strcpy(b, ds);
         _CHBD(ds);
     } else {
-        strcpy(b, "___");
+        strcpy(b, "_");
     }
 }
 
 /**
- * @brief Formatting current date and time for JSON API
+ * @brief Current timestamp to character array
  *
  * @param buffer
  */

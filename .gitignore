@@ -112,6 +112,15 @@ web_modules/
 # Optional npm cache directory
 .npm
 
+#KiCAD
+schematics/**/*-bak
+schematics/**/*-backups
+schematics/**/*-cache*
+schematics/**/*-bak*
+schematics/**/_autosave*
+schematics/**/~*
+schematics/**/\#auto_saved_files\#
+
 # Custom
 datasheet
 tmp
@@ -121,7 +130,5 @@ web/data/**
 web/temp
 web/assets
 web/src/temp
-schematics/*backups
-schematics/CAM/*backups
 genssl.sh
 thunder-tests/

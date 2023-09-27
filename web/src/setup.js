@@ -75,7 +75,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.setupUrl,
-            // url: "http://local.ims:8888/?test=22",
+            // url: "http://testURL/?test=22",
             dataType: "json",
             type: 'POST',
             data: formdata,

@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 5th September 2023 1:22:51 pm                             #
+# Last Modified: Wednesday, 27th September 2023 10:12:41 am                         #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -255,6 +255,8 @@ void setSTA() {
     // made using previously saved credentials.
     WiFi.disconnect();
     delay(100);
+    // beacon idle timeout
+    // esp_wifi_set_inactive_time();
     WiFi.mode(WIFI_MODE_STA);
     WiFi.setSleep(WIFI_PS_NONE);
 #if WIFI_RECONNECT_METHOD == 4
@@ -270,7 +272,6 @@ void setSTA() {
 */
 void setup() {
     Serial.begin(SERIAL_BAUD);
-    delay(1000);
 
     enableLoopWDT();
 

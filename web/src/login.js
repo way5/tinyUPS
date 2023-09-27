@@ -19,7 +19,7 @@ $.extend(tinyUPS, {
                 "//" +
                 window.location.hostname +
                 this.loginUrl,
-            // url: "http://local.ims:8888/?test=23",
+            // url: "http://testURL/?test=23",
             dataType: "json",
             type: 'POST',
             data: formdata,
