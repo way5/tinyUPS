@@ -38,7 +38,9 @@ int BER_CONTAINER::fromBuffer(const uint8_t *buf, size_t max_len) {
 
     const uint8_t* ptr = buf;
     if(*ptr != _type){
+    #ifdef DEBUG
         __DF("(!) mismatched type when decoding %d, %d\n", _type, *ptr);
+    #endif
         return SNMP_BUFFER_ERROR_TYPE_MISMATCH;
     }
     ptr++; // type
@@ -276,14 +278,18 @@ int ComplexType::fromBuffer(const uint8_t *buf, size_t max_len){
 
         auto newObj = ComplexType::createObjectForType(valueType);
         if(!newObj) {
+        #ifdef DEBUG
             __DF("(!) couldn't create object of type: %d\n", valueType);
+        #endif
             return SNMP_BUFFER_ERROR_UNKNOWN_TYPE;
         }
 
         int used_length = newObj->fromBuffer(ptr, max_len - i);
         if(used_length < 0) {
             // Problem de-serialising
+        #ifdef DEBUG
             __DF("(!) error while deserialising type: %d\n", valueType);
+        #endif
             return SNMP_BUFFER_ERROR_PROBLEM_DESERIALISING;
         }
 

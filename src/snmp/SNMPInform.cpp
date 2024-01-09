@@ -26,7 +26,9 @@ queue_and_send_trap(std::list<struct InformItem *> &informList, SNMPTrap *trap, 
         logsnmp.putts("(!) couldn't build trap");
         return INVALID_SNMP_REQUEST_ID;
     };
+#ifdef DEBUG
     __DF("%u informs in informList\n", informList.size());
+#endif
     //TODO: could be race condition here, buildStatus to return packet?
     if(replaceQueuedRequests){
 #if DEBUG == 5
@@ -47,9 +49,9 @@ queue_and_send_trap(std::list<struct InformItem *> &informList, SNMPTrap *trap, 
         item->lastSent = millis();
         item->trap = trap;
         item->missed = false;
-
+    #ifdef DEBUG
         __DF("adding inform request to queue: %lu\n", item->requestID);
-
+    #endif
         informList.push_back(item);
 
         trap->sendTo(ip, true);

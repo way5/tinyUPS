@@ -66,6 +66,7 @@ The project requires an advanced skills in electronics. It's not a plug-n-play d
 - [**+ DEVELOPMENT**](#-development)
   - [- DRIVERS](#--drivers)
   - [- DEBUG](#--debug)
+- [**+ CHANGELOG**](#-changelog)
 - [**+ PHOTOS**](#-photos)
 - [**+ CREDITS**](#-credits)
 
@@ -202,6 +203,14 @@ You may also wish to look at the driver for thermistor (currently this is 1k M52
 Serial monitor is used to perform the most of the tasks and to solve issues. Once you've connected use <code>?</code> to request the commands list.
 
 ![tinyUPS serial monitor](doc/i4.jpg)
+
+## **+ CHANGELOG**<a id="changelog"></a>
+
+  - **fw:1.3.0 / ui:1.2.0**
+    1. firmware and filesystem now upgradable Over the Air
+    2. overal improvements on UI
+    3. firmware stability improvements (memory leaks, code structure, etc)
+
 
 ## **+ PHOTOS**<a id="photos"></a>
 

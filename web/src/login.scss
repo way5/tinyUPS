@@ -11,10 +11,18 @@
         }
 
         .login-main {
-            @apply bg-white dark:bg-base-500 shadow-lg w-full rounded-lg border border-gray-400 dark:border-base-400 relative;
+            @apply bg-white dark:bg-base-500 shadow-lg w-full rounded-xl border border-gray-400 dark:border-base-400 relative;
+
+            .body {
+                @apply px-8 py-7 border-b border-gray-200 dark:border-base-400;
+            }
 
             .footer {
-                @apply text-gray-500 dark:text-gray-200;
+                @apply py-5 text-center text-sm;
+
+                a {
+                    @apply text-gray-500 dark:text-gray-200;
+                }
             }
         }
     }

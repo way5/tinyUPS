@@ -23,5 +23,7 @@ for (k, v) in conf[env.get('PIOENV')].items():
 
 env.Append(CPPDEFINES=defs)
 
-print("FIRMWARE VERSION: ", conf['version'])
-print("WEB UI VERSION: ", pkg['version'])
+print("\n•----------------------------•")
+print("   FIRMWARE VERSION:", conf['version'])
+print("   WEB UI VERSION:  ", pkg['version'])
+print("•----------------------------•\n")

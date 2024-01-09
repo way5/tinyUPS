@@ -132,3 +132,5 @@ web/assets
 web/src/temp
 genssl.sh
 thunder-tests/
+*.bin
+*.bin.gz

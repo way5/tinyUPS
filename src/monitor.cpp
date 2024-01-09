@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 3:13:05 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 2:34:14 pm                              #
+# Last Modified: Tuesday, 9th January 2024 2:28:15 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -48,20 +48,26 @@ status_t MonitorClass::init() {
     tcfg.clk_div = 6;
     tcfg.dac_offset = TSENS_DAC_L2;
     if((e = temp_sensor_set_config(tcfg)) != ESP_OK) {
+    #ifdef DEBUG
         __DF("(!) temp sensor config failed [%d]\n", e);
+    #endif
         logsys.putts("(!) temp sensor config failed [%d]", e);
         return ERR;
     }
     // init for a driver
     if(upsDriverInit() != ESP_OK) {
+    #ifdef DEBUG
         __DF("(!) spi init failed [%d]\n", e);
+    #endif
         logsys.putts("(!) spi init failed [%d]", e);
         return ERR;
     }
     // sys temp sensor
     e = temp_sensor_start();
     if(e != ESP_OK) {
+    #ifdef DEBUG
         __DF("(!) sys temp sensor init failed [%d]\n", e);
+    #endif
         monitorData.upsAdvSystemTemperature = 0;
     }
     systemEvent.isActiveMonitor = true;
@@ -78,9 +84,11 @@ status_t MonitorClass::init() {
 void MonitorClass::loop() {
     if (this->_last_update == 0 || (millis() - this->_last_update >= 60000UL)) {
         esp_err_t e = temp_sensor_read_celsius(&monitorData.upsAdvSystemTemperature);
+    // #ifdef DEBUG
         if(e != ESP_OK) {
             __DF("(!) sys temp sensor read failed [%d]\n", e);
         }
+    // #endif
         float adcVal = readADCmV();
         monitorData.upsAdvBatteryTemperature = mVtoCelsius(adcVal);
         // writing each 5th minute
@@ -93,7 +101,7 @@ void MonitorClass::loop() {
         __DF("(i) sys: %.2f°C, bat: %.2f°C\n", monitorData.upsAdvSystemTemperature, monitorData.upsAdvBatteryTemperature);
     #endif
         // trigger the control pin
-        if(monitorData.upsAdvBatteryTemperature  >= config.batteryTempUT) {
+        if(monitorData.upsAdvBatteryTemperature >= config.batteryTempUT) {
             if(!_fan_on) {
                 coolingSwitchOn();
                 logsys.putts("battery:%.2f°C, cooler: ON", monitorData.upsAdvBatteryTemperature );
@@ -115,6 +123,7 @@ void MonitorClass::loop() {
         this->_last_update = millis();
         _update_cntr++;
     }
+    yield();
     // call driver loop routine
     upsDriverLoop();
     // handle the recent events

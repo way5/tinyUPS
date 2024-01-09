@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 10:29:37 pm                             #
+# Last Modified: Monday, 8th January 2024 11:23:09 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -30,6 +30,8 @@
 #define HTTPD_SERVER_H
 
 #include "helpers.h"
+#include <Update.h>
+#include "updater.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <Hash.h>
@@ -78,17 +80,21 @@ const char mimeImgSVG[] = "image/svg+xml";
 const char jsonLoginRepeat[] = "{\"login\":\"repeat\"}";
 const char jsonLoginOK[] = "{\"login\":\"ok\"}";
 const char jsonLoginERR[] = "{\"login\":\"err\",\"err\":\"Wrong login or password\"}";
+const char jsonUpdateOK[] = "{\"update\":\"ok\"}";
+const char jsonUpdateERR[] = "{\"update\":\"err\",\"err\":\"%s\"}";
 
-const char maskDashbrd[] = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
-                                            "\"apmac\":\"%s\",\"apch\": %d,\"ram\": %.2f,\"ram3\": %.2f,\"cpu\": %d,"\
-                                            "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"batchd\":\"%s\",\"battmp\":%.2f,"\
-                                            "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,"\
-                                            "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\":%lu,\"ctime\":\"%s\"}";
+const char maskDashbrd01[] = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
+                                            "\"apmac\":\"%s\",\"ram\": %.2f,\"ram3\": %.2f,";
+
+const char maskDashbrd02[] = "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"battmp\":%.2f,"\
+                                            "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,";
+const char maskDashbrd03[] =  "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\":%lu,\"ctime\":%ld}";
 const char maskInfoGraph[] = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
-const char maskGetConfig[] = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,\"ntptmoff\":%d,\"ntpdloff\":%d,"\
-                                            "\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\","\
-                                            "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
-                                            "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"api\":[%s]}";
+
+const char maskGetConfig01[] = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,";
+const char maskGetConfig02[] = "\"ntptmoff\":%d,\"ntpdloff\":%d,\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\",";
+const char maskGetConfig03[] = "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
+                                "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"api\":[%s]}";
 const char maskSurvey[] = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
 
 typedef struct ApiKeysT {
@@ -153,6 +159,9 @@ void httpdPostSetConfigSecurity(AsyncWebServerRequest *req);
 void httpdPostReboot(AsyncWebServerRequest *req);
 void httpdPostControlCooling(AsyncWebServerRequest *req);
 void httpdPostReset(AsyncWebServerRequest *req);
+// OTA
+void httpdPostUpgradeResponder(AsyncWebServerRequest *req);
+void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_t index, uint8_t *data, size_t len, bool final);
 // common JSON responses
 void httpdJsonErrResponse(AsyncWebServerRequest *req, const char * descr, const int code = 401);
 

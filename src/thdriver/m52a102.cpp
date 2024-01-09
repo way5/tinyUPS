@@ -3,7 +3,7 @@
 # File: m52a102.h                                                                   #
 # File Created: Friday, 23rd June 2023 7:02:42 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 3rd September 2023 11:13:48 pm                             #
+# Last Modified: Monday, 8th January 2024 7:21:11 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                        #
 #####################################################################################
@@ -28,11 +28,9 @@
 //     103, 97,  91,  86,  81,  78,    // 96
 //     72,  67,  64,  60,  57,  54     // 108
 // };
-const uint16_t _Rth = 1000;
+const uint16_t _Rth = 985;
 const uint16_t _thBeta = 3100;
 const uint16_t _thTo = 25;
-// in percents. based at calibration of a particular device
-const int8_t   _thFix = 5;
 
 /**
  * @brief Get the Temperature in Celsius
@@ -56,9 +54,7 @@ float getTempCelsius(float & Rth) {
     tmp += (1.0/(_thTo + 273.15));
     tmp = 1.0/tmp;
     tmp -= 273.15;
-    if(_thFix != 0) {
-        tmp *= 1.0 + (_thFix/100.0);
-    }
+
     return tmp;
 }
 

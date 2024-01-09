@@ -11,12 +11,13 @@ import "chartjs-adapter-date-fns";
 import {
     BubbleMatrixElement,
     BubbleMatrixScale,
-    BubbleMatrixController,
+    BubbleMatrixController
 } from "chartjs-chart-bubblematrix";
 // See: https://nagix.github.io/chartjs-plugin-streaming/master/guide
 import StreamingPlugin from "@u306060/chartjs-plugin-streaming";
 // See: https://www.chartjs.org/chartjs-plugin-zoom/latest
 import zoomPlugin from "chartjs-plugin-zoom";
+import md5 from "crypto-js/md5";
 
 Chart.register(
     BubbleMatrixController,
@@ -54,30 +55,29 @@ var preZerosDigitFormat = (i, digiLen = 2) => {
  * @returns {string}
  */
 var secondsToHRts = (t) => {
-    let year, day, hour, min;
-    year = day = hour = min = 0;
+    let value = 0;
     let ts = "";
     if (t > 31556952) {
-        year = Math.floor(t / 31556952);
+        value = Math.floor(t / 31556952);
         t = t % 31556952;
-        ts = year + " " + $.t("js.year", { count: year}) + " ";
+        ts = value + " " + $.t("js.year", { count: value}) + " ";
     }
     if (t > 86400) {
-        day = Math.floor(t / 86400);
+        value = Math.floor(t / 86400);
         t = t % 86400;
-        ts = ts + day + " " + $.t("js.day", { count: day }) + " ";
+        ts = ts + value + " " + $.t("js.day", { count: value }) + " ";
     }
     if (t > 3600) {
-        hour = Math.floor(t / 3600);
+        value = Math.floor(t / 3600);
         t = t % 3600;
-        ts = ts + hour + " " + $.t("js.hr", { count: hour }) + " ";
+        ts = ts + value + " " + $.t("js.hr", { count: value }) + " ";
     }
-    if (t > 60 && day == 0) {
-        min = Math.floor(t / 60);
+    if (t > 60 && value == 0) {
+        value = Math.floor(t / 60);
         t = t % 60;
-        ts = ts + min + " " + $.t("js.min") + " ";
+        ts = ts + value + " " + $.t("js.min") + " ";
     }
-    if (t > 0 && hour == 0) {
+    if (t > 0 && value == 0) {
         ts = ts + t + " " + $.t("js.sec");
     }
     return ts;
@@ -223,6 +223,7 @@ $.extend(tinyUPS, {
     sysSetCfgUrl: "/setconfigsys",
     snmpSetCfgUrl: "/setconfigsnmp",
     secSetCfgUrl: "/setconfigsec",
+    updateUrl: "/update",
     getDashDataUrl: "/getdashbrd",
     tempChartUrl: "/montmpr",
     dataChartUrl: "/monbdata",
@@ -231,6 +232,7 @@ $.extend(tinyUPS, {
     addAPIkey: "/addapikey",
     delAPIkey: "/delapikey",
     toggleCoolingUrl: "/coolingctrl",
+    loader: null,
     logsys: null,
     logsnmp: null,
     dashboardData: {},
@@ -243,6 +245,7 @@ $.extend(tinyUPS, {
     refreshDashIntl: 12000,
     refreshtempChartIntl: 10000,
     resetCountdown: 12000,
+    updateCountdown: 20000,
     // charts
     charts: {},
     intls: {},
@@ -352,6 +355,8 @@ $.extend(tinyUPS, {
                 }
             });
         }
+        // loader
+        this.loader = new Modal($('#modal-loader')[0]);
         // service menu
         $(".cooler-switch-onoff").on("click", (e) => {
             self.toggleCooling();
@@ -423,12 +428,11 @@ $.extend(tinyUPS, {
         });
         // logs
         this.logsys = new logArea($("#logsys"));
-        this.logsys.reload();
         this.logsnmp = new logArea($("#logsnmp"));
-        this.logsnmp.reload();
         // hashchange
         $(window).on("hashchange", (e) => {
             switch (window.location.hash) {
+                case "":
                 case "#home":
                     this.getDashData();
                     this.logsys.reload();
@@ -440,7 +444,12 @@ $.extend(tinyUPS, {
                     break;
             }
         });
-        if (window.location.hash === "#home" || window.location.hash === "") this.getDashData();
+        // stop all intervals
+        const killIntervals = () => {
+            for(let i in this.intls) {
+                clearInterval(this.intls[i]);
+            }
+        };
         window.dispatchEvent(new Event("hashchange"));
         // submit config
         $("input[name=configsys]").on("click", function (e) {
@@ -454,6 +463,26 @@ $.extend(tinyUPS, {
         $("input[name=configsec]").on("click", function (e) {
             e.preventDefault();
             self.setSecCfg();
+        });
+        $("input[name=firmware]").on("change", function(e) {
+            e.preventDefault();
+            if(this.files[0].name !== this.accept) {
+                ohSnap($.t("index.js.updateWrongFirmware"), self.warn);
+                this.value = "";
+                return false;
+            }
+            killIntervals();
+            self.sendUpdate(this);
+        });
+        $("input[name=filesystem]").on("change", function(e) {
+            e.preventDefault();
+            if(this.files[0].name !== this.accept) {
+                ohSnap($.t("index.js.updateWrongFilesystem"), self.warn);
+                this.value = "";
+                return false;
+            }
+            killIntervals();
+            self.sendUpdate(this);
         });
         // do refresh logs
         $("#log-aref-tg").on("change", function () {
@@ -469,7 +498,9 @@ $.extend(tinyUPS, {
         }
         // update dashboard every refreshdashintl
         this.intls["dd"] = setInterval(function () {
-            self.getDashData();
+            // do not query if not the dashbrd
+            if (window.location.hash === "#home" || window.location.hash === "")
+                self.getDashData();
         }, this.refreshDashIntl);
         // reboot button
         $("#modal-rbt-alert button.submit").on("click", function (e) {
@@ -1326,8 +1357,11 @@ $.extend(tinyUPS, {
         const self = this;
         if (s) {
             this.intls["logarf"] = setInterval(function () {
-                self.logsys.reload();
-                self.logsnmp.reload();
+                // do not query if not the dashbrd
+                if (window.location.hash === "#home" || window.location.hash === "") {
+                    self.logsys.reload();
+                    self.logsnmp.reload();
+                }
             }, self.refreshLogsIntl);
         } else {
             clearInterval(this.intls.logarf);
@@ -1420,11 +1454,10 @@ $.extend(tinyUPS, {
         let outputstatus = outputStatusToSting(this.dashboardData.outst);
         let battdiast = batteryDiagStatusToString(this.dashboardData.battdiast);
         let battlifetime = secondsToHRts(this.dashboardData.ltime);
+        let currentDTime = new Date(this.dashboardData.ctime * 1000);
         // card: system
-        sc.find(".hdr").html(
-            $.t("index.js.titleLoad") + ": " + this.dashboardData.outload + "%"
-        );
-        sc.find(".systmp").html(this.dashboardData.systmp + "&#8451;");
+        sc.find(".outload").html(this.dashboardData.outload + "%");
+        sc.find(".systmp").html(this.dashboardData.systmp + "&#176;C");
         sc.find(".ram").html(
             this.dashboardData.ram + " / " + this.dashboardData.ram3
         );
@@ -1436,12 +1469,7 @@ $.extend(tinyUPS, {
             sc.find(".outst").addClass("text-blink");
         else sc.find(".outst").removeClass("text-blink");
         // card: battery
-        bt.find(".hdr").html(
-            $.t("index.js.titleCharge") +
-                ": " +
-                this.dashboardData.battcap +
-                "%"
-        );
+        bt.find(".battcap").html(this.dashboardData.battcap + "%");
         bt.find(".batchd").html(lchd.toLocaleDateString());
         if (this.dashboardData.isclng) {
             $("#fan748").attr(
@@ -1451,7 +1479,7 @@ $.extend(tinyUPS, {
         } else {
             $("#fan748").attr("class", "hidden");
         }
-        bt.find(".battmp").html(this.dashboardData.battmp + "&#8451;");
+        bt.find(".battmp").html(this.dashboardData.battmp + "&#176;C");
         bt.find(".involt").html(
             this.dashboardData.involt +
                 "V / " +
@@ -1467,12 +1495,12 @@ $.extend(tinyUPS, {
         bt.find(".battdiast").html(battdiast);
         bt.find(".ltime").html(battlifetime);
         // CARD: NETWORK
-        nw.find(".hdr").html("IP: " + this.dashboardData.ip);
+        nw.find(".ip").html(this.dashboardData.ip);
         nw.find(".ap").html(this.dashboardData.ap);
         nw.find(".sm").html(this.dashboardData.sm);
         nw.find(".gw").html(this.dashboardData.gw);
         nw.find(".mac").html(this.dashboardData.mac);
-        nw.find(".ctime").html(this.dashboardData.ctime);
+        nw.find(".ctime").html(currentDTime.toLocaleString());
     }, // parseDashboardData
     getDashData: function () {
         $.ajax({
@@ -1532,7 +1560,6 @@ $.extend(tinyUPS, {
                     list.find("option").each(function (i) {
                         if (parseInt($(this)[0].value) === r.ntptmoff) {
                             // console.log("TZ exists: " + $(this)[0].index);
-                            // $(el).attr("selected", true);
                             list[0].selectedIndex = $(this)[0].index;
                         }
                     });
@@ -1583,7 +1610,6 @@ $.extend(tinyUPS, {
     },
     setSysCfg: function () {
         let form = $("form[name=confsys]");
-        // let formdata = new FormData(form[0]);
         let formdata = form.serializeArray();
         $.ajax({
             url:
@@ -1613,7 +1639,6 @@ $.extend(tinyUPS, {
     },
     setSNMPCfg: function () {
         const form = $("form[name=confsnmp]");
-        // let formdata = new FormData(form[0]);
         const formdata = form.serializeArray();
         $.ajax({
             url:
@@ -1670,6 +1695,43 @@ $.extend(tinyUPS, {
             },
         });
     },
+    sendUpdate: function(el) {
+        const self = this;
+        const formData = new FormData();
+        self.loader.show();
+        formData.append(el.name, el.files[0]);
+        const hash = md5(el.result).toString();
+
+        $.ajax({
+            url:
+                window.location.protocol +
+                "//" +
+                window.location.hostname +
+                this.updateUrl,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            cache: false,
+            data: formData,
+            dataType: "json",
+            headers: {
+                "X-MD5": hash,
+            },
+            success: (r) => {
+                ohSnap("Update successful", self.info);
+            },
+            error: (o, ts, e) => {
+                ohSnap("Update error", self.warn);
+            },
+            complete: () => {
+                setTimeout(function() {
+                    // self.loader.hide();
+                    window.location.reload();
+                }, self.updateCountdown);
+                el.value = "";
+            },
+        });
+    }
 });
 
 /**

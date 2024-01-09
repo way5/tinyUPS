@@ -32,11 +32,23 @@
 }
 
 header {
-    @apply sticky smdn:fixed smdn:w-screen mb-6 mt-0 mx-0 mdup:mt-3 mdup:mx-3 z-20;
+    @apply sticky smdn:fixed smdn:w-screen mb-4 mt-0 mx-0 mdup:mt-3 mdup:mx-3 z-20;
 
     .nav-bar {
-        @apply justify-between items-center flex max-w-5xl mx-auto bg-white dark:bg-base-500 mdup:rounded-sm shadow-md
+        @apply justify-between items-center flex max-w-5xl mx-auto bg-white dark:bg-base-500 mdup:rounded-lg shadow-md
                 border border-gray-400 dark:border-base-400;
+
+        .nav-bar-logo {
+            @apply text-center mdup:rounded-l-lg bg-violet-500 px-4 py-1 mdup:px-12 sm:px-8;
+
+            h1 {
+                @apply text-lg font-bold font-exo text-white;
+            }
+
+            p {
+                @apply mb-1 text-sm font-narrow text-gray-100;
+            }
+        }
     }
 }
 
@@ -49,7 +61,7 @@ main {
 
     .indicators-wrapper {
         @apply col-span-full bg-violet-400 dark:bg-violet-400 border
-                border-white dark:border-base-200 rounded-sm smdn:rounded-none shadow-lg relative mb-8;
+                border-white dark:border-base-200 rounded-lg smdn:rounded-none shadow-lg relative mb-8;
 
         .sttop {
             @apply col-span-4 px-6 py-4 smdn:px-4 smdn:py-0 smdn:mb-3 smdn:col-span-full font-exo min-h-[100px] overflow-hidden;
@@ -65,10 +77,6 @@ main {
             &.netwcard {
                 background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="rgba(173, 172, 250, 0.4)" d="M15,9H13V7H15V9M22,20V22H15A1,1 0 0,1 14,23H10A1,1 0 0,1 9,22H2V20H9A1,1 0 0,1 10,19H11V17H7A2,2 0 0,1 5,15V5A2,2 0 0,1 7,3H17A2,2 0 0,1 19,5V15A2,2 0 0,1 17,17H13V19H14A1,1 0 0,1 15,20H22M9,5H7V15H9V5M11,15H13V11H15A2,2 0 0,0 17,9V7A2,2 0 0,0 15,5H11V15Z" /></svg>');
                 @apply bg-no-repeat bg-[right_2rem_bottom_-0.5rem] bg-[length:128px];
-            }
-
-            .hdr {
-                @apply flex flex-row text-xl font-bold text-violet-300 drop-shadow-md min-h-[2.5rem] mb-2;
             }
 
             .param {
@@ -106,10 +114,6 @@ main {
         @apply mdup:text-violet-500 dark:mdup:text-gray-300;
     }
 
-    /* li:last-child {
-        @apply border-t mt-3 mdup:m-0 mdup:ml-5 mdup:my-0 mdup:border-slate-300 mdup:text-lg;
-    } */
-
     li {
         @apply rounded mdup:border-none mdup:hover:text-violet-600 dark:mdup:hover:text-base-200 flex mdup:text-gray-400 dark:mdup:text-base-700
                 cursor-pointer transition-colors duration-300 ease-in-out
@@ -119,7 +123,7 @@ main {
 }
 
 .card {
-    @apply flex flex-col rounded-sm bg-gray-50 dark:bg-base-500 shadow-lg border
+    @apply flex flex-col rounded-lg bg-gray-50 dark:bg-base-500 shadow-lg border
             border-gray-400 dark:border-base-400 smdn:rounded-none transition-colors duration-700 ease-in-out;
 
     .header {
@@ -154,9 +158,6 @@ main {
                 border border-base-100 dark:border-base-400 shadow-lg
                 divide-y divide-gray-200 dark:divide-base-400 z-40;
 
-        /* .servicemenu {
-            @apply flex flex-col mdup:flex-row px-4 pb-[10px] pt-2 mdup:space-x-8 mdup:mt-0; */
-
         li {
             @apply block rounded-none px-4 py-2
                  hover:bg-violet-100 dark:hover:bg-base-600;
@@ -170,7 +171,6 @@ main {
                 @apply pr-2;
             }
         }
-        /* } */
     }
 }
 
@@ -193,9 +193,6 @@ main {
                 @apply mr-2;
             }
 
-            /* img {
-                @apply mr-2;
-            } */
         }
     }
 

@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 10:13:57 pm                             #
+# Last Modified: Tuesday, 9th January 2024 2:25:40 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -30,7 +30,7 @@
 #include <WiFi.h>
 #include <sys/param.h>
 
-// #define DEBUG                           6
+// #define DEBUG                           2
 #define _STRING(x)                      #x
 #define STRING(x)                       _STRING(x)
 #define VERSION_UI                      STRING(VERSION_WEBUI)
@@ -46,41 +46,41 @@ typedef enum
     NTP_SYNC_ERR = -2,
 } status_t;
 
-#define _CHB(b, s)          \
-    do                      \
-    {                       \
-        b = new char[s];    \
-        memset(b, '\0', s); \
+#define _CHB(b, s)                                  \
+    do                                              \
+    {                                               \
+        b = new char[s];                            \
+        memset(b, '\0', s);                         \
     } while (0)
 
-#define _CHBC(b)                    \
-    do                              \
-    {                               \
-        memset(b, '\0', strlen(b)); \
+#define _CHBC(b)                                    \
+    do                                              \
+    {                                               \
+        memset(b, '\0', strlen(b));                 \
     } while (0)
 
-#define _CHBD(b)    \
-    do              \
-    {               \
-        delete[] b; \
-        b = NULL;   \
+#define _CHBD(b)                                    \
+    do                                              \
+    {                                               \
+        delete[] b;                                 \
+        b = NULL;                                   \
     } while (0)
 
 #if defined(DEBUG_ESP_PORT)
-#define __DF(F, ...)                             \
-    do                                           \
-    {                                            \
-        DEBUG_ESP_PORT.printf(F, ##__VA_ARGS__); \
+#define __DF(F, ...)                                \
+    do                                              \
+    {                                               \
+        DEBUG_ESP_PORT.printf(F, ##__VA_ARGS__);    \
     } while (0)
-#define __DL(F)                    \
-    do                             \
-    {                              \
-        DEBUG_ESP_PORT.println(F); \
+#define __DL(F)                                     \
+    do                                              \
+    {                                               \
+        DEBUG_ESP_PORT.println(F);                  \
     } while (0)
-#define __D(F)                   \
-    do                           \
-    {                            \
-        DEBUG_ESP_PORT.print(F); \
+#define __D(F)                                      \
+    do                                              \
+    {                                               \
+        DEBUG_ESP_PORT.print(F);                    \
     } while (0)
 #else
 #define __DF(F...) (void)0
@@ -156,6 +156,7 @@ typedef struct
     bool isActiveSnmpAgent = false;
     bool isActiveHttpd = false;
     bool isActiveMonitor = false;
+    bool updateInProgress = false;
 } common_event_t;
 volatile extern common_event_t systemEvent;
 

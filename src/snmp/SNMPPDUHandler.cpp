@@ -20,14 +20,14 @@ bool handleGetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
     // __DL("handleGetRequestPDU");
     for (const VarBind &requestVarBind : varbindList)
     {
-#if DEBUG == 5
+    #if DEBUG == 5
         __DF("searching callback for: %s\n", requestVarBind.oid->string().c_str());
-#endif
+    #endif
         ValueCallback *callback = ValueCallback::findCallback(callbacks, requestVarBind.oid.get(), isGetNextRequest);
         if (!callback)
         {
             __DF("(!) no callback for: %s\n", requestVarBind.oid->string().c_str());
-#if 1
+    #if 1
             // According to RFC3416 we should be setting the value to 'noSuchObject' or 'noSuchInstance,
             // but this doesn't seem to render nicely in tools, so possibly revert to old NO_SUCH_NAME error
             if (isGetNextRequest)
@@ -40,14 +40,14 @@ bool handleGetRequestPDU(std::deque<ValueCallback *> &callbacks, std::deque<VarB
                 outResponseList.emplace_back(requestVarBind, std::make_shared<ImplicitNullType>(NOSUCHOBJECT));
             }
 
-#else
+    #else
             outResponseList.emplace_back(generateErrorResponse(SNMP_ERROR_VERSION_CTRL_DEF(NOT_WRITABLE, snmpVersion, NO_SUCH_NAME), requestVarBind.oid));
-#endif
+    #endif
             continue;
         }
-#if DEBUG == 5
+    #if DEBUG == 5
         __DF("callback found for OID: %s\n", callback->OID->string().c_str());
-#endif
+    #endif
         // NOTE: we could just use the same pointer as the reqwuest, but delete the value and add a new one. Will have to figure out what to do if it errors, do that later
         auto value = ValueCallback::getValueForCallback(callback);
 

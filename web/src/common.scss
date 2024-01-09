@@ -234,7 +234,7 @@ a.link {
 textarea,
 input:not([type="submit"]):not([type="button"]):not([type="radio"]):not([type="checkbox"]),
 select {
-    @apply w-full bg-gray-200 dark:bg-base-700 bg-opacity-50 rounded border border-gray-400 dark:border-base-400
+    @apply w-full bg-gray-200 dark:bg-base-700 bg-opacity-50 rounded-md border border-gray-400 dark:border-base-400
             text-base text-gray-800 dark:text-gray-50 px-3 transition-colors
                 duration-300 ease-in-out;
 }
@@ -245,7 +245,7 @@ select {
 
 input:is([type="submit"]) {
     @apply mx-auto text-white bg-violet-400 dark:bg-base-600 border border-gray-600 dark:border-base-400 py-4 px-8 mt-5 focus:outline-none hover:bg-violet-600 dark:hover:bg-base-700
-            rounded font-semibold text-base cursor-pointer smdn:w-full text-center min-w-[150px]
+            rounded-md font-semibold text-base cursor-pointer smdn:w-full text-center min-w-[150px]
             transition-colors duration-500 ease-in-out;
 }
 
@@ -296,7 +296,7 @@ button {
 
     &.dmode-solo,
     &.reset-solo {
-        @apply w-8 h-8 p-1 absolute top-2 border border-gray-200 dark:border-base-700 rounded-full;
+        @apply w-8 h-8 p-1 absolute top-2 border border-gray-400 dark:border-base-400 rounded-full;
 
         svg {
             @apply transition-colors duration-300 ease-in-out dark:fill-base-700 fill-gray-200 hover:fill-violet-400 dark:hover:fill-base-450;
@@ -322,7 +322,11 @@ form {
     }
 
     .sub-header {
-        @apply text-gray-900 dark:text-gray-50 font-medium text-lg;
+        @apply text-gray-900 dark:text-gray-50;
+
+        h4 {
+            @apply font-medium text-lg;
+        }
     }
 
     .table-row {
@@ -333,8 +337,17 @@ form {
         @apply font-medium ml-1 text-gray-500 dark:text-gray-200 leading-7 text-sm;
     }
 
+    .flex-form-block,
+    .flex-form-block-full {
+        @apply smdn:p-0 relative;
+    }
+
     .flex-form-block {
-        @apply smdn:p-0 pr-4 smdn:w-full w-1/2;
+        @apply smdn:w-full w-1/2 pr-4;
+    }
+
+    .flex-form-block-full {
+        @apply w-full;
     }
 }
 

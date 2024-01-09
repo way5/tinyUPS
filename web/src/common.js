@@ -106,6 +106,7 @@ var tinyUPS = {
     warn: ohSnapConfig.warn,
     info: ohSnapConfig.info,
     uiVer: null,
+    fwVer: null,
     /**
      * Doc-scope initializer. Called manually
      */
@@ -133,9 +134,12 @@ var tinyUPS = {
         var pkg = require("../../package.json");
         this.uiVer = pkg.version;
         pkg = null;
+        var pkg = require("../../configure.json");
+        this.fwVer = pkg.version;
+        pkg = null;
         // footer
         $('a[data-i18n="[title]gotoGithubLink"]').append(
-            new Date().getFullYear() + " (ui: " + this.uiVer + ")"
+            new Date().getFullYear() + " (fw: " + this.fwVer + " / ui: " + this.uiVer + ")"
         );
         this.initPage();
         // i18n
@@ -174,7 +178,7 @@ var tinyUPS = {
         }
     },
     getSurvey: function () {
-        let self = this;
+        const self = this;
         let list = $('select[name="ssid"]');
         $.ajax({
             url:
@@ -235,7 +239,7 @@ var tinyUPS = {
         });
     }, // getSurvey
     doReboot: function (el, countdownEl) {
-        let self = this;
+        const self = this;
         $(el).attr("disabled", "disabled");
         $(el).addClass("disabled");
         $.ajax({

@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:40 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 27th September 2023 10:10:05 am                         #
+# Last Modified: Monday, 8th January 2024 6:06:09 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -51,7 +51,7 @@ time_t NTPClientClass::getEpoch() {
 status_t NTPClientClass::forceUpdate() {
     configTime((config.ntpTimeOffset*3600UL), config.ntpDaylightOffset, config.ntpServer, config.ntpServerFB);
     struct tm timeinfo;
-    uint8_t cntr = 0;
+    // uint8_t cntr = 0;
     if(!getLocalTime(&timeinfo)) {
     #if DEBUG == 2
         __DL("(!) failed to retrieve local time\n");
@@ -185,12 +185,12 @@ void NTPClientClass::uptimeHR(char *buffer) {
  *
  * @return unsigned long
 */
- unsigned long NTPClientClass::uptimeSeconds() {
+unsigned long NTPClientClass::uptimeSeconds() {
     if (WiFi.status() == WL_CONNECTED)
         return (unsigned long)(getEpoch() - _startTime);
     else
         return millis()/1000;
- }
+}
 
 /**
  * @brief Returns local time data

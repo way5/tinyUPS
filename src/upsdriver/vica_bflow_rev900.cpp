@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.cpp                                                       #
 # File Created: Thursday, 8th June 2023 10:53:51 pm                                 #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 3rd September 2023 11:14:06 pm                             #
+# Last Modified: Monday, 8th January 2024 4:29:23 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -121,9 +121,10 @@ esp_err_t upsDriverInit() {
 
 /**
  * @brief Get the Current Battery Life Time value in seconds
- *        Since the battery might be replaced with non standard we cannot evaluate
- *        the time using the conventional method. The following calculations
- *        can be changed in order to match with your current situation.
+ *        Since the battery might be replaced with a non standard one,
+ *        we may not be able to evaluate the time using conventional
+ *        method. The following calculations can be changed in order to
+ *        match with your current situation.
  *        Here we also can aproximate the remaining time by using known estimated
  *        battery life time with 100% load, current load and the
  *        charge in percents.

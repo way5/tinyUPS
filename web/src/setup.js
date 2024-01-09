@@ -8,7 +8,7 @@ $.extend(tinyUPS, {
      * Setup page
      */
     initPage: function () {
-        let self = this;
+        const self = this;
         // reset button
         $("button.reset-solo").on("click", (e) => {
             self.doReboot("button.reset-solo", "button.reset-solo");
@@ -40,7 +40,7 @@ $.extend(tinyUPS, {
      * Send setup form
      */
     doSetup: function () {
-        let self = this;
+        const self = this;
         let form = $("form[name=setup]");
         // let modalDone = new Modal(document.getElementById("modal"));
         // let modalTest = new Modal(document.getElementById('modal-test'));

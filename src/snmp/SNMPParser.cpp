@@ -37,14 +37,18 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
 
     SNMP_PACKET_PARSE_ERROR parseResult = request.parseFrom(buffer, packetLength);
     if(parseResult <= 0) {
+    #ifdef DEBUG
         __DF("error code: %d when attempting to parse\n", parseResult);
+    #endif
         return SNMP_REQUEST_INVALID;
     }
 #if DEBUG == 5
     __DL("-  valid SNMP packet");
 #endif
     if(request.packetPDUType == GetResponsePDU) {
+    #ifdef DEBUG
         __DF("received GetResponse! probably as a result of a recent informTrap: %lu\n", request.requestID);
+    #endif
         if(informCallback){
             informCallback(ctx, request.requestID, !request.errorStatus.errorStatus);
         } else {
@@ -55,7 +59,9 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
 
     SNMP_PERMISSION requestPermission = getPermissionOfRequest(request); //, _community, _readOnlyCommunity);
     if(requestPermission == SNMP_PERM_NONE){
+    #ifdef DEBUG
         __DF("(!) invalid community provided: %s, no response to give\n", request.communityString.c_str());
+    #endif
         logsnmp.putts("(!) invalid community provided: %s, no response to give", request.communityString.c_str());
         return SNMP_REQUEST_INVALID_COMMUNITY;
     }
@@ -87,7 +93,7 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
             }
         break;
         case SetRequestPDU:
-            if(requestPermission != SNMP_PERM_READ_WRITE){
+            if(requestPermission != SNMP_PERM_READ_WRITE) {
                 __DL("(!!) attempt to SET without permissions");
                 logsnmp.putts("(!!) attempt to SET without permissions");
                 pass = false;
@@ -98,7 +104,9 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
             }
         break;
         default:
+        #ifdef DEBUG
             __DF("(i) not sure what to do with SNMP PDU of type: %d\n", request.packetPDUType);
+        #endif
             handleStatus = SNMP_UNKNOWN_PDU_OCCURRED;
             pass = false;
         break;
@@ -114,7 +122,9 @@ SNMP_ERROR_RESPONSE handlePacket(uint8_t* buffer, int packetLength, int* respons
         }
     } else {
         // Something went wrong, generic error response
+    #ifdef DEBUG
         __DF("(!) error: %d while building request, sending error PDU\n", globalError);
+    #endif
         response.setGlobalError(globalError, 0, true);
         handleStatus = SNMP_ERROR_PACKET_SENT;
     }

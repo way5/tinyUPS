@@ -41,7 +41,7 @@ const config = {
     devtool: !isProduction ? "source-map" : false,
     output: {
         // Clean the output directory before emit.
-        clean: false,
+        clean: true,
         path: webDataDir,
         filename: "[name].js"
     },

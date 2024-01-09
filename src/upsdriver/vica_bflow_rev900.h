@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.h                                                         #
 # File Created: Thursday, 8th June 2023 9:45:49 pm                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 15th August 2023 12:33:36 pm                              #
+# Last Modified: Friday, 5th January 2024 1:13:21 am                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -23,7 +23,7 @@
 #define PIN_MONITOR_SPICS                                   33
 // length of multiples of 4 bytes
 #define MONSPI_RX_BUFFER_LENGTH                             8
-#define MONSPI_TICKS_TO_WAIT                                0xFF
+#define MONSPI_TICKS_TO_WAIT                                0x80
 #define MONSPI_QUEUE_LENGTH                                 12
 /**< SPI mode (CPOL, CPHA) configuration:
     - 0: (0, 0)
