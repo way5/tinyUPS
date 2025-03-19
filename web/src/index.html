@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-US" class="dark">
 
 <head>
@@ -43,7 +43,6 @@
                 <div class="relative mr-2">
                     <button type="menu" class="sidebar-toggle-btn peer" data-dropdown data-dropdown-placement="bottom"
                         data-dropdown-offset="0,10" type="button">
-                        <!-- data-dropdown-toggle="sidebar" -->
                         <span class="sr-only" data-i18n="index.openSidebar"></span>
                         <!-- <i class="ti ti-menu-2 text-xl"></i> -->
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -124,8 +123,8 @@
             </div>
         </header>
         <!-- NAVIGATION END -->
+        <!-- DASHBOARD BEGIN -->
         <main>
-            <!-- DASHBOARD BEGIN -->
             <div id="home" class="pagecontainer grid">
                 <div class="indicators-wrapper group/indicators">
                     <div class="grid grid-cols-12 gap-x-2 smdn:mt-3">
@@ -399,11 +398,9 @@
                     <div>
                         <div id="logsys" class="logarea" data-url="/logsys" data-name="system log">
                             <div class="logdata"></div>
-                            <!-- <div class="fade"></div> -->
                         </div>
                         <div id="logsnmp" class="logarea hidden" data-url="/logsnmp" data-name="snmp log">
                             <div class="logdata"></div>
-                            <!-- <div class="fade"></div> -->
                         </div>
                         <div class="flatnav">
                             <div class="nav">
@@ -480,13 +477,6 @@
                                     <path d="M12 12l0 2.5" />
                                 </svg>
                             </a>
-                            <!-- <a href="conft4" class="tab" data-i18n="[append]index.apiTab">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5"
-                                        stroke="currentColor" class="w-5 h-5">
-                                        <path fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                            d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
-                                    </svg>
-                                </a> -->
                             <a href="conft5" class="tab group" data-i18n="[append]index.updateTab">
                                 <!-- <i class="ti ti-cpu"></i> -->
                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -508,8 +498,8 @@
                                 </svg>
                             </a>
                         </div>
+                        <!-- FORM SYSTEM CONFIG BEGIN -->
                         <div id="conft1" class="tab-conts">
-                            <!-- FORM SYSTEM CONFIG BEGIN -->
                             <form name="confsys" class="form-wrapper" method="POST" action="/">
                                 <div class="header border-none">
                                     <h4 data-i18n="index.hdrSystem"></h4>
@@ -624,7 +614,6 @@
                                         <option value="13">(GMT+13:00) Nuku'alofa</option>
                                     </select>
                                 </div>
-
                                 <div class="header">
                                     <h4 data-i18n="index.hdrAccessPoint"></h4>
                                 </div>
@@ -685,11 +674,10 @@
                                     <input type="submit" name="configsys" data-i18n="[value]inpSubmitSave" />
                                 </div>
                             </form>
-                            <!-- FORM SYSTEM CONFIG END-->
                         </div>
-
+                        <!-- FORM SYSTEM CONFIG END-->
+                        <!-- FORM SNMP SETTINGS BEGIN -->
                         <div id="conft2" class="tab-conts hidden">
-                            <!-- FORM SNMP SETTINGS BEGIN -->
                             <form name="confsnmp" class="form-wrapper" method="POST" action="/">
                                 <div class="header border-none">
                                     <h4 data-i18n="index.hdrGeneral"></h4>
@@ -744,10 +732,10 @@
                                     <input type="submit" name="configsnmp" data-i18n="[value]inpSubmitSave" />
                                 </div>
                             </form>
-                            <!-- FORM SNMP SETTINGS END -->
                         </div>
+                        <!-- FORM SNMP SETTINGS END -->
+                        <!-- FORM SECURITY SETTINGS BEGIN -->
                         <div id="conft3" class="tab-conts hidden">
-                            <!-- FORM SECURITY SETTINGS BEGIN -->
                             <form name="confsec" class="form-wrapper" method="POST" action="/">
                                 <div class="header border-none">
                                     <h4 data-i18n="index.hdrSNMPaccess"></h4>
@@ -816,11 +804,6 @@
                                         </button>
                                     </div>
                                 </div>
-                                <!-- <div class="p2 w-full">
-                                            <label>Trap key (optional, empty - public access)</label>
-                                            <input type="password" name="snmptrkey" maxlength="20" minlength="5">
-                                        </div> -->
-
                                 <div class="header">
                                     <h4 data-i18n="index.hdrAdminAccess"></h4>
                                 </div>
@@ -907,55 +890,10 @@
                                     <input type="submit" name="configsec" data-i18n="[value]inpSubmitSave" />
                                 </div>
                             </form>
-                            <!-- FORM SECURITY SETTINGS END -->
                         </div>
-                        <!-- FORM API SETTINGS BEGIN -->
-                        <!-- <div id="conft4" class="tab-conts hidden">
-                                <div class="relative overflow-x-auto mt-5 mb-2">
-                                    <table class="w-full text-left text-gray-700 dark:text-gray-200" id="api-keys">
-                                        <thead class="text-x uppercase bg-gray-100 dark:bg-base-700 border-gray-400">
-                                            <tr>
-                                                <th scope="col" class="px-6 py-3" data-i18n="index.apiKeyMemo">
-                                                </th>
-                                                <th scope="col" class="px-6 py-3" data-i18n="index.apiKey">
-                                                </th>
-                                                <th scope="col" class="px-6 py-3" data-i18n="index.apiKeyAction">
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                                <div class="w-full pt-7 inline-flex justify-end">
-                                    <button type="button" class="btn-alert" data-popover-placement="left"
-                                        data-popover-target="add-key-popoverform" data-popover-trigger="click"
-                                        data-i18n="index.apiKeyBtnAdd"></button>
-                                    <div data-popover id="add-key-popoverform" role="tooltip" class="absolute z-10 invisible inline-block min-w-[256px] max-w-xl transition-opacity
-                                            duration-300 rounded shadow-md opacity-0 text-gray-800 dark:text-white bg-white dark:bg-base-400 border
-                                            border-gray-200 dark:border-base-300">
-                                        <div class="px-3 py-3">
-                                            <form name="add-api-key-form" action="" method="POST">
-                                                <input type="hidden" value="" name="apik" minlength="3" maxlength="16">
-                                                <p class="">
-                                                    <input type="text" class="w-full" value="" placeholder=""
-                                                        data-i18n="[placeholder]index.apiYetAnotherKey" name="apikm"
-                                                        minlength="3" maxlength="16">
-                                                </p>
-                                                <p class="pt-2"><label data-i18n="js.key"></label></p>
-                                                <p class="px-4 text-roboto" id="api-key-value"></p>
-                                                <p>
-                                                    <input type="submit" name="apiksmt" class="w-full"
-                                                        data-i18n="[value]inpSubmitSave">
-                                                </p>
-                                            </form>
-                                        </div>
-                                        <div data-popper-arrow></div>
-                                    </div>
-                                </div>
-                            </div> -->
-                        <!-- FORM API SETTINGS END -->
+                        <!-- FORM SECURITY SETTINGS END -->
+                        <!-- UPDATE FORM BEGIN -->
                         <div id="conft5" class="tab-conts hidden">
-                            <!-- UPDATE FORM BEGIN -->
                             <div class="content">
                                 <form class="device-update-form form-wrapper" method="POST" action="/">
                                     <div class="flex items-center justify-center flex-col py-2">
