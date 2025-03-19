@@ -122,7 +122,7 @@ public:
         if (!buildStatus)
         {
             __DL("(!) failed to build packet");
-            snmpLog.putts(PSTR("(!) trap: failed to build packet"));
+            logsnmp.putts("(!) trap: failed to build packet");
             return false;
         }
 

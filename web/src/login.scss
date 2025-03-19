@@ -1,0 +1,35 @@
+@charset 'utf-8';
+
+/*
+* THEME DEFAULTS
+*/
+@use './includes/theme.scss' as *;
+
+.login-wrapper {
+    @apply relative min-h-screen text-gray-600 flex flex-col justify-center;
+
+    .login-container {
+        @apply w-full smup:max-w-[400px] min-w-[300px] mx-0 smup:mx-auto;
+
+        .logo {
+            @apply font-bold text-center text-4xl mb-5 text-gray-800 dark:text-base-200;
+        }
+
+        .login-main {
+            @apply bg-white dark:bg-base-500 shadow-lg w-full rounded-2xl smdn:rounded-none border relative;
+            @extend .container-border;
+
+            .body {
+                @apply pt-10 px-8 pb-7 border-b border-gray-200 dark:border-base-400;
+            }
+
+            .footer {
+                @apply py-5 text-center text-sm;
+
+                a {
+                    @apply text-gray-500 dark:text-gray-200;
+                }
+            }
+        }
+    }
+}

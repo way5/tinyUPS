@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 9:57:00 pm                                  #
+# Last Modified: Wednesday, 19th March 2025 1:38:11 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -18,8 +18,8 @@
         unauthorized    /           = l.htm
         authorized      /           = i.htm
         authorized      /(.+)       = e.htm (404)
-        authorized      /app.js     = app.js (404)
-        authorized      /app.css    = app.css (404)
+        authorized      /app.js     = app.js
+        authorized      /app.css    = app.css
 
     -   AJAX RESPOMSE: ERROR
         { "err": "(code|description)" }
@@ -30,9 +30,11 @@
 #define HTTPD_SERVER_H
 
 #include "helpers.h"
+#include <Update.h>
+#include "updater.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Hash.h>
+// #include <Hash.h>
 #include "FS.h"
 #include "FFat.h"
 #include "eemem.h"
@@ -42,69 +44,96 @@
 #include "ntpc.h"
 
 extern AsyncWebServer httpd;
-extern void systemReboot();
-extern fLogClass sysLog;
-extern fLogClass snmpLog;
-extern fLogClass monTempLog;
-extern fLogClass monBattDataLog;
+extern fLogClass logsys;
+extern fLogClass logsnmp;
+extern fLogClass logTempMon;
+extern fLogClass logDataMon;
 
-static const char _httpTokenSalt[] PROGMEM = "rah2Eingie9aeWi";
+const char _httpTokenSalt[] = "rah2Eingie9aeWi";
 
-static const char resPageLogin[] PROGMEM = "/l.htm";
-static const char resPageIndex[] PROGMEM = "/i.htm";
-static const char resPageError[] PROGMEM = "/e.htm";
-static const char resPageSetup[] PROGMEM = "/s.htm";
-static const char resCss[] PROGMEM = "/app.css";
-static const char resJs[] PROGMEM = "/app.js";
-static const char resFavicon[] PROGMEM = "/favicon.ico";
-static const char resSvgEye[] PROGMEM = "/eye.svg";
-static const char resSvgGth[] PROGMEM = "/gth.svg";
+const char _apiKeysDBPath[] = "/data/api";
 
-static const char headerCookie[] PROGMEM = "Cookie";
-static const char headerSetCookie[] PROGMEM = "Set-Cookie";
-static const char headerLocation[] PROGMEM = "Location";
-static const char cookieName[] PROGMEM = "TINYUPSSID=";
-static const char cookieNameReset[] PROGMEM = "TINYUPSSID=0; Max-Age=0";
-static const char cookieName2[] PROGMEM = "; path=/; Max-Age=";
+const char resPageLogin[] = "/l.htm";
+const char resPageIndex[] = "/i.htm";
+const char resPageError[] = "/e.htm";
+const char resPageSetup[] = "/s.htm";
+const char resFavicon[] = "/favicon.ico";
 
-static const char mimeTextPlain[] PROGMEM = "text/plain";
-static const char mimeTextHtml[] PROGMEM = "text/html";
-static const char mimeTextCss[] PROGMEM = "text/css";
-static const char mimeAppJS[] PROGMEM = "application/javascript";
-static const char mimeAppJSON[] PROGMEM = "application/json";
-static const char mimeImgXICN[] PROGMEM = "image/x-icon";
-static const char mimeImgSVG[] PROGMEM = "image/svg+xml";
+const char headerCookie[] = "Cookie";
+const char headerSetCookie[] = "Set-Cookie";
+const char headerLocation[] = "Location";
+const char cookieName[] = "TINYUPSSID=";
+const char cookieNameReset[] = "TINYUPSSID=0; Max-Age=0";
+const char cookieName2[] = "; path=/; Max-Age=";
 
-static const char jsonLoginRepeat[] PROGMEM = "{\"login\":\"repeat\"}";
-static const char jsonLoginOK[] PROGMEM = "{\"login\":\"ok\"}";
-static const char jsonLoginERR[] PROGMEM = "{\"login\":\"err\",\"err\":\"Wrong login or password\"}";
+const char mimeTextPlain[] = "text/plain";
+const char mimeTextHtml[] = "text/html";
+const char mimeTextCss[] = "text/css";
+const char mimeAppJS[] = "application/javascript";
+const char mimeAppJSON[] = "application/json";
+const char mimeImgXICN[] = "image/x-icon";
+const char mimeTtfFonts[] = "font/ttf";
+const char mimeWoffFonts[] = "font/woff2";
 
-static const char maskDashbrd[] PROGMEM = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
-                                            "\"apmac\":\"%s\",\"apch\": %d,\"ram\": %.2f,\"ram3\": %.2f,\"cpu\": %d,"\
-                                            "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"batchd\":\"%s\",\"battmp\":%.2f,"\
-                                            "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,"\
-                                            "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\":%lu,\"ctime\":\"%s\"}";
-static const char maskInfoGraph[] PROGMEM = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
-static const char maskGetConfig[] PROGMEM = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,\"ntptmoff\":%d,\"ntpdloff\":%d,"\
-                                            "\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\","\
-                                            "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
-                                            "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\"}";
-static const char maskSurvey[] PROGMEM = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
+const char jsonLoginRepeat[] = "{\"login\":\"repeat\"}";
+const char jsonLoginOK[] = "{\"login\":\"ok\"}";
+const char jsonLoginERR[] = "{\"login\":\"err\",\"err\":\"Wrong login or password\"}";
+const char jsonUpdateOK[] = "{\"update\":\"ok\"}";
+const char jsonUpdateERR[] = "{\"update\":\"err\",\"err\":\"%s\"}";
+
+const char maskDashbrd01[] = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
+                                            "\"apmac\":\"%s\",\"ram\": %.2f,\"ram3\": %.2f,";
+
+const char maskDashbrd02[] = "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"battmp\":%.2f,"\
+                                            "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,";
+const char maskDashbrd03[] =  "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\":%lu,\"ctime\":%ld}";
+const char maskInfoGraph[] = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
+
+const char maskGetConfig01[] = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,";
+const char maskGetConfig02[] = "\"ntptmoff\":%d,\"ntpdloff\":%d,\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"apkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\",";
+const char maskGetConfig03[] = "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
+                                "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"snum\":\"%s\"}";   // ,\"api\":[%s]
+const char maskSurvey[] = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
+const char maskDeviceSerial[] = "{\"serial\":\"%s\"}";
+
+typedef struct ApiKeysT {
+    char * memo;
+    time_t created = 0;
+    char * key;
+    ApiKeysT() {
+        this->memo = reinterpret_cast<char *>(malloc((size_t)16));
+        this->key = reinterpret_cast<char *>(malloc((size_t)32));
+    }
+    ~ApiKeysT() {
+        free(this->memo);
+        free(this->key);
+    }
+} api_keys_t;
+
+#define _ALLOC_API_ARRAY(A)        do {                                 \
+    A = new api_keys_t * [5];                                           \
+    uint8_t i = 0;                                                      \
+    while(i < 5) {                                                      \
+        A[i] = nullptr;                                                 \
+        i++;                                                            \
+    }                                                                   \
+} while(0)
 
 void httpdInit();
-// helpers
+// utils
 bool isAuthorized(AsyncWebServerRequest * req);
 void httpdRespond(AsyncWebServerRequest * req, const char * file, const char* mime, bool gzipped = true, AsyncWebServerResponse * res = nullptr);
 void httpdLoop();
 // HTML & assets
 void httpdGetHtmlPage(AsyncWebServerRequest *req);
 void httpdGetHtmlError(AsyncWebServerRequest * req);
-void httpdGetStyleBundle(AsyncWebServerRequest *req);
-void httpdGetScriptBundle(AsyncWebServerRequest *req);
+void httpdGetStyleChunk(AsyncWebServerRequest *req);
+void httpdGetScriptChunk(AsyncWebServerRequest *req);
 void httpdGetFavicon(AsyncWebServerRequest *req);
-void httpdGetSvgImage(AsyncWebServerRequest *req);
+void httpdGetTtfFonts(AsyncWebServerRequest *req);
+void httpdGetWoffFonts(AsyncWebServerRequest *req);
 void httpdGetLogout(AsyncWebServerRequest *req);
-// POST
+// API
 void httpdPostSiteSurvey(AsyncWebServerRequest *req);
 void httpdPostSetupInit(AsyncWebServerRequest *req);
 void httpdPostSetup(AsyncWebServerRequest *req);
@@ -114,18 +143,20 @@ void httpdPostSnmpLog(AsyncWebServerRequest *req);
 void httpdPostInfoGraph(AsyncWebServerRequest *req);
 void httpdPostMonTmpLog(AsyncWebServerRequest *req);
 void httpdPostMonBDtaLog(AsyncWebServerRequest *req);
-// dashboard data
+void httpdPostGenSerial(AsyncWebServerRequest *req);
 void httpdPostGetDashbrd(AsyncWebServerRequest *req);
-// POST: config
+// config
 void httpdPostGetConfig(AsyncWebServerRequest *req);
 void httpdPostSetConfigSystem(AsyncWebServerRequest *req);
 void httpdPostSetConfigSNMP(AsyncWebServerRequest *req);
 void httpdPostSetConfigSecurity(AsyncWebServerRequest *req);
-// system commands
 void httpdPostReboot(AsyncWebServerRequest *req);
 void httpdPostControlCooling(AsyncWebServerRequest *req);
 void httpdPostReset(AsyncWebServerRequest *req);
+// OTA
+void httpdPostUpgradeResponder(AsyncWebServerRequest *req);
+void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_t index, uint8_t *data, size_t len, bool final);
 // common JSON responses
-void httpdJsonErrResponse(AsyncWebServerRequest *req, const char * descr);
+void httpdJsonErrResponse(AsyncWebServerRequest *req, const char * descr, const int code = 401);
 
 #endif                              // HTTPD_SERVER_H

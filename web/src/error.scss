@@ -1,0 +1,14 @@
+@charset 'utf-8';
+
+/*
+* THEME DEFAULTS
+*/
+@use './includes/theme.scss' as *;
+
+.error-wrapper {
+    @apply min-h-screen text-gray-700 dark:text-base-200 flex flex-col justify-center;
+
+    .error-code {
+        @apply sm:text-6xl text-8xl mb-4 font-bold text-gray-900 dark:text-base-200;
+    }
+}

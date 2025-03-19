@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 5th July 2023 11:51:05 pm                               #
+# Last Modified: Wednesday, 19th March 2025 1:38:11 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -13,14 +13,6 @@
 
 /* NOTE:
     ******** DEVELOPERs' MEMO
-
-    1. WiFi module connection errors/statuses:
-        WL_CONNECTED -> err 3
-        WL_NO_SSID_AVAIL -> err 1
-        WL_CONNECT_FAILED -> err 4
-        WL_WRONG_PASSWORD -> err 6
-        WL_IDLE_STATUS -> err 0
-        WL_DISCONNECTED -> err 7
 
 */
 
@@ -36,38 +28,51 @@
 #include "flog.h"
 #include "ntpc.h"
 
+#if ((WIFI_RECONNECT_METHOD == 2) || (WIFI_RECONNECT_METHOD == 3))
+unsigned long _last_connection_update = 0;
+#endif
+unsigned long _reboot_scheduled_at = 0;
+
 config_t config;
 session_t session;
 eeMemClass eemem;
 monitor_data_t monitorData;
-volatile common_event_t systemEvent;
+common_event_t systemEvent;
 MonitorClass monitor;
 AgentClass snmpagent;
 AsyncWebServer httpd(80);
-fLogClass sysLog;
-fLogClass snmpLog;
-fLogClass monTempLog;
-fLogClass monBattDataLog;
+fLogClass logsys(_sysLogPath, SYSTEM_LOG_SIZE);
+fLogClass logsnmp(_snmpLogPath, SNMP_LOG_SIZE);
+fLogClass logTempMon(_logTempMonPath, MTEMP_LOG_SIZE);
+fLogClass logDataMon(_logDataMonPath, MDATA_LOG_SIZE);
 NTPClientClass ntp;
 wifi_event_id_t wifiEvtCon, wifiEvtDscon;
-
-static const char _sysLogPath[] PROGMEM = "/logs/sys";
-static const char _snmpLogPath[] PROGMEM = "/logs/snmp";
-static const char _monTempLogPath[] PROGMEM = "/logs/montmp";
-static const char _monBattDataLogPath[] PROGMEM = "/logs/monbdta";
 
 /**
  * @brief Custom system reset function
  *
 */
 void systemReboot() {
-    sysLog.put(F("-- reboot --"));
-    snmpagent.kill();
-    FFat.end();
-    __DL(F("(!) reboot..."));
-    // hard reset - can leave some of the registers in the old state
-    // which can lead to problems ESP.reset(), using soft-reboot instead
-    ESP.restart();
+    if(_reboot_scheduled_at != 0 && _reboot_scheduled_at + 2000UL >= millis()) {
+        logsys.put("-- reboot --");
+        snmpagent.kill();
+        FFat.end();
+        __DL("(!) reboot...");
+        // hard reset - can leave some of the registers in the old state
+        // which can lead to problems ESP.reset(), using soft-reboot instead
+        ESP.restart();
+    }
+}
+
+/**
+ * @brief Setup timer for upcoming reboot
+ *
+ */
+void scheduleReboot(bool now) {
+    if(_reboot_scheduled_at == 0) {
+        _reboot_scheduled_at = now ? millis() + 2000UL : millis();
+        __DL("(i) reboot has been scheduled in 2s...");
+    }
 }
 
 /**
@@ -79,40 +84,42 @@ void wifiEventHandler(arduino_event_t *e) {
     char * b;
     _CHB(b, 128);
     if(e->event_id == ARDUINO_EVENT_WIFI_AP_STACONNECTED) {
-        sprintf_P(b, PSTR("%02X:%02X:%02X:%02X:%02X:%02X"),
+        sprintf(b, "%02X:%02X:%02X:%02X:%02X:%02X",
                 e->event_info.wifi_ap_staconnected.mac[0],
                 e->event_info.wifi_ap_staconnected.mac[1],
                 e->event_info.wifi_ap_staconnected.mac[2],
                 e->event_info.wifi_ap_staconnected.mac[3],
                 e->event_info.wifi_ap_staconnected.mac[4],
                 e->event_info.wifi_ap_staconnected.mac[5]);
-        #ifdef DEBUG
-        __DF(PSTR("(i) %s connected, %d total\n"), b, WiFi.softAPgetStationNum());
-        #endif
-        sysLog.put(PSTR("(i) %s connected, %d total"), b, WiFi.softAPgetStationNum());
+    #ifdef DEBUG
+        __DF("(i) %s connected, %d total\n", b, WiFi.softAPgetStationNum());
+    #endif
+        logsys.put("(i) %s connected, %d total", b, WiFi.softAPgetStationNum());
     } else if(e->event_id == ARDUINO_EVENT_WIFI_AP_STADISCONNECTED) {
-        sprintf_P(b, PSTR("%02X:%02X:%02X:%02X:%02X:%02X"),
+        sprintf(b, "%02X:%02X:%02X:%02X:%02X:%02X",
                     e->event_info.wifi_ap_stadisconnected.mac[0],
                     e->event_info.wifi_ap_stadisconnected.mac[1],
                     e->event_info.wifi_ap_stadisconnected.mac[2],
                     e->event_info.wifi_ap_stadisconnected.mac[3],
                     e->event_info.wifi_ap_stadisconnected.mac[4],
                     e->event_info.wifi_ap_stadisconnected.mac[5]);
-        #ifdef DEBUG
-        __DF(PSTR("(i) %s disconnected, %d left\n"), b, WiFi.softAPgetStationNum());
-        #endif
-        sysLog.put(PSTR("%s disconnected, %d left"), b, WiFi.softAPgetStationNum());
+    #ifdef DEBUG
+        __DF("(i) %s disconnected, %d left\n", b, WiFi.softAPgetStationNum());
+    #endif
+        logsys.put("%s disconnected, %d left", b, WiFi.softAPgetStationNum());
     } else if(e->event_id == ARDUINO_EVENT_WIFI_STA_CONNECTED) {
-        #ifdef DEBUG
-        __DF(PSTR("(i) join STA: %s\n"), (char *)e->event_info.wifi_sta_connected.ssid);
-        #endif
-        sysLog.put(PSTR("(i) join STA: %s"), (char *)e->event_info.wifi_sta_connected.ssid);
+    #ifdef DEBUG
+        __DF("(i) connected to AP: %s\n", (char *)e->event_info.wifi_sta_connected.ssid);
+    #endif
+        logsys.put("(i) connected to AP: %s", (char *)e->event_info.wifi_sta_connected.ssid);
+        systemEvent.wifiAPConnectSuccess = true;
+        systemEvent.wifiIsInAPMode = false;
     } else if(e->event_id == ARDUINO_EVENT_WIFI_STA_DISCONNECTED) {
-        #ifdef DEBUG
-        __DF(PSTR("(i) leave STA: %s\n"), (char *)e->event_info.wifi_sta_disconnected.ssid);
-        #endif
-        // TODO: may use putts when NTP was syncronized
-        sysLog.put(PSTR("(i) leave STA: %s"), (char *)e->event_info.wifi_sta_disconnected.ssid);
+    #ifdef DEBUG
+        __DF("(i) disconnected from AP: %s\n", (char *)e->event_info.wifi_sta_disconnected.ssid);
+    #endif
+        // logsys.put("(i) disconnected from AP: %s", (char *)e->event_info.wifi_sta_disconnected.ssid);
+        systemEvent.wifiAPConnectSuccess = false;
     }
     _CHBD(b);
 }
@@ -127,7 +134,7 @@ void setAP() {
     long salt = random(1000UL, 9999UL);
     sprintf(_ssid, "%s.%ld", sysModel, salt);
 #ifdef DEBUG
-    __DL(F("(i) setting AP"));
+    __DL("(i) setting AP");
 #endif
     // WiFi events
     wifiEvtCon = WiFi.onEvent(wifiEventHandler, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
@@ -137,25 +144,50 @@ void setAP() {
     // to an access point that module may have automatically
     // made using previously saved credentials.
     WiFi.disconnect();
-    delay(1000);
-    // - WIFI_MODE_NULL = 0, WIFI_MODE_STA = 1, WIFI_MODE_AP = 2, WIFI_MODE_APSTA = 3
+    delay(100);
     WiFi.mode(WIFI_MODE_APSTA);
     // uint8_t mac[6];
-    // WiFi.softAPmacAddress(mac);
+    // TODO: WiFi.softAPmacAddress(mac);
     // WiFi.softAPConfig(ip, gw, subnet);
     WiFi.softAP(_ssid, config.apkey);
     // - Sets the max transmit power, in dBm. Values range from 0 to 20.5 [dBm]
     //   inclusive, and should be multiples of 0.25. This is essentially a thin
     //   wrapper around the SDK’s system_phy_set_max_tpw() api call.
     // WiFi.setOutputPower(20.0);
-    // do preliminary network scan
-    WiFi.scanNetworks(true, false);
     _CHBD(_ssid);
-    // init web server
-    httpdInit();
 #ifdef DEBUG
-    __DL(F("(i) AP started"));
+    __DL("(i) AP started");
 #endif
+    systemEvent.wifiIsInAPMode = true;
+}
+
+/**
+ * @brief Waiting for a connection to be established,
+ *        initialise AP if connection failed (WIFI_RECONNECT_METHOD == [1, 2])
+ *
+ * @return true - connection succeeded
+ * @return false - connection failed
+*/
+bool waitSTA() {
+    // uint8_t cntr = 0;
+#if ((WIFI_RECONNECT_METHOD == 2) || (WIFI_RECONNECT_METHOD == 3))
+    _last_connection_update = millis();
+#endif
+    if(WiFi.waitForConnectResult() != WL_CONNECTED) {
+#ifdef DEBUG
+    __DF("(!) connect to AP failed, err: %d\n", WiFi.status());
+#endif
+        logsys.put("(!) connect to AP failed, err: %d\n", WiFi.status());
+#if ((WIFI_RECONNECT_METHOD == 1) || (WIFI_RECONNECT_METHOD == 2))
+        setAP();
+#endif
+        return false;
+    }
+    // initialize if it hasn't been activated afore
+    if(!systemEvent.isActiveSnmpAgent) {
+        snmpagent.init();
+    }
+    return true;
 }
 
 /**
@@ -163,12 +195,11 @@ void setAP() {
  *
 */
 void setSTA() {
-    uint8_t cntr = 0;
 #ifdef DEBUG
-    __DL(F("(i) setting up STA"));
+    __DL("(i) setting up STA");
 #endif
     if(strlen(config.ssid) == 0) {
-        __DL(F("(!) no ssid"));
+        __DL("(!) no ssid");
         return;
     }
     // WiFi events
@@ -179,38 +210,15 @@ void setSTA() {
     // made using previously saved credentials.
     WiFi.disconnect();
     delay(100);
-    // - WIFI_MODE_NULL = 0, WIFI_MODE_STA = 1, WIFI_MODE_AP = 2, WIFI_MODE_APSTA = 3
+    // beacon idle timeout
+    // esp_wifi_set_inactive_time();
     WiFi.mode(WIFI_MODE_STA);
-    // - WIFI_PS_NONE, WIFI_PS_MIN_MODEM, WIFI_PS_MAX_MODEM
     WiFi.setSleep(WIFI_PS_NONE);
+#if WIFI_RECONNECT_METHOD == 4
     WiFi.setAutoReconnect(true);
-    WiFi.begin(config.ssid, config.ssidkey);
-
-    while(WiFi.status() != WL_CONNECTED && cntr <= 60) {
-        delay(500);
-        // feedLoopWDT();
-        cntr++;
-    }
-    // check if connected
-    if(WiFi.status() != WL_CONNECTED) {
-    #ifdef DEBUG
-        __DF(PSTR("(!) connect to AP failed, err: %d\n"), WiFi.status());
-    #endif
-        sysLog.put(PSTR("(!) connect to AP failed, err: %d\n"), WiFi.status());
-        // systemEvent.wifiAPConnectFailed = true;
-        setAP();
-        return;
-    }
-    // initialize if it's not active afore
-    if(!snmpagent.isActive()) {
-        // if connected, init SNMP
-        snmpagent.init();
-        // init web server
-        httpdInit();
-    }
-#ifdef DEBUG
-    __DL(F("(i) STA started"));
 #endif
+    WiFi.begin(config.ssid, config.ssidkey);
+    waitSTA();
 }
 
 /**
@@ -218,14 +226,10 @@ void setSTA() {
  *
 */
 void setup() {
-    // init serial
     Serial.begin(SERIAL_BAUD);
-    delay(1000);
-
-    // enableLoopWDT();
-
-    if(!FFat.begin(false, "", 7U, "storage")) {
-        __DL(F("(!) storage mount failed"));
+    // init FS
+    if(!FFat.begin(false, "", 10U, "storage")) {
+        __DL("(!) storage mount failed");
         return;
     }
 #if defined(DEBUG) && DEBUG != 6
@@ -237,47 +241,86 @@ void setup() {
         __DF("  Total space used: %u byte\n", usedBytes);
     }
 #endif
+    // checking if there are required directories
+    if(!FFat.exists(_logDirPath) && !FFat.mkdir(_logDirPath)) {
+        __DL("(!) make log dir failed");
+        return;
+    }
+    if(!FFat.exists(_dataDirPath) && !FFat.mkdir(_dataDirPath)) {
+        __DL("(!) make data dir failed");
+        return;
+    }
+    systemEvent.isActiveFilesystem = true;
     // Config
     eemem.init();
-    // System log
-    sysLog.init(_sysLogPath, SYSLOG_SIZE);
-    // SNMP log
-    snmpLog.init(_snmpLogPath, SNMPLOG_SIZE);
+    // assure all the logs are ready
+    logsys.touch();
+    logsnmp.touch();
+    logTempMon.touch();
+    logDataMon.touch();
     // monitor
     if(monitor.init() == OKAY) {
-        __DL(F("(i) hardware monitor init done"));
-        // monitor temperature log
-        monTempLog.init(_monTempLogPath, MONTMPLOG_SIZE);
-        // monitor battery info log
-        monBattDataLog.init(_monBattDataLogPath, MONDATALOG_SIZE);
+        __DL("(i) hardware monitor init done");
     }
     // WiFi
     if(strlen(config.ssid) == 0) {
         // Inform #1
-        sysLog.put(F("-- init AP --"));
+        logsys.put("-- init AP --");
         setAP();
     } else {
         // Inform #1
-        sysLog.put(F("-- init STA --"));
+        logsys.put("-- init STA --");
         setSTA();
     }
+    // in both cases init web server
+    httpdInit();
 }
 
 /**
- * @brief main()
+ * @brief
  *
 */
 void loop() {
-    if(ntp.loop() == OKAY) {
-        sysLog.putts(PSTR("%s sync: tz(%i) dl(%i)"), config.ntpServer, config.ntpTimeOffset, config.ntpDaylightOffset);
-    #if defined(DEBUG) && DEBUG != 6
-        __DF(PSTR("%s sync: tz(%i) dl(%i)\n"), config.ntpServer, config.ntpTimeOffset, config.ntpDaylightOffset);
-    #endif
-    }
-    loopSerial();
-    if(WiFi.status() == WL_CONNECTED) {
-        snmpagent.loop();
+    if(!systemEvent.updateInProgress) {
+        serialLoop();
+        if(!systemEvent.isActiveFilesystem) return;
+        if(ntp.loop() == OKAY) {
+            logsys.putts("%s sync: tz(%i) dl(%i)", config.ntpServer, config.ntpTimeOffset, config.ntpDaylightOffset);
+        #if defined(DEBUG) && DEBUG != 6
+            __DF("%s sync: tz(%i) dl(%i)\n", config.ntpServer, config.ntpTimeOffset, config.ntpDaylightOffset);
+        #endif
+        }
+        // always query
         monitor.loop();
+        // resolve connection issues
+        if(systemEvent.wifiAPConnectSuccess) {
+            snmpagent.loop();
+        }
+    #if WIFI_RECONNECT_METHOD == 2
+        else if(systemEvent.wifiIsInAPMode && strlen(config.ssid) != 0
+            && WiFi.softAPgetStationNum() == 0
+                && (_last_connection_update == 0
+                    || (millis() - _last_connection_update >= 120000UL))) {
+                // testSTA();
+                WiFi.mode(WIFI_MODE_STA);
+                WiFi.reconnect();
+                _last_connection_update = millis();
+        }
+    #endif
+    #if ((WIFI_RECONNECT_METHOD == 1) || (WIFI_RECONNECT_METHOD == 2))
+        else if(!systemEvent.wifiIsInAPMode) {
+            WiFi.reconnect();
+            waitSTA();
+        }
+    #elif WIFI_RECONNECT_METHOD == 3
+        else if(!systemEvent.wifiIsInAPMode && strlen(config.ssid) != 0
+                && (_last_connection_update == 0
+                    || (millis() - _last_connection_update >= 120000UL))) {
+                WiFi.reconnect();
+                waitSTA();
+        }
+    #endif
+        httpdLoop();
     }
-    httpdLoop();
+    systemReboot();
 }

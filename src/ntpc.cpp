@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:40 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 9:55:37 pm                                  #
+# Last Modified: Monday, 8th January 2024 6:06:09 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -21,7 +21,6 @@
  * @return false if QRTC used
 */
 status_t NTPClientClass::loop() {
-    // doing NTP sync
     if (WiFi.status() == WL_CONNECTED) {
         if (this->_last_update == 0 || (millis() - this->_last_update >= (config.ntpSyncInterval * 1000UL))) {
             status_t s = OKAY;
@@ -37,8 +36,8 @@ status_t NTPClientClass::loop() {
 
 /**
  * @brief returns seconds since 1970s
- * 
- * @return time_t 
+ *
+ * @return time_t
 */
 time_t NTPClientClass::getEpoch() {
     struct tm timeinfo = getTS();
@@ -47,27 +46,20 @@ time_t NTPClientClass::getEpoch() {
 
 /**
  * @brief Do update NTP -> RTC
- * 
+ *
 */
 status_t NTPClientClass::forceUpdate() {
     configTime((config.ntpTimeOffset*3600UL), config.ntpDaylightOffset, config.ntpServer, config.ntpServerFB);
     struct tm timeinfo;
-    uint8_t cntr = 0;
-    while(true) {
-        if(!getLocalTime(&timeinfo)) {
-            __DL(F("(!) failed to retrieve local time\n"));
-            // ATTN: do not exit here, we need the _startTime to be != 0. Requires testing
-            // return ERR;
-        } else
-            break;
-        cntr++;
-        if(cntr == 3) {
-            __DL(F("(!) giving up..."));
-            break;
-        }
+    // uint8_t cntr = 0;
+    if(!getLocalTime(&timeinfo)) {
+    #if DEBUG == 2
+        __DL("(!) failed to retrieve local time\n");
+    #endif
+        return NTP_SYNC_ERR;
     }
 #if DEBUG == 2
-    __DF(PSTR("%s update, tz(%i)\n"), config.ntpServer, config.ntpTimeOffset);
+    __DF("%s update, tz(%i)\n", config.ntpServer, config.ntpTimeOffset);
 #endif
     struct timeval tval;
     time_t timeSinceEpoch = mktime(&timeinfo);
@@ -83,9 +75,9 @@ status_t NTPClientClass::forceUpdate() {
 
 /**
  * @brief Formatted date & time string or "-" if is not synchronized with NTP
- * 
- * @param b 
- * @param format 
+ *
+ * @param b
+ * @param format
 */
 void NTPClientClass::getDatetime(char *b, const char * format) {
     if(WiFi.status() == WL_CONNECTED) {
@@ -99,28 +91,28 @@ void NTPClientClass::getDatetime(char *b, const char * format) {
         strcpy(b, ds);
         _CHBD(ds);
     } else {
-        strcpy_P(b, PSTR("___"));
+        strcpy(b, "_");
     }
 }
 
 /**
- * @brief Formatting current date and time for JSON API
+ * @brief Current timestamp to character array
  *
  * @param buffer
  */
 void NTPClientClass::timestampToString(char *b) {
     if (WiFi.status() == WL_CONNECTED) {
         time_t e = this->getEpoch();
-        sprintf_P(b, PSTR("%ld"), e);
+        sprintf(b, "%ld", e);
     } else {
-        strcpy_P(b, PSTR("0"));
+        strcpy(b, "0");
     }
 }
 
 /**
  * @brief Returns timestamp in seconds or 0 if not syncronized
- * 
- * @return unsigned long 
+ *
+ * @return unsigned long
 */
 unsigned long NTPClientClass::getTimestamp() {
     if (WiFi.status() == WL_CONNECTED) {
@@ -162,48 +154,48 @@ void NTPClientClass::uptimeHR(char *buffer) {
         year = floor(upt / _sec_in_year);
         upt = upt % _sec_in_year;
         val2str(year, buffer);
-        strcat_P(buffer, PSTR(" year "));
+        strcat(buffer, " year ");
     }
     if (upt > _sec_in_day) {
         day = floor(upt / _sec_in_day);
         upt = upt % _sec_in_day;
         val2str(day, buffer);
-        strcat_P(buffer, PSTR(" day "));
+        strcat(buffer, " day ");
     }
     if (upt > 3600) {
         hour = floor(upt / 3600);
         upt = upt % 3600;
         val2str(hour, buffer);
-        strcat_P(buffer, PSTR(" hrs "));
+        strcat(buffer, " hrs ");
     }
     if(upt > 60) {
         min = floor(upt / 60);
         upt = upt % 60;
         val2str(min, buffer);
-        strcat_P(buffer, PSTR(" min "));
+        strcat(buffer, " min ");
     }
     if(upt != 0) {
         val2str(upt, buffer);
-        strcat_P(buffer, PSTR(" sec"));
+        strcat(buffer, " sec");
     }
 }
 
 /**
  * @brief Returns uptime in seconds
- * 
+ *
  * @return unsigned long
 */
- unsigned long NTPClientClass::uptimeSeconds() {
+unsigned long NTPClientClass::uptimeSeconds() {
     if (WiFi.status() == WL_CONNECTED)
         return (unsigned long)(getEpoch() - _startTime);
     else
         return millis()/1000;
- }
+}
 
 /**
  * @brief Returns local time data
- * 
- * @return tm 
+ *
+ * @return tm
 */
 tm NTPClientClass::getTS() {
     struct tm timeinfo;

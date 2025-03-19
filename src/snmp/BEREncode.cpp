@@ -204,7 +204,9 @@ int ComplexType::serialise(uint8_t* buf, size_t max_len){
         if(!item) return SNMP_BUFFER_ENCODE_ERROR_INVALID_ITEM;
         int length = item->serialise(internalPtr, max_len - internalLength - 1);
         if(length < 0){
+        #ifdef DEBUG
             __DF("(!) item failed to serialiseInto: %d, reason: %d\n", item->_type, length);
+        #endif
             CHECK_ENCODE_ERR(length);
         }
         internalPtr += length;

@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Tuesday, 31st May 2022 8:50:35 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 10:05:42 pm                                 #
+# Last Modified: Tuesday, 18th March 2025 11:44:00 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -20,9 +20,9 @@
  */
 bool eeMemClass::begin()
 {
-    if (!pref.begin(FPSTR(eepromFName), false))
+    if (!pref.begin(eepromFName, false))
     {
-        __DL(F("(i) eemem init failed"));
+        __DL("(i) eemem init failed");
         return false;
     }
     return true;
@@ -35,9 +35,6 @@ bool eeMemClass::begin()
 void eeMemClass::end()
 {
     pref.end();
-    // #ifdef DEBUG
-    //     __DL("(i) eemem end");
-    // #endif
 }
 
 /**
@@ -51,18 +48,18 @@ void eeMemClass::init()
     char *b;
     begin();
     size_t cfgS = 0;
-    cfgS = pref.getBytesLength(FPSTR(eepromFName));
+    cfgS = pref.getBytesLength(eepromFName);
     if (!cfgS)
     {
-        __DL(F("(!) eemem seems empty"));
+        __DL("(!) eemem seems empty");
         // nvs erase partition
         pref.clear();
-        pref.putBytes(FPSTR(eepromFName), &config, sizeof(config));
+        pref.putBytes(eepromFName, &config, sizeof(config));
     }
     else
     {
         _CHB(b, cfgS);
-        pref.getBytes(FPSTR(eepromFName), b, cfgS);
+        pref.getBytes(eepromFName, b, cfgS);
         memcpy(&config, reinterpret_cast<config_t *>(b), cfgS);
         _CHBD(b);
     }
@@ -78,7 +75,7 @@ void eeMemClass::restore()
     config_t cf;
     begin();
     pref.clear();
-    pref.putBytes(FPSTR(eepromFName), &cf, sizeof(cf));
+    pref.putBytes(eepromFName, &cf, sizeof(cf));
     end();
 }
 
@@ -91,20 +88,18 @@ void eeMemClass::restore()
 bool eeMemClass::commit()
 {
     begin();
-    pref.putBytes(FPSTR(eepromFName), &config, sizeof(config));
+    pref.putBytes(eepromFName, &config, sizeof(config));
     end();
     return true;
 }
 
-/*
-███████╗ █████╗ ██╗   ██╗██╗███╗   ██╗ ██████╗     ██████╗  █████╗ ████████╗ █████╗
-██╔════╝██╔══██╗██║   ██║██║████╗  ██║██╔════╝     ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-███████╗███████║██║   ██║██║██╔██╗ ██║██║  ███╗    ██║  ██║███████║   ██║   ███████║
-╚════██║██╔══██║╚██╗ ██╔╝██║██║╚██╗██║██║   ██║    ██║  ██║██╔══██║   ██║   ██╔══██║
-███████║██║  ██║ ╚████╔╝ ██║██║ ╚████║╚██████╔╝    ██████╔╝██║  ██║   ██║   ██║  ██║
-╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
 */
-
 bool eeMemClass::setSSID(const char *value)
 {
     size_t vs = strlen(value);
@@ -116,6 +111,13 @@ bool eeMemClass::setSSID(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setSSIDKEY(const char *value)
 {
     size_t vs = strlen(value);
@@ -127,6 +129,13 @@ bool eeMemClass::setSSIDKEY(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setAdmLogin(const char *value)
 {
     size_t vs = strlen(value);
@@ -138,6 +147,13 @@ bool eeMemClass::setAdmLogin(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setAdmPassw(const char *value)
 {
     size_t vs = strlen(value);
@@ -149,7 +165,29 @@ bool eeMemClass::setAdmPassw(const char *value)
     return false;
 }
 
-// NTP: STRING
+/**
+ * @brief Setting new AP access key
+ *
+ * @param value
+ * @return true
+ * @return false
+ */
+bool eeMemClass::setApKey(const char *value) {
+    size_t vs = strlen(value);
+    if(vs != 0 && strcmp(config.apkey, value) != 0) {
+        strcpy(config.apkey, value);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setNTPServer(const char *value)
 {
     size_t vs = strlen(value);
@@ -161,7 +199,13 @@ bool eeMemClass::setNTPServer(const char *value)
     return false;
 }
 
-// NTP: STRING
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setNTPServerFB(const char *value)
 {
     size_t vs = strlen(value);
@@ -173,18 +217,13 @@ bool eeMemClass::setNTPServerFB(const char *value)
     return false;
 }
 
-// SNMP: DIGITS
-// bool eeMemClass::setNTPPort(uint16_t &value)
-// {
-//     if (config.ntpPort != value)
-//     {
-//         config.ntpPort = value;
-//         return true;
-//     }
-//     return false;
-// }
-
-// NTP: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setNTPSyncInterval(uint16_t &value)
 {
     if (config.ntpSyncInterval != value)
@@ -195,7 +234,13 @@ bool eeMemClass::setNTPSyncInterval(uint16_t &value)
     return false;
 }
 
-// NTP: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setNTPTimeOffset(const char *value)
 {
     size_t vs = strlen(value);
@@ -208,7 +253,13 @@ bool eeMemClass::setNTPTimeOffset(const char *value)
     return false;
 }
 
-// NTP: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setNTPDaylightOffset(const char *value)
 {
     size_t vs = strlen(value);
@@ -221,7 +272,13 @@ bool eeMemClass::setNTPDaylightOffset(const char *value)
     return false;
 }
 
-// SYS: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setBatteryTempLT(float &value)
 {
     if (config.batteryTempLT != value)
@@ -232,7 +289,13 @@ bool eeMemClass::setBatteryTempLT(float &value)
     return false;
 }
 
-// SYS: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setBatteryTempUT(float &value)
 {
     if (config.batteryTempUT != value)
@@ -243,7 +306,13 @@ bool eeMemClass::setBatteryTempUT(float &value)
     return false;
 }
 
-// SYS: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setDeviceTempLT(float &value)
 {
     if (config.deviceTempLT != value)
@@ -254,7 +323,13 @@ bool eeMemClass::setDeviceTempLT(float &value)
     return false;
 }
 
-// SYS: DIGIT
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setDeviceTempUT(float &value)
 {
     if (config.deviceTempUT != value)
@@ -265,7 +340,13 @@ bool eeMemClass::setDeviceTempUT(float &value)
     return false;
 }
 
-// SNMP: DIGITS
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setSNMPPort(uint16_t &value)
 {
     if (config.snmpPort != value)
@@ -276,7 +357,13 @@ bool eeMemClass::setSNMPPort(uint16_t &value)
     return false;
 }
 
-// SNMP: DIGITS
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setSNMPTrapPort(uint16_t &value)
 {
     if (config.snmpTrapPort != value)
@@ -287,6 +374,13 @@ bool eeMemClass::setSNMPTrapPort(uint16_t &value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setUPSAdvConfigShutoffDelay(uint16_t &value)
 {
     if (config.upsAdvConfigShutoffDelay != value)
@@ -297,6 +391,13 @@ bool eeMemClass::setUPSAdvConfigShutoffDelay(uint16_t &value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setUPSAdvConfigReturnDelay(uint16_t &value)
 {
     if (config.upsAdvConfigReturnDelay != value)
@@ -307,6 +408,13 @@ bool eeMemClass::setUPSAdvConfigReturnDelay(uint16_t &value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setUPSAdvConfigLowBatteryRunTime(uint8_t &value)
 {
     if (config.upsAdvConfigLowBatteryRunTime != value)
@@ -317,6 +425,13 @@ bool eeMemClass::setUPSAdvConfigLowBatteryRunTime(uint8_t &value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setBatteryLastReplaceDate(const char *value)
 {
     size_t vs = strlen(value);
@@ -328,6 +443,13 @@ bool eeMemClass::setBatteryLastReplaceDate(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setAuthTimeoutMax(uint16_t &value)
 {
     if (config.authTimeoutMax != value)
@@ -338,7 +460,13 @@ bool eeMemClass::setAuthTimeoutMax(uint16_t &value)
     return false;
 }
 
-// SNMP:STRING
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setGetCN(const char *value)
 {
     size_t vs = strlen(value);
@@ -350,6 +478,13 @@ bool eeMemClass::setGetCN(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setSetCN(const char *value)
 {
     size_t vs = strlen(value);
@@ -361,6 +496,13 @@ bool eeMemClass::setSetCN(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setTrapCN(const char *value)
 {
     size_t vs = strlen(value);
@@ -372,6 +514,13 @@ bool eeMemClass::setTrapCN(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setSysContact(const char *value)
 {
     size_t vs = strlen(value);
@@ -383,6 +532,13 @@ bool eeMemClass::setSysContact(const char *value)
     return false;
 }
 
+/**
+ * @brief
+ *
+ * @param value
+ * @return true
+ * @return false
+*/
 bool eeMemClass::setSysLocation(const char *value)
 {
     size_t vs = strlen(value);

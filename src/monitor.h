@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:48:56 pm                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 3rd July 2023 12:17:02 pm                                  #
+# Last Modified: Monday, 4th September 2023 11:11:12 am                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -27,23 +27,18 @@
 #else
     // another UPS model driver
 #endif
-// #ifdef THERMISTOR_MF52A102
-//     #include "thdriver/m52a102.h"
-// #else
-//     // another thermistor
-// #endif
 
-extern fLogClass sysLog;
-extern fLogClass monTempLog;
-extern fLogClass monBattDataLog;
+extern fLogClass logsys;
+extern fLogClass logTempMon;
+extern fLogClass logDataMon;
 /**
  *
  *             R1 2k2         TH 1k
  *       3V3 ---[∎]--- AV -∙---[/]---∙- GND
- * 
+ *
  */
-static const uint16_t _r1 = 2164;
-static const uint16_t _vin = 3300;
+const uint16_t _r1 = 2164;
+const uint16_t _vin = 3300;
 /*
     Vo = (Vi * R1)/(R1 + TH1)
     TH1 = (R1 * Vo) / (Vi - Vo)

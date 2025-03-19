@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en-US" class="dark">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="origin" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title data-i18n="login.pageTitle"></title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+    <!-- FORM BEGIN -->
+    <div class="login-wrapper">
+        <div class="login-container">
+            <h1 class="logo">tinyUPS</h1>
+            <div class="login-main">
+                <button type="button" class="group dmode-solo" id="dmode">
+                    <!-- <i class="ti ti-sun"></i> -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon w-5 h-5 dark:group-hover:stroke-white group-hover:stroke-white" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                        <path
+                            d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+                    </svg>
+                </button>
+                <div class="body">
+                    <form name="login" action="/" method="POST">
+                        <div class="flex-form-block">
+                            <label data-i18n="inpUsername"></label>
+                            <input type="text" name="login" class="border px-3 py-2 text-sm w-full" minlength="2"
+                                maxlength="12" required />
+                        </div>
+                        <div class="flex-form-block">
+                            <label data-i18n="inpPassword"></label>
+                            <div class="relative inline-flex place-content-center w-full mb-2">
+                                <input type="password" name="pass" class="border px-3 py-2 text-sm w-full" minlength="6"
+                                    maxlength="12" required />
+                                <button type="button" class="showkey group">
+                                    <!-- <i class="ti ti-eye group-[.active]:hidden"></i> -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon w-4 h-4 group-[.active]:block hidden"
+                                        viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
+                                        </path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <!-- <i class="ti ti-eye-x hidden group-[.active]:block"></i> -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon w-4 h-4 group-[.active]:hidden"
+                                        viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49">
+                                        </path>
+                                        <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"></path>
+                                        <path
+                                            d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143">
+                                        </path>
+                                        <path d="m2 2 20 20"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="submit" class="w-full" data-i18n="[value]buttonSignIn" />
+                    </form>
+                </div>
+                <div class="footer">
+                    <a href="https://github.com/way5/tinyUPS" data-i18n="[title]gotoGithubLink" class="github">
+                        <!-- <i class="ti ti-brand-github"></i> -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path
+                                d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+                        </svg>
+                        tinyUPS&nbsp;/&nbsp;2022&ndash;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FORM END -->
+    <!-- MODAL BEGIN -->
+    <div id="modal-alert" tabindex="-1" class="modal">
+        <div class="modal-backdrop-overlay"></div>
+        <div class="modal-main max-w-md px-6 py-6 text-center">
+            <!-- <i class="ti ti-alert-circle-filled mx-auto text-[120px]"></i> -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon w-32 h-32 mx-auto" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 8v4" />
+                <path d="M12 16h.01" />
+            </svg>
+            <h2 class="mt-4 text-lg lg:text-xl dark:text-white" data-i18n="login.errorHeader"></h2>
+            <div class="mt-4 dark:text-gray-200 flex flex-col">
+                <p data-i18n="login.errorLoggedMsg"></p>
+                <button type="button"
+                    class="group modal-close mt-10 mb-8 dark:text-purple-400 dark:hover:text-purple-300 text-base-600 hover:text-base-300 underline hover:no-underline text-lg"
+                    data-i18n="[append]login.errorLoggedButtonBack">
+                    <!-- <i class="ti ti-arrow-left-dashed text-lg"></i> -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline w-6 h-6 dark:stroke-purple-400 dark:group-hover:stroke-purple-300 stroke-base-600 group-hover:stroke-base-300" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 12h6m3 0h1.5m3 0h.5" />
+                        <path d="M5 12l6 6" />
+                        <path d="M5 12l6 -6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <span class="hidden w-0 h-0" data-modal-toggle="modal-alert"></span>
+    <!-- MODAL END -->
+</body>
+
+</html>

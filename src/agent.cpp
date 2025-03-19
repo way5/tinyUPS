@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 2nd December 2019 3:22:49 pm                                #
 # Author: sk                                                                        #
-# Last Modified: Tuesday, 4th July 2023 10:20:04 pm                                 #
+# Last Modified: Wednesday, 19th March 2025 1:44:11 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -15,8 +15,6 @@
 /*NOTE:
 
     ******** DEVELOPERs' MEMO
-
-    1.
 
 */
 
@@ -89,7 +87,7 @@ static ValueCallback * cbEntDiagBatteryStatus;
 inline static char * getName() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, sysName);
+    strcpy(buffer, sysName);
     return buffer;
 }
 
@@ -97,7 +95,7 @@ inline static char * getName() {
 inline static char * getDescr() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, sysDescr);
+    strcpy(buffer, sysDescr);
     return buffer;
 }
 
@@ -105,7 +103,7 @@ inline static char * getDescr() {
 inline static char * getVendor() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, sysName);
+    strcpy(buffer, sysName);
     return buffer;
 }
 
@@ -136,7 +134,7 @@ inline static char * snmpGetIdentSerialNumber() {
 inline static char * snmpGetIdentDateOfManufact() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, IdentDateOfManufact);
+    strcpy(buffer, IdentDateOfManufact);
     return buffer;
 }
 
@@ -157,7 +155,7 @@ inline static char * getAdvTestLastDiagnosticsDate() {
 inline static char * getBasicBatteryLastReplaceDate() {
     char * buffer;
     _CHB(buffer, 24);
-    strcpy_P(buffer, IdentFirmwareRevision);
+    strcpy(buffer, IdentFirmwareRevision);
     return buffer;
 }
 
@@ -227,7 +225,7 @@ inline static int getPhaseNumOutputPhases() {
     return 2;
 }
 inline static int getAdvConfigRatedOutputVoltage() {
-    return static_cast<int>(monitorData.upsAdvConfigRatedOutputVoltage);;
+    return static_cast<int>(monitorData.upsAdvConfigRatedOutputVoltage);
 }
 inline static void setPhaseResetMaxMinValues(int val) {
     monitorData.upsPhaseResetMaxMinValues = val;
@@ -337,10 +335,9 @@ inline static int getDiagBatteryStatus() {
 }
 
 /**
- * @brief
+ * @brief Initializer for SNMP Agent
  *
- * @return true
- * @return false
+ * @return status_t
 */
 status_t AgentClass::init() {
     char *_oid;
@@ -348,7 +345,7 @@ status_t AgentClass::init() {
     if (!this->restartUDP())
     {
 #ifdef DEBUG
-        __DL(F("(!) snmp udp failed"));
+        __DL("(!) snmp udp failed");
 #endif
         return ERR;
     }
@@ -534,11 +531,11 @@ status_t AgentClass::init() {
     // and OID callbacks - this makes snmpwalk work
     sortHandlers();
 
-    this->active = true;
+    systemEvent.isActiveSnmpAgent = true;
 
-    __DL(F("(i) snmp init done"));
+    __DL("(i) snmp init done");
     // snmp inform #1
-    snmpLog.put(PSTR("-- init at ports: %d / %d"), config.snmpPort, config.snmpTrapPort);
+    logsnmp.put("-- init at ports: %d / %d", config.snmpPort, config.snmpTrapPort);
 
     return OKAY;
 }
@@ -577,72 +574,9 @@ void AgentClass::kill() {
 */
 inline void AgentClass::compileOID(const char * baseOID, const char * specOID, char * dest) {
     memset(dest, '\0', SNMP_BUFFER_SIZE);
-    strcpy_P(dest, baseOID);
-    strcat_P(dest, specOID);
+    strcpy(dest, baseOID);
+    strcat(dest, specOID);
 }
-
-
-/**
- * @brief Check SNMP variables if any changes has occurred,
- *        then proceed with custom handlers
- *
- */
-// void AgentClass::handleChanges()
-// {
-
-//     if (monitorData.upsAdvControlUpsOff != 1)
-//     {
-
-//         monitorData.upsAdvControlUpsOff = 1;
-//     }
-//     else if (monitorData.upsAdvControlTurnOnUPS != 2)
-//     {
-
-//         monitorData.upsAdvControlTurnOnUPS = 2;
-//     }
-//     else if (monitorData.upsAdvControlSimulatePowerFail != 1)
-//     {
-
-//         monitorData.upsAdvControlSimulatePowerFail = 1;
-//     }
-//     else if (monitorData.upsAdvControlBypassSwitch != 1)
-//     {
-
-//         monitorData.upsAdvControlBypassSwitch = 1;
-//     }
-//     else if (monitorData.upsAdvControlFlashAndBeep != 1)
-//     {
-
-//         monitorData.upsAdvControlFlashAndBeep = 1;
-//     }
-//     else if (monitorData.upsAdvTestDiagnostics != 1)
-//     {
-
-//         monitorData.upsAdvTestDiagnostics = 1;
-//     }
-//     else if (monitorData.upsPhaseResetMaxMinValues == 2)
-//     {
-//         // Reset the maximum and minimum UPS values (!CHECK DEFAULT VALUES!)
-//         // monitorData.upsPhaseInputMaxVoltage = 1;
-//         // monitorData.upsPhaseInputMinVoltage = 1;
-//         // monitorData.upsPhaseInputMaxCurrent = 1;
-//         // monitorData.upsPhaseInputMinCurrent = 1;
-//         // monitorData.upsPhaseInputMaxPower = 1;
-//         // monitorData.upsPhaseInputMinPower = 1;
-//         // monitorData.upsPhaseOutputMaxCurrent = 1;
-//         // monitorData.upsPhaseOutputMinCurrent = 1;
-//         // monitorData.upsPhaseOutputMaxLoad = 1;
-//         // monitorData.upsPhaseOutputMinLoad = 1;
-//         // monitorData.upsPhaseOutputMaxPercentLoad = 1;
-//         // monitorData.upsPhaseOutputMinPercentLoad = 1;
-//         // monitorData.upsPhaseOutputMaxPower = 1;
-//         // monitorData.upsPhaseOutputMinPower = 1;
-//         // monitorData.upsPhaseOutputMaxPercentPower = 1;
-//         // monitorData.upsPhaseOutputMinPercentPower = 1;
-
-//         monitorData.upsPhaseResetMaxMinValues = 1;
-//     }
-// }
 
 /**
  * @brief Call it from the main loop
@@ -652,13 +586,13 @@ inline void AgentClass::compileOID(const char * baseOID, const char * specOID, c
 SNMP_ERROR_RESPONSE AgentClass::loop(){
     int packetLength = snmpUDP.parsePacket();
     if(packetLength > 0) {
-        // __DF(PSTR("received packet from: %s, of size: %d\n"), _udp->remoteIP().toString().c_str(), packetLength);
+        // __DF("received packet from: %s, of size: %d\n", _udp->remoteIP().toString().c_str(), packetLength);
     #if DEBUG == 5
-        __DF(PSTR("received packet from: %s, of size: %d\n"), snmpUDP.remoteIP().toString().c_str(), packetLength);
+        __DF("received packet from: %s, of size: %d\n", snmpUDP.remoteIP().toString().c_str(), packetLength);
     #endif
         if(packetLength < 0 || packetLength > SNMP_MAX_PACKET_LENGTH) {
-            __DF(PSTR("(!) incoming packet too large: %d\n"), packetLength);
-            snmpLog.putts(PSTR("(!) incoming packet too large: %d"), packetLength);
+            __DF("(!) incoming packet too large: %d\n", packetLength);
+            logsnmp.putts("(!) incoming packet too large: %d", packetLength);
             return SNMP_REQUEST_TOO_LARGE;
         }
 
@@ -667,8 +601,8 @@ SNMP_ERROR_RESPONSE AgentClass::loop(){
         // int readBytes = _udp->read(_snmpPacketBuffeer, packetLength);
         int readBytes = snmpUDP.read(_snmpPacketBuffeer, packetLength);
         if(readBytes != packetLength){
-            __DF(PSTR("(!) packet length mismatch: expected: %d, actual: %d\n"), packetLength, readBytes);
-            snmpLog.putts(PSTR("(!) packet length mismatch: expected: %d, actual: %d"), packetLength, readBytes);
+            __DF("(!) packet length mismatch: expected: %d, actual: %d\n", packetLength, readBytes);
+            logsnmp.putts("(!) packet length mismatch: expected: %d, actual: %d", packetLength, readBytes);
             return SNMP_REQUEST_INVALID;
         }
 
@@ -680,14 +614,14 @@ SNMP_ERROR_RESPONSE AgentClass::loop(){
         if(response > 0 && response != SNMP_INFORM_RESPONSE_OCCURRED){
             // send it
         #if DEBUG == 5
-            __DF(PSTR("sending response to: %s:%d\n"), snmpUDP.remoteIP().toString().c_str(), snmpUDP.remotePort());
+            __DF("sending response to: %s:%d\n", snmpUDP.remoteIP().toString().c_str(), snmpUDP.remotePort());
         #endif
             snmpUDP.beginPacket(snmpUDP.remoteIP(), snmpUDP.remotePort());
             snmpUDP.write(_snmpPacketBuffeer, responseLength);
 
             if(!snmpUDP.endPacket()) {
-                __DL(F("(!) failed to send response packet"));
-                snmpLog.putts(F("(!) failed to send response for: %s"), snmpUDP.remoteIP().toString().c_str());
+                __DL("(!) failed to send response packet");
+                logsnmp.putts("(!) failed to send response for: %s", snmpUDP.remoteIP().toString().c_str());
             }
         }
 
@@ -720,7 +654,6 @@ SortableOIDType* AgentClass::buildOIDWithPrefix(const char *oid) {
     delete newOid;
     return nullptr;
 }
-
 
 /**
  * @brief
@@ -920,9 +853,6 @@ ValueCallback* AgentClass::addDynamicReadOnlyStringHandler(const char *oid, GETS
  *
 */
 ValueCallback * AgentClass::addHandler(ValueCallback *callback) {
-// #if DEBUG == 5
-//     __DL("adding new callback");
-// #endif
     this->callbacks.push_back(callback);
     return callback;
 }
@@ -930,9 +860,6 @@ ValueCallback * AgentClass::addHandler(ValueCallback *callback) {
 bool AgentClass::removeHandler(ValueCallback* callback) {
     // this will remove the callback from the list and shift everything in
     // the list back so there are no gaps, this will not delete the actual callback
-// #if DEBUG == 5
-//     __DL("removing callback");
-// #endif
     remove_handler(this->callbacks, callback);
     return true;
 }
@@ -994,3 +921,65 @@ void AgentClass::markTrapDeleted(SNMPTrap* trap){
         mark_trap_deleted(agent->informList, trap);
     }
 }
+
+/**
+ * @brief Check SNMP variables if any changes has occurred,
+ *        then proceed with custom handlers
+ *
+ */
+// void AgentClass::handleChanges()
+// {
+
+//     if (monitorData.upsAdvControlUpsOff != 1)
+//     {
+
+//         monitorData.upsAdvControlUpsOff = 1;
+//     }
+//     else if (monitorData.upsAdvControlTurnOnUPS != 2)
+//     {
+
+//         monitorData.upsAdvControlTurnOnUPS = 2;
+//     }
+//     else if (monitorData.upsAdvControlSimulatePowerFail != 1)
+//     {
+
+//         monitorData.upsAdvControlSimulatePowerFail = 1;
+//     }
+//     else if (monitorData.upsAdvControlBypassSwitch != 1)
+//     {
+
+//         monitorData.upsAdvControlBypassSwitch = 1;
+//     }
+//     else if (monitorData.upsAdvControlFlashAndBeep != 1)
+//     {
+
+//         monitorData.upsAdvControlFlashAndBeep = 1;
+//     }
+//     else if (monitorData.upsAdvTestDiagnostics != 1)
+//     {
+
+//         monitorData.upsAdvTestDiagnostics = 1;
+//     }
+//     else if (monitorData.upsPhaseResetMaxMinValues == 2)
+//     {
+//         // Reset the maximum and minimum UPS values (!CHECK DEFAULT VALUES!)
+//         // monitorData.upsPhaseInputMaxVoltage = 1;
+//         // monitorData.upsPhaseInputMinVoltage = 1;
+//         // monitorData.upsPhaseInputMaxCurrent = 1;
+//         // monitorData.upsPhaseInputMinCurrent = 1;
+//         // monitorData.upsPhaseInputMaxPower = 1;
+//         // monitorData.upsPhaseInputMinPower = 1;
+//         // monitorData.upsPhaseOutputMaxCurrent = 1;
+//         // monitorData.upsPhaseOutputMinCurrent = 1;
+//         // monitorData.upsPhaseOutputMaxLoad = 1;
+//         // monitorData.upsPhaseOutputMinLoad = 1;
+//         // monitorData.upsPhaseOutputMaxPercentLoad = 1;
+//         // monitorData.upsPhaseOutputMinPercentLoad = 1;
+//         // monitorData.upsPhaseOutputMaxPower = 1;
+//         // monitorData.upsPhaseOutputMinPower = 1;
+//         // monitorData.upsPhaseOutputMaxPercentPower = 1;
+//         // monitorData.upsPhaseOutputMinPercentPower = 1;
+
+//         monitorData.upsPhaseResetMaxMinValues = 1;
+//     }
+// }

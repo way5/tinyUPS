@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 7:24:53 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 4th July 2023 10:05:42 pm                                 #
+# Last Modified: Thursday, 7th September 2023 5:47:49 pm                            #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -44,75 +44,71 @@
 #include "FS.h"
 #include "FFat.h"
 
-const char CHAR_SPRT[] PROGMEM = ": ";
-const char CHAR_NL[] PROGMEM = "\n";
-//
-// CLASS
-//
+const char CHAR_SPRT[] = ": ";
+const char CHAR_NL[] = "\n";
+
 class fLogClass {
     public:
-        // void init(const __FlashStringHelper * name, uint16_t size_max = 8192);
-        void init(const char * name, size_t size_max = 8192);
-        // Applend a line
+        fLogClass(const char * name, size_t size_max = 8192): _path(name), _smax(size_max) {};
+        ~fLogClass() {};
+        size_t touch();
         // - no timestamp
-        size_t put(PGM_P str, ...);
-        size_t put(const __FlashStringHelper * str);
-        // size_t put(const char * str);
+        size_t put(const char * str, ...);
         // - with timestamp
-        size_t putts(PGM_P str, ...);
-        size_t putts(const __FlashStringHelper * str);
-        // size_t putts(const char * str);
+        size_t putts(const char * str, ...);
         /**
-         * @brief Writes a line with [timestamp;digit[\n]] pair or just a [val;[\n]]
+         * @brief Writes a line with [(timestamp-offset);digit[\n]] pair or just a [val;[\n]]
          *
          * @tparam T
-         * @param val
-         * @param timestamp
-         * @param nl
+         * @param val   data to store in log
+         * @param timestamp if true (default) adding the timestamp
+         * @param nl    adding a new line
         */
         template <typename T>
         void putdts(T & val, bool timestamp = true, bool nl = true) {
             char * b;
-            _CHB(b, 64);
+            char * c;
+            _CHB(b, 128);
+            _CHB(c, 64);
             String mask;
             if(timestamp) {
                 ntp.timestampToString(b);
-                write(b);
-                _CHBC(b);
                 if(std::is_same<T, float>::value || std::is_same<T, double>::value)
-                    mask = String(PSTR(";%.2f"));
+                    mask = String(";%.2f");
                 else
-                    mask = String(PSTR(";%d"));
+                    mask = String(";%d");
             } else {
                 if(std::is_same<T, float>::value || std::is_same<T, double>::value)
-                    mask = String(PSTR("%.2f"));
+                    mask = String("%.2f");
                 else
-                    mask = String(PSTR("%d"));
+                    mask = String("%d");
             }
             if(nl) {
                 mask += String("\n");
             } else {
                 mask += String(";");
             }
-            sprintf_P(b, mask.c_str(), val);
+            sprintf(c, mask.c_str(), val);
+            strcat(b, c);
+            _CHBD(c);
             write(b);
             _CHBD(b);
         };
         // Returns log name
         const char * getName() {
-            return _name;
+            return _path;
         };
 
     protected:
         File _f;
-        const char * _name;
+        const char * _path;
         size_t _smax = 0;
         size_t open();
         void close();
-        bool logRotate(size_t fs);
+        bool logRotate(size_t & fs);
         size_t write(const char * str);
 };
 
-extern fLogClass sysLog;
+extern fLogClass logsys;
 
 #endif                          // FLOGCLASS_H

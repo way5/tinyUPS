@@ -56,7 +56,7 @@ SNMP_PACKET_PARSE_ERROR SNMPPacket::parsePacket(ComplexType *structure, enum SNM
             if (this->snmpVersion >= SNMP_VERSION_MAX)
             {
                 __DF("(!) invalid SNMP version: %d\n", this->snmpVersion);
-                snmpLog.putts(PSTR("(!) invalid SNMP version: %d"), this->snmpVersion);
+                logsnmp.putts("(!) invalid SNMP version: %d", this->snmpVersion);
                 return SNMP_PARSE_ERROR_AT_STATE(SNMPVERSION);
             };
             state = COMMUNITY;
