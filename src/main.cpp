@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 1:14:06 am                              #
+# Last Modified: Wednesday, 19th March 2025 1:38:11 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -154,8 +154,6 @@ void setAP() {
     //   inclusive, and should be multiples of 0.25. This is essentially a thin
     //   wrapper around the SDK’s system_phy_set_max_tpw() api call.
     // WiFi.setOutputPower(20.0);
-    // do preliminary network scan
-    // WiFi.scanNetworks(true, false, false, 10);
     _CHBD(_ssid);
 #ifdef DEBUG
     __DL("(i) AP started");
@@ -176,12 +174,6 @@ bool waitSTA() {
     _last_connection_update = millis();
 #endif
     if(WiFi.waitForConnectResult() != WL_CONNECTED) {
-        // feedLoopWDT();
-        // optimistic_yield(100);
-        // delay(100);
-        // cntr++;
-    // }
-    // if(WiFi.status() != WL_CONNECTED) {
 #ifdef DEBUG
     __DF("(!) connect to AP failed, err: %d\n", WiFi.status());
 #endif
@@ -197,66 +189,6 @@ bool waitSTA() {
     }
     return true;
 }
-
-/**
- * @brief Doing WiFi network scan and reconnects to
- *        the config.ssid network if it has been found
- *
-*/
-// #if WIFI_RECONNECT_METHOD == 2
-// void testSTA() {
-//     String ssid;
-
-//     _last_connection_update = millis();
-
-//     int16_t result = WiFi.scanComplete();
-
-//     if(result == 0 || result == -2) {
-//         result = WiFi.scanNetworks(true, false, false, 10);
-//         while(result == -1) {
-//             optimistic_yield(100);
-//             result = WiFi.scanComplete();
-//         }
-//     }
-
-// test_sta_loop:
-//     // no debug here - going blind
-//     if (result == 0)
-//     {
-//         // nothing found
-//         return;
-//     }
-//     else if (result > 0)
-//     {
-//         uint8_t cntr = 0;
-//         int32_t rssi = 0;
-//         uint8_t encType = 0;
-//         uint8_t * bssid;
-//         int32_t channel = 0;
-//         // result # networks found
-//         while (cntr < result)
-//         {
-//             WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel);
-//             if(strcmp(config.ssid, ssid.c_str()) == 0) break;
-//             cntr++;
-//         }
-//     }
-//     else if(result == -1)
-//     {
-//         // in progress
-//         // feedLoopWDT();
-//         optimistic_yield(100);
-//         // pass through this again
-//         goto test_sta_loop;
-//     }
-//     // cleanup
-//     WiFi.scanDelete();
-//     // try to connect if the source network has been found
-//     if(strcmp(config.ssid, ssid.c_str()) == 0) {
-//         setSTA();
-//     }
-// }
-// #endif
 
 /**
  * @brief Normal operation mode (setup complete)
@@ -345,7 +277,7 @@ void setup() {
 }
 
 /**
- * @brief main()
+ * @brief
  *
 */
 void loop() {

@@ -3,8 +3,7 @@ import './index.scss';
 import { secondsToHRts, batteryDiagStatusToString, batteryStatusToString, daysInMonth } from './includes/helpers.js';
 //
 import { tinyUPS, ohSnap, ohSnapX, $restURL } from './common.js';
-// See: https://www.npmjs.com/package/crypto-js
-// import sha1 from "crypto-js/sha1";
+// See: https://www.npmjs.com/package/md5
 import md5 from 'crypto-js/md5';
 // Charts
 import tempChart from './includes/chart.temp.js';
@@ -19,7 +18,6 @@ import Dropdown from './includes/dropdown.js';
 import Modal from './includes/modal.js';
 
 $.extend(tinyUPS, {
-    // loader: null,
     logsys: null,
     logsnmp: null,
     dashboardData: {},
@@ -64,8 +62,6 @@ $.extend(tinyUPS, {
                 }
             });
         }
-        // loader
-        // this.loader = new Modal($("#modal-loader")[0]);
         // service menu
         $('.cooler-switch-onoff').on('click', e => {
             self.toggleCooling();
@@ -228,12 +224,10 @@ $.extend(tinyUPS, {
         }, this.refreshDashIntl);
         // reboot button
         $('#modal-rbt-alert button.submit').on('click', function (e) {
-            // let el = e.target || e.srcElement;
             self.doReboot('#cntr831', this);
         });
         //reset button
         $('#modal-rst-alert button.submit').on('click', function (e) {
-            // let el = e.target || e.srcElement;
             self.doReset('#cntr833', this);
         });
         // init charts
@@ -247,26 +241,6 @@ $.extend(tinyUPS, {
             self.tctChartDataReload();
             ohSnap($.t('js.chartReloaded'), self.info);
         });
-
-        // API table
-        // $('[data-i18n="index.apiKeyBtnAdd"]').on("click", async () => {
-        //     const dt = new Date();
-        //     const form = $('form[name="add-api-key-form"]');
-        //     // let key = await strToHash(Math.random().toString().slice(2) + dt.getTime().toString()).catch(console.error);
-        //     let key = sha1(
-        //         Math.random().toString().slice(2) + dt.getTime().toString()
-        //     ).toString();
-        //     key = key.slice(0, 32);
-        //     const formAPIk = form.find("input[name=apik]");
-        //     const formAPIkStr = form.children("p").eq(2);
-        //     formAPIkStr.html(key);
-        //     formAPIk.val(key);
-        // });
-        // $('form[name="add-api-key-form"]').on("submit", (e) => {
-        //     e.preventDefault();
-        //     self.createAPIkey();
-        //     return false;
-        // });
         // components
         Tooltip();
         Dropdown();
@@ -293,99 +267,6 @@ $.extend(tinyUPS, {
             }
         });
     }, // toggleCooling
-    // createAPIkey: function () {
-    //     const self = this;
-    //     const form = $('form[name="add-api-key-form"]');
-    //     const data = form.serializeArray();
-    //     $.ajax({
-    //         url: $restURL.addAPIkey,
-    //         dataType: "json",
-    //         type: 'POST',
-    //         data: data,
-    //         success: (r) => {
-    //             if (r.api !== undefined) {
-    //                 ohSnap($.t("index.js.apiKeyCreated"), self.info);
-    //                 self.appendAPIKeys(r.api);
-    //                 $(form)[0].reset();
-    //             } else
-    //                 ohSnap(
-    //                     $.t("js.errDataNotSaved") +
-    //                         (r.err !== undefined ? " (" + r.err + ")" : ""),
-    //                     this.err
-    //                 );
-    //         },
-    //         error: (o, ts, e) => {
-    //             self.handleErrorResponse(o, ts, e);
-    //         },
-    //     });
-    // }, // createAPIkey
-    // appendAPIKeys: function (api) {
-    //     const self = this;
-    //     $("#api-keys tbody").html("");
-    //     if (api.length != 0) {
-    //         $.each(api, function (k, v) {
-    //             const tr = $("<tr>", { class: "row" });
-    //             let ts = new Date(v.id * 1000);
-    //             const td0 = $("<td>", { scope: "row" });
-    //             td0.html(
-    //                 v.m +
-    //                     '<p class="text-sm text-gray-500 dark:text-base-200">' +
-    //                     $.t("js.createdAt") +
-    //                     ": " +
-    //                     ts.toLocaleString() +
-    //                     "</p>"
-    //             );
-    //             const td1 = $("<td>");
-    //             td1.html(v.k);
-    //             const lnk = $("<a>", { class: "link", href: v.id });
-    //             lnk.html($.t("js.btnDelete"));
-    //             lnk.on("click", function (e) {
-    //                 e.preventDefault();
-    //                 self.removeAPIKey(v.id);
-    //                 return false;
-    //             });
-    //             const td2 = $("<td>");
-    //             td2.append(lnk);
-    //             tr.append(td0);
-    //             tr.append(td1);
-    //             tr.append(td2);
-    //             $("#api-keys tbody").append(tr);
-    //         });
-    //     } else {
-    //         const tr = $("<tr>", { class: "row" });
-    //         const td0 = $("<td>", { scope: "row", colspan: "3" });
-    //         td0.html(
-    //             '<p class="w-full text-center text-base">' +
-    //                 $.t("index.js.noAPIKeys") +
-    //                 "</p>"
-    //         );
-    //         tr.append(td0);
-    //         $("#api-keys tbody").html(tr);
-    //     }
-    // }, // appendAPIKey
-    // removeAPIKey: function (id) {
-    //     const self = this;
-    //     $.ajax({
-    //         url: $restURL.delAPIkey,
-    //         dataType: "json",
-    //         type: 'POST',
-    //         data: { id: id },
-    //         success: (r) => {
-    //             if (r.api !== undefined) {
-    //                 ohSnap($.t("index.js.apiKeyDeleted"), self.info);
-    //                 self.appendAPIKeys(r.api);
-    //             } else
-    //                 ohSnap(
-    //                     $.t("js.errDataNotSaved") +
-    //                         (r.err !== undefined ? " (" + r.err + ")" : ""),
-    //                     self.err
-    //                 );
-    //         },
-    //         error: (o, ts, e) => {
-    //             self.handleErrorResponse(o, ts, e);
-    //         },
-    //     });
-    // }, // removeAPIKey
     initCharts: function () {
         // @remind temerature charts
         this.charts['optmp'] = new tempChart('op-chart-tmp');
@@ -475,23 +356,6 @@ $.extend(tinyUPS, {
     pwstChartRedraw: function () {
         if (this.pwstChartData.length != 0) {
             this.charts['pwrmx'].reset();
-            // let dayNumber = (dt) => {
-            //     let d = new Date(dt);
-            //     return ((d.getDay() + 6) % 7) + 1;
-            // };
-            // let radiusViaSec = (sec) => {
-            //     if (sec <= 1000) {
-            //         return 4;
-            //     } else if (sec > 1000 && sec <= 3000) {
-            //         return 6;
-            //     } else if (sec > 3000 && sec <= 4000) {
-            //         return 8;
-            //     } else if (sec > 4000 && sec <= 6000) {
-            //         return 11;
-            //     } else if (sec > 6000) {
-            //         return 15;
-            //     }
-            // };
             let p = [],
                 prg = [];
             let dateStart = 0;
@@ -526,9 +390,6 @@ $.extend(tinyUPS, {
                 dataset[month][day].y++;
                 dataset[month][day].e.push(eventData);
             };
-            // let xoffset = 0;
-            // let dataset = [];
-            // this.charts["pwrmx"].data.datasets[0].data = [];
             $.each(this.pwstChartData, (ind, ln) => {
                 // skip last empty row
                 if (ln.length != 0) {
@@ -598,7 +459,6 @@ $.extend(tinyUPS, {
             // start with a period
             let sd = $('#dc-period').children('option').filter(':selected').val();
             // TODO: select parameter
-            // let ps = $("#dc-param");
             let p = [];
             let dt = 0,
                 ts = new Date(),
@@ -667,7 +527,6 @@ $.extend(tinyUPS, {
         }
     },
     initSidebar: function () {
-        // SIDEBAR MENU
         $('.sidebar li.item > a').on('click', event => {
             event.preventDefault();
             let tab = $(event.currentTarget).attr('href');
@@ -834,7 +693,6 @@ $.extend(tinyUPS, {
                     let list = $('select[name=ntptmoff]');
                     list.find('option').each(function (i) {
                         if (parseInt($(this)[0].value) === r.ntptmoff) {
-                            // console.log("TZ exists: " + $(this)[0].index);
                             list[0].selectedIndex = $(this)[0].index;
                         }
                     });
@@ -874,14 +732,6 @@ $.extend(tinyUPS, {
                     $('input[name="adlogin"]').val(r.adlogin);
                     $('input[name="adpass"]').val(r.adpass);
                     $('input[name="configsec"]').removeAttr('disabled');
-                    // prevent submit button changes
-                    // $('#conf').find('input[type="submit"]').each(function(i) {
-                    //     $(this).attr('disabled', 'disabled');
-                    // });
-                    // @remind get config
-                    // empty the table body
-                    // $("#api-keys tbody").html("");
-                    // this.appendAPIKeys(r.api);
                 }
             },
             error: (o, ts, e) => {
@@ -933,7 +783,6 @@ $.extend(tinyUPS, {
     },
     setSecCfg: function () {
         let form = $('form[name=confsec]');
-        // let formdata = new FormData(form[0]);
         let formdata = form.serializeArray();
         $.ajax({
             url: $restURL.secSetCfgUrl,
@@ -956,7 +805,6 @@ $.extend(tinyUPS, {
         const self = this;
         const formData = new FormData();
         document.getElementById('modal-loader').classList.add('show');
-        // self.loader.show();
         formData.append(el.name, el.files[0]);
         const hash = md5(el.result).toString();
 

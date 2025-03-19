@@ -3,7 +3,7 @@
 # File: update.h                                                                    #
 # File Created: Monday, 8th January 2024 11:05:06 pm                                #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 9th January 2024 12:01:03 am                              #
+# Last Modified: Wednesday, 19th March 2025 1:44:07 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: CC-BY-NC-4.0 (https://creativecommons.org/licenses/by-nc/4.0/legalcode)  #
 #####################################################################################
@@ -25,4 +25,4 @@ bool updaterInProgress();
 bool updaterHasErrors();
 esp_err_t updaterLastError();
 
-#endif
+#endif                      // UPDATER_H

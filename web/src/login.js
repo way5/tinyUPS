@@ -23,9 +23,7 @@ $.extend(tinyUPS, {
                     // auth results
                     if (r.login === 'repeat') {
                         $('#modal-alert').addClass('show');
-                        // modalAlert.show();
                     } else {
-                        // console.log("logged in");
                         window.location.reload();
                     }
                 } else {

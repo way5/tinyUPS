@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 1:14:06 am                              #
+# Last Modified: Wednesday, 19th March 2025 1:35:46 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -119,44 +119,13 @@ void hashgen(char *c)
 bool isAuthorized(AsyncWebServerRequest *req)
 {
     bool res = false;
-    // if (strlen(session.authToken) != 0 && req->hasHeader(String(headerCookie)))
-    // {
-        const AsyncWebHeader *cookie = req->getHeader(headerCookie);
-        if (cookie->toString().indexOf(String(session.authToken)) != -1)
-        {
-            res = true;
-        }
-//     }
-//     else if (req->method() == HTTP_POST && req->hasParam(String("key")))
-//     {
-//         AsyncWebParameter *k = req->getParam(String("key"));
-//         if (k->value().length() != 32)
-//         {
-// #ifdef DEBUG
-//             __DF("wrong key lengh: %s\n", k->value().c_str());
-// #endif
-//             res = false;
-//         }
-//         else
-//         {
-//             api_keys_t **data;
-//             _ALLOC_API_ARRAY(data);
-//             int8_t n = loadAPIKeys(data);
-//             while (n > 0 && strlen(data[n - 1]->key) != 0)
-//             {
-//                 if (strcmp(data[n - 1]->key, k->value().c_str()) == 0)
-//                 {
-// #ifdef DEBUG
-//                     __DL("auth key verified");
-// #endif
-//                     res = true;
-//                     break;
-//                 }
-//                 n--;
-//             }
-//             delete[] data;
-//         }
-//     }
+    const AsyncWebHeader *cookie = req->getHeader(headerCookie);
+
+    if (cookie->toString().indexOf(String(session.authToken)) != -1)
+    {
+        res = true;
+    }
+
     return res;
 }
 
@@ -176,7 +145,6 @@ void httpdRespond(AsyncWebServerRequest *req, const char *file, const char *mime
     {
         res = req->beginResponse(FFat, fname, mime, false, nullptr);
     }
-    // res->addHeader(String("Cache-Control"), String("max-age=30"));
     // unset previosly created cookie
     if (fname == String(resPageLogin) && req->hasHeader(headerCookie))
     {
@@ -298,208 +266,6 @@ void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr, const i
     str = "{\"err\": \"" + str + "\"}";
     req->send((int)code, String(mimeAppJSON), str);
 }
-
-/**
- * @brief Fetch API keys into keys object and returs keys count
- *        0 - if there is no keys
- *       -1 - if failed to open file
- *
- * @return api_keys_t
- */
-// int8_t loadAPIKeys(api_keys_t **keys)
-// {
-//     int8_t i = 0;
-//     fs::File _f;
-//     if (!FFat.exists(_apiKeysDBPath))
-//     {
-//         _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
-//         delay(100);
-//         _f.close();
-//     }
-//     else
-//     {
-//         _f = FFat.open(_apiKeysDBPath, FILE_READ);
-//         if (_f)
-//         {
-//             char c;
-//             String keyData = "";
-//             // skip consistancy check, rely on addAPIKey()
-//             while (_f.available())
-//             {
-//                 c = _f.read();
-//                 if (c != 0x0A)
-//                 {
-//                     keyData += static_cast<char>(c);
-//                 }
-//                 else
-//                 {
-//                     api_keys_t *key = new api_keys_t();
-//                     strcpy(key->key, keyData.substring(0, 32).c_str());   // 32 max
-//                     strcpy(key->memo, keyData.substring(32, 48).c_str()); // 16 max
-//                     key->created = static_cast<time_t>(keyData.substring(48).toInt());
-//                     keys[i] = key;
-//                     keyData = "";
-//                     i++;
-//                 }
-//             }
-//             _f.close();
-//         }
-//         else
-//             i = -1;
-//     }
-//     return i;
-// }
-
-/**
- * @brief Encode keys data to json format
- *        For careless progr: delete the returned value
- *
- * @return String
- */
-// char *apiKeysToJSON()
-// {
-//     uint8_t i = 0;
-//     char *t;
-//     char *api;
-//     _CHB(t, 0x10);
-//     _CHB(api, 0x400);
-//     api_keys_t **data;
-//     _ALLOC_API_ARRAY(data);
-//     int8_t n = loadAPIKeys(data);
-//     if (n > 0)
-//     {
-//         while (i < 5 && data[i] != nullptr)
-//         {
-//             if (strlen(api) != 0)
-//                 strcat(api, "},");
-//             val2str(data[i]->created, t);
-//             strcat(api, "{\"m\":\"");
-//             strcat(api, data[i]->memo);
-//             strcat(api, "\",\"k\":\"");
-//             strcat(api, data[i]->key);
-//             strcat(api, "\",\"id\":");
-//             strcat(api, t);
-//             _CHBC(t);
-//             i++;
-//         }
-//         strcat(api, "}");
-//     }
-//     delete[] data;
-//     _CHBD(t);
-//     return api;
-// }
-
-/**
- * @brief Add an API key into file
- *
- * @param k
- * @return true
- * @return false
- */
-// bool addAPIKey(api_keys_t *k)
-// {
-//     api_keys_t **data;
-//     _ALLOC_API_ARRAY(data);
-//     int8_t n = loadAPIKeys(data);
-
-//     if (n != -1 && n < 5)
-//     {
-//         data[n] = k;
-//         return writeAPIData(data);
-//     }
-// #ifdef DEBUG
-//     __DL("too many api keys");
-// #endif
-//     return false;
-// }
-
-/**
- * @brief Remove the API key record from file
- *
- * @param id
- * @return true
- * @return false
- */
-// bool removeAPIKey(time_t &id)
-// {
-//     bool result = false;
-//     uint8_t i = 0, k = 0;
-//     api_keys_t **data;
-//     _ALLOC_API_ARRAY(data);
-//     int8_t n = loadAPIKeys(data);
-//     if (n > 0)
-//     {
-//         api_keys_t **dataNew;
-//         _ALLOC_API_ARRAY(dataNew);
-//         while (data[i] != nullptr && i < 5)
-//         {
-//             if (data[i]->created != id)
-//             {
-//                 dataNew[k] = data[i];
-//                 k++;
-//             }
-//             i++;
-//         }
-//         result = writeAPIData(dataNew);
-//     }
-// #ifdef DEBUG
-//     else
-//     {
-//         __DL("no API keys or failed to open");
-//     }
-// #endif
-//     delete[] data;
-//     return result;
-// }
-
-/**
- * @brief Write data to API keys file
- *
- * @param data
- * @return true
- * @return false
- */
-// bool writeAPIData(api_keys_t **data)
-// {
-//     char *s, *t;
-//     size_t m = 0;
-//     uint8_t i = 0;
-//     fs::File _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
-//     if (!_f) {
-//         delete[] data;
-//         return false;
-//     }
-//     // if an empty array given. nothing to do with it.
-//     if(data[0] == nullptr)
-//         goto write_api_data;
-//     _CHB(s, 128);
-//     _CHB(t, 24);
-//     while (data[i] != nullptr && i < 5)
-//     {
-//         val2str(data[i]->created, t);
-//         strcpy(s, data[i]->key);
-//         // writing exact characters quantity
-//         strcat(s, data[i]->memo);
-//         m = strlen(data[i]->memo);
-//         while (m < 16UL)
-//         {
-//             strcat(s, " ");
-//             m++;
-//         }
-//         strcat(s, t);
-//         s[strlen(s)] = 0x0A; // addint LF
-//         _f.write(reinterpret_cast<const uint8_t *>(s), strlen(s));
-//         _CHBC(t);
-//         _CHBC(s);
-//         i++;
-//     }
-//     _CHBD(t);
-//     _CHBD(s);
-// write_api_data:
-//     delete[] data;
-//     _f.close();
-//     return true;
-// }
 
 /*
 * REQUESTS
@@ -674,12 +440,7 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     if (result == 0 || result == -2) {
         // Doing one more attempt
         result = WiFi.scanNetworks(true, false, false, 6);
-        // while(result == -1) {
-        //     optimistic_yield(100);
-        //     result = WiFi.scanComplete();
-        // }
     }
-    // result = WiFi.scanNetworks(false, false, false, 6);
 
 #if DEBUG == 3
     __DF("(i) %d networks:\n", result);
@@ -979,7 +740,6 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
     char *b;
     _CHB(b, 0x10);
     str2dt(config.BatteryLastReplaceDate, b);
-    // char *keys = apiKeysToJSON();
 
     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
 
@@ -1010,10 +770,8 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
                 config.admPassw,
                 config.upsSerialNumber
             );
-                // keys);
 
     _CHBD(b);
-    // _CHBD(keys);
 
     req->send(res);
 }
@@ -1377,109 +1135,6 @@ void httpdPostGenSerial(AsyncWebServerRequest *req) {
     _CHBD(b);
     eemem.commit();
 }
-
-/**
- * @brief Add an API key
- *
- * @param req
- */
-// void httpdPostAPIadd(AsyncWebServerRequest *req)
-// {
-//     if (!isAuthorized(req))
-//     {
-//         httpdJsonErrResponse(req, "auth");
-//         return;
-//     }
-//     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
-//     res->print("{");
-
-//     String memo = req->arg(String("apikm"));
-//     String key = req->arg(String("apik"));
-
-// #if DEBUG == 3
-//     __DF("memo: %s (%d)\n", memo.c_str(), memo.length());
-//     __DF("key: %s (%d)\n", key.c_str(), key.length());
-// #endif
-
-//     if (memo != "" && key != "")
-//     {
-//         char *keys;
-//         api_keys_t *ak = new api_keys_t();
-//         if (key.length() > 32)
-//         {
-//             res->print("\"err\":\"key too large\"}");
-//             goto sendData;
-//         }
-//         if (memo.length() > 16)
-//         {
-//             res->print("\"err\":\"memo too large\"}");
-//             goto sendData;
-//         }
-//         // memset(ak->key, '\0', sizeof(ak->key));
-//         ak->created = ntp.getTimestamp();
-//         strcpy(ak->memo, (memo.substring(0, 16)).c_str());
-//         strcpy(ak->key, (key.substring(0, 32)).c_str());
-//         if (!addAPIKey(ak))
-//         {
-//             res->print("\"err\":\"too many keys\"}");
-//             goto sendData;
-//         }
-//         keys = apiKeysToJSON();
-//         res->printf("\"api\": [%s]}", keys);
-//         _CHBD(keys);
-//     }
-//     else
-//     {
-//         res->print("\"err\":\"");
-//         if (memo == "")
-//         {
-//             res->print("empty memo\"}");
-//         }
-//         else
-//         {
-//             res->print("empty key\"}");
-//         }
-//     }
-
-// sendData:
-//     req->send(res);
-// }
-
-/**
- * @brief
- *
- * @param req
- */
-// void httpdPostAPIdel(AsyncWebServerRequest *req)
-// {
-//     if (!isAuthorized(req))
-//     {
-//         httpdJsonErrResponse(req, "auth");
-//         return;
-//     }
-//     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
-//     res->print("{");
-//     char *keys;
-
-//     String id = req->arg(String("id"));
-//     if (id == "")
-//     {
-//         res->print("\"err\":\"wrong id\"}");
-//         req->send(res);
-//         return;
-//     }
-//     time_t idv = static_cast<time_t>(atoi(id.c_str()));
-//     if (!removeAPIKey(idv))
-//     {
-//         res->print("\"err\":\"failed\"}");
-//         req->send(res);
-//         return;
-//     }
-//     keys = apiKeysToJSON();
-//     res->printf("\"api\": [%s]}", keys);
-//     _CHBD(keys);
-//     req->send(res);
-// }
 
 /**
  * @brief

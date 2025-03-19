@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 18th March 2025 11:05:52 pm                               #
+# Last Modified: Wednesday, 19th March 2025 1:38:11 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -124,11 +124,6 @@ void httpdInit();
 bool isAuthorized(AsyncWebServerRequest * req);
 void httpdRespond(AsyncWebServerRequest * req, const char * file, const char* mime, bool gzipped = true, AsyncWebServerResponse * res = nullptr);
 void httpdLoop();
-// int8_t loadAPIKeys(api_keys_t ** keys);
-// char * apiKeysToJSON();
-// bool addAPIKey(api_keys_t * k);
-// bool removeAPIKey(time_t &id);
-// bool writeAPIData(api_keys_t ** data);
 // HTML & assets
 void httpdGetHtmlPage(AsyncWebServerRequest *req);
 void httpdGetHtmlError(AsyncWebServerRequest * req);
@@ -149,8 +144,6 @@ void httpdPostInfoGraph(AsyncWebServerRequest *req);
 void httpdPostMonTmpLog(AsyncWebServerRequest *req);
 void httpdPostMonBDtaLog(AsyncWebServerRequest *req);
 void httpdPostGenSerial(AsyncWebServerRequest *req);
-// void httpdPostAPIadd(AsyncWebServerRequest * req);
-// void httpdPostAPIdel(AsyncWebServerRequest * req);
 void httpdPostGetDashbrd(AsyncWebServerRequest *req);
 // config
 void httpdPostGetConfig(AsyncWebServerRequest *req);

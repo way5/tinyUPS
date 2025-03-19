@@ -1,15 +1,16 @@
 @charset 'utf-8';
 /*
-THEME DEFAULTS
+* THEME DEFAULTS
 */
 @use './includes/theme.scss' as *;
-
+/*
+* TAILWIND
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 /*
-FONTS
+* FONTS
 */
 /* roboto-condensed-v27-regular - cyrillic_latin */
 @font-face {
@@ -23,7 +24,6 @@ FONTS
         url('./fonts/reg.ttf') format('truetype');
         /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
 }
-
 /* roboto-condensed-v27-800 - cyrillic_latin */
 @font-face {
     font-display: auto; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
@@ -258,7 +258,7 @@ html {
             .modal-backdrop-overlay {
                 @apply absolute top-0 left-0 right-0 bottom-0 items-center w-full h-screen bg-base-800 bg-opacity-60;
             }
-            /*FIXME: This goes into the previous class when the login page modal backdrop will be fixed */
+
             .modal-main {
                 @apply relative bg-gray-50 rounded-lg smdn:rounded-none shadow-lg dark:bg-base-500 border;
                 @extend .container-border;

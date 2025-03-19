@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 1:26:55 am                              #
+# Last Modified: Wednesday, 19th March 2025 1:44:07 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -244,4 +244,4 @@ void str2dt(const char *str, char *buffer);
 void str2snmpdt(const char *str, char *buffer);
 void dt2str(const char *dt, char *buffer);
 
-#endif                      // HELPERS_H
+#endif                                  // HELPERS_H
