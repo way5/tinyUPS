@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Friday, 10th June 2022 8:44:02 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 9th January 2024 1:54:49 am                               #
+# Last Modified: Tuesday, 18th March 2025 5:13:56 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -26,7 +26,6 @@
 
 extern void setAP();
 extern void setSTA();
-extern void systemReboot();
 
 extern fLogClass logsys;
 
@@ -83,7 +82,7 @@ void serialLoop() {
             __DL("(i) config, configreset, wlstatus, printfs, freemem, dropauth, uptime, modeap, modesta, setapkey, fanon, fanoff, battemp, reboot, genserial, id");
         } else if(buffer.startsWith("configreset")) {
             eemem.restore();
-            systemReboot();
+            scheduleReboot(true);
         } else if(buffer.startsWith("uptime")) {
             char uptime[68] = "";
             ntp.uptimeHR(uptime);
@@ -103,7 +102,7 @@ void serialLoop() {
             __DF("  Largest free:      %.2f kb\n", (mem->largest_free_block/1000.0));   // largest continues block to allocate big array
             delete mem;
         } else if(buffer.startsWith("reboot")) {
-            systemReboot();
+            scheduleReboot();
         } else if(buffer.startsWith("formatfs")) {
             if(!FFat.format(false, (char *)("storage")))
                 __DL("(!) error storage format");
@@ -134,8 +133,7 @@ void serialLoop() {
             strcpy(config.apkey, key.substring(0, 32).c_str());
             eemem.commit();
             __DF(" (i) new AP key: %s\n", key.c_str());
-            delay(1000);
-            systemReboot();
+            scheduleReboot(true);
         } else if(buffer.startsWith("config")) {
             __DF(" admLogin = %s\n admPassw = %s\n ssid = %s\n ssidkey = %s\n apkey = %s\n authTimeoutMax = %d\n ntpServer = %s\n ntpServerFB = %s\n" \
                 " ntpSyncInterval = %d\n ntpTimeOffset = %d\n ntpDaylightOffset = %d\n snmpGetCN = %s\n snmpSetCN = %s\n snmpTrapCN = %s\n" \

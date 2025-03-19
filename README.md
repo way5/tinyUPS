@@ -1,10 +1,4 @@
-<pre align="center" background-color="transparent">
-
-  |   _)              |  | _ \   __| 
-   _|  |    \   |  |  |  | __/ \__ \ 
- \__| _| _| _| \_, | \__/ _|   ____/ 
-               ___/                  
-</pre>
+## `tinyUPS` a tiny toolkit for your UPS
 
 <p align="center" style="text-align:center">
 <img src="./doc/wp.jpg" width="100%">
@@ -20,7 +14,7 @@
 ## **+ DESCRIPTION**<a id="description"></a>
 
 **tinyUPS** is the way to extend functionality of an Uninterruptible Power Supply (UPS)/power inverters.
-It provides onboard SNMP server, temperature control and a Control Panel (CP), just like on an enterprise systems. 
+It provides onboard SNMP server, temperature control and a Control Panel (CP), just like on an enterprise systems.
 The project is now on beta test stage, however it shows very stable results during months 24/7. If you'll decide to modify your own UPS it's at your own risk.
 
 <table cellpadding="0" cellspacing="0" width="100%">
@@ -52,23 +46,23 @@ The project requires an advanced skills in electronics. It's not a plug-n-play d
 
 ## **+ TABLE OF CONTENTS**
 
-- [**+ DESCRIPTION**](#-description)
-- [**+ TABLE OF CONTENTS**](#-table-of-contents)
-- [**+ TOOLKIT**](#-toolkit)
-  - [- CONTROLLER](#--controller)
-  - [- PCB](#--pcb)
-  - [- Web UI](#--web-ui)
-- [**+ BUILD**](#-build)
-  - [- CONFIGURATION](#--configuration)
-  - [- WiFi RECONNECTION STRATEGIES](#--wifi-reconnection-strategies)
-- [**+ SETUP**](#-setup)
-- [**+ CONTROL PANEL**](#-control-panel)
-- [**+ DEVELOPMENT**](#-development)
-  - [- DRIVERS](#--drivers)
-  - [- DEBUG](#--debug)
-- [**+ CHANGELOG**](#-changelog)
-- [**+ PHOTOS**](#-photos)
-- [**+ CREDITS**](#-credits)
++ [`tinyUPS` a tiny toolkit for your UPS](#tinyups-a-tiny-toolkit-for-your-ups)
++ [**+ DESCRIPTION**](#-description)
++ [**+ TABLE OF CONTENTS**](#-table-of-contents)
++ [**+ TOOLKIT**](#-toolkit)
+  + [- CONTROLLER](#--controller)
+  + [- PCB](#--pcb)
+  + [- Web UI](#--web-ui)
++ [**+ BUILD**](#-build)
+  + [- CONFIGURATION](#--configuration)
+  + [- WiFi CONNECTION STRATEGIES](#--wifi-connection-strategies)
++ [**+ SETUP**](#-setup)
++ [**+ CONTROL PANEL**](#-control-panel)
++ [**+ DEVELOPMENT**](#-development)
+  + [- DRIVERS](#--drivers)
+  + [- DEBUG](#--debug)
++ [**+ PHOTOS**](#-photos)
++ [**+ CREDITS**](#-credits)
 
 
 ## **+ TOOLKIT**<a id="toolkit"></a>
@@ -97,19 +91,19 @@ If you've created a new driver please share it by creating merge request or atta
 
 ### - PCB<a id="pcb"></a>
 The [current PCB](schematics/CAM/tinyUPS.kicad_pcb) is designed for DIY via CAM method. If you want it printed profesionally, you may need to redesign the PCB.
-Since the most of the UPS controllers have 5V data bus, we need a level shifter to be able to communicate with them and a small step-down PSU for ESP32. 
+Since the most of the UPS controllers have 5V data bus, we need a level shifter to be able to communicate with them and a small step-down PSU for ESP32.
 
 [Bill of materials](schematics/CAM/tinyUPS.csv). Instead of the BSS138 mosfets could be used any compatible type, ex.: IRLML2502.
 
 If you'll be using S2 mini board you need to desolder built-in LDO IC (ME6211C33) since power will be supplied directly to 3.3V pin. It's possible to keep the LDO but you will not be able to use serial port for firmware upload and debugging. See [WEMOS S2 mini schematics](schematics/sch_s2_mini_v1.0.0.pdf).
 
-The example driver is for a built in SPI LCD display, for a particular manufacturer and model. 
+The example driver is for a built in SPI LCD display, for a particular manufacturer and model.
 You'll probably have the very different device and may be even without any LCD display, so you'd need to figure out how to speak with the controller. This part is DIY. Feel free to call for help in Discussions.
 
 ### - Web UI<a id="webui"></a>
 **tinyUPS** has web UI based at [tailwindcss](https://tailwindcss.com/)/[flowbite](https://github.com/themesberg/flowbite) and [webpack](https://webpack.js.org/concepts/).
 
-UI translations are available in [./web/lang](./web/lang) directory. You're able to add a new one or remove existing if you wish by editing the header of [common.js](web/src/common.js) script. Variable <code>i18nlang</code> contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from <code>i18nlang</code> to save space on file system partition.
+UI translations are available in [./web/lang](./web/lang) directory. You're able to add a new one or remove existing if you wish by editing the header of [i18n.js](web/src/includes/i18n.js) script. Variable <code>i18nlang</code> contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from <code>i18nlang</code> to save space on file system partition.
 
 The package manager is <code>yarn</code> so if you're not familiar with it continue with the folowing to build the UI:
 
@@ -145,15 +139,15 @@ All the sigificant parameters for your setup are inside [configrure.json](./conf
 | battery_rated_charge_capacity_ah | Nominal UPS battery capacity (Ah) |
 | ups_rated_battery_amps_max | Nominal UPS battery current (Amps) |
 
-### - WiFi RECONNECTION STRATEGIES<a id="reconnect_strategy"></a>
+### - WiFi CONNECTION STRATEGIES<a id="reconnect_strategy"></a>
 
-If **tinyUPS** has lost connection with AP you may wish it to fallback to AP mode (`tinyUPS.01.XXXX` network name) or it may keep trying to reconnect till the source network is available. 
+If **tinyUPS** has lost connection with AP you may wish it to fallback to AP mode (`tinyUPS.01.XXXX` network name) or it may keep trying to reconnect till the source network is available.
 You can choose the desired behavior (see `wifi_reconnect_method` parameter) before to compile firmware.
 
 | METHOD_ID | DESCRIPTION |
 |:---:|:---|
-| 1 | If the configuration data is available, **tinyUPS** intents to connect to the specified AP. If the connection is not succeeded it starts AP. If connection is lost the device tryes to reconnect once (10 sec interval). If connection is not succeeded it starts AP and remains in this mode untill restart. |
-|  2 <sub>[D]</sub> | If **tinyUPS** has lost connection with source network it tryes to reconnect once. If connection is not succeeded it starts AP and periodically scans WiFi networks. If the source network has been found, the device intents to reconnect. Till the connection is not succeeded it remains in AP mode. |
+| 1 | If the configuration data is available, **tinyUPS** intents to connect to the specified AP. If the connection is not succeeded it starts AP. If connection is lost the device tryes to reconnect once (10 sec interval). If connection is not succeeded it starts AP and remains in this mode until restart. |
+|  2 <sub>[D]</sub> | If **tinyUPS** has lost connection with source network it tryes to reconnect once. If connection is not succeeded it starts AP and periodically scans WiFi networks. If the source network has found, the device intents to reconnect. Unless the connection is succeeded it remains in AP mode. |
 | 3 | Once the device has lost connection to AP it continuously tryes to reconnect to the source network. The WiFi mode remains STA. |
 | 4 | Rely on built-in functionality of `setAutoReconnect()`. **tinyUPS** will remain in STA mode and be seeking for the source AP. |
 
@@ -182,6 +176,7 @@ The UI is pretty simple and displays most of the real-time parameters. There are
 ![tinyUPS dashboard charts](doc/i0.jpg)
 
 
+<!--
 **tinyUPS** may be monitored remotely via JSON API, in practice it may be easily included in a local smart home network. To get access to API you need to add an API key (go to Configuration -> API):
 
 ![API control panel](doc/i1.jpg)
@@ -191,11 +186,15 @@ Now you're able to send a post request using similar url format:
 ```
 http://tinyUPS_ip_address/command?key=154aae95aa657fc37e0fa7e712dd7856
 ```
+ -->
+
+ After successful setup it is highly recommended to change the `AP key` and generate the `device serial number`. Both option values and corresponding controls you can find in `Settings` -> `Security` tab and `SNMP` tab respectively.
+
 
 ## **+ DEVELOPMENT**<a id="#development"></a>
 
 ### - DRIVERS<a id="drivers"></a>
-There are the following functions that must be implemented by every UPS driver: `upsDriverInit, upsDriverLoop, upsDriverDeinit`. 
+There are the following functions that must be implemented by every UPS driver: `upsDriverInit, upsDriverLoop, upsDriverDeinit`.
 You may also wish to look at the driver for thermistor (currently this is 1k M52A), it may need some changes. Depends on which thermistor you'll be using.
 
 
@@ -204,17 +203,9 @@ Serial monitor is used to perform the most of the tasks and to solve issues. Onc
 
 ![tinyUPS serial monitor](doc/i4.jpg)
 
-## **+ CHANGELOG**<a id="changelog"></a>
-
-  - **fw:1.3.0 / ui:1.2.0**
-    1. firmware and filesystem now upgradable Over the Air
-    2. overal improvements on UI
-    3. firmware stability improvements (memory leaks, code structure, etc)
-
-
 ## **+ PHOTOS**<a id="photos"></a>
 
-| ![tinyUPS PCB](./doc/e0.jpg) | ![thermistor](./doc/e1.jpg) | ![PCB](./doc/e2.jpg) | ![UPS LCD](./doc/e4.jpg) | ![UPS exterior](./doc/e5.jpg) | 
+| ![tinyUPS PCB](./doc/e0.jpg) | ![thermistor](./doc/e1.jpg) | ![PCB](./doc/e2.jpg) | ![UPS LCD](./doc/e4.jpg) | ![UPS exterior](./doc/e5.jpg) |
 |:---:|:---:|:---:|:---:|:---:|
 
 ## **+ CREDITS**<a id="credits"></a>
@@ -222,5 +213,4 @@ Serial monitor is used to perform the most of the tasks and to solve issues. Onc
 - Arduino [SNMP agent](https://github.com/0neblock/Arduino_SNMP) by #0neblock
 - [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
 - [Hash library](https://github.com/bbx10/Hash_tng)
-- Icons by [Heroicons](https://heroicons.com/) & [Boxicons](https://boxicons.com/)
-
+- Icons by [Tabler Icons](https://tabler.io/)

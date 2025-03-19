@@ -1,106 +1,54 @@
-/**
- * ? Change the languages that are going to be built into UI
- * ? the very first language here is also a fallback language
- */
-const i18nlang = ["en", "es", "ru"];
-import "./common.scss";
-import "flowbite";
+import './common.scss';
+//
+import './includes/i18n';
 // See: https://github.com/way5/ohSnap-tailwind
-import "ohsnap-tailwind/ohsnap.scss";
-import { ohSnap, ohSnapX } from "ohsnap-tailwind";
-// See: https://www.i18next.com/overview
-import i18next from "i18next";
-// See: https://github.com/i18next/jquery-i18next
-/**
- *
- * @author sk
- *
- * @type {*}
- */
-const $i18next = require("jquery-i18next");
-// See: https://github.com/i18next/i18next-browser-languageDetector
-import LanguageDetector from "i18next-browser-languagedetector";
-/**
- *
- * @author sk
- *
- * @type {*}
- */
-const i8nResources = () => {
-    let a = {};
-    for (let l in i18nlang) {
-        a[i18nlang[l]] = require("./lang/" + i18nlang[l] + ".json");
-    }
-    return a;
-};
-
-i18next.use(LanguageDetector).init({
-    debug: false,
-    fallbackLng: i18nlang[0],
-    useDataAttrOptions: true,
-    resources: i8nResources(),
-    detection: {
-        lookupQuerystring: "lng",
-        caches: ["localStorage", "cookie"],
-        order: [
-            "querystring",
-            "navigator",
-            "localStorage",
-            "sessionStorage",
-            "cookie",
-            "htmlTag",
-        ],
-    },
-});
-$i18next.init(i18next, $, {
-    useOptionsAttr: true,
-});
+import 'ohsnap-tailwind/ohsnap.scss';
+import { ohSnap, ohSnapX } from 'ohsnap-tailwind';
+//
+import { $baseURL, $restURL } from './includes/url';
+//
+import './includes/settings';
 
 const ohSnapConfig = {
     info: {
-        title: $.t("js.alertInfo"),
+        title: $.t('js.alertInfo'),
         styles: {
-            bg: "bg-green-500 dark:bg-green-600",
-            border: "border-green-700",
-            icon: "ohsnap-info bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center",
+            bg: 'bg-green-500 dark:bg-green-600',
+            border: 'border-green-700',
+            icon: 'ohsnap-info bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center'
         },
         duration: 7000,
-        container: "body",
-        "fade-duration": "fast",
+        container: 'body',
+        fadein: 500,
+        fadeout: 500
     },
     warn: {
-        title: $.t("js.alertWarn"),
+        title: $.t('js.alertWarn'),
         styles: {
-            bg: "bg-yellow-500 dark:bg-yellow-600",
-            border: "border-yellow-700",
-            icon: "ohsnap-warn bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center",
+            bg: 'bg-yellow-500 dark:bg-yellow-600',
+            border: 'border-yellow-700',
+            icon: 'ohsnap-warn bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center'
         },
         duration: 7000,
-        container: "body",
-        "fade-duration": "fast",
+        container: 'body',
+        fadein: 500,
+        fadeout: 500
     },
     err: {
-        title: $.t("js.alertErr"),
+        title: $.t('js.alertErr'),
         styles: {
-            bg: "bg-red-500 dark:bg-red-700",
-            border: "border-red-700",
-            icon: "ohsnap-err bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center",
+            bg: 'bg-red-500 dark:bg-red-700',
+            border: 'border-red-700',
+            icon: 'ohsnap-err bg-white dark:bg-white bg-[length:28px_28px] bg-no-repeat bg-center'
         },
         duration: 7000,
-        container: "body",
-        "fade-duration": "fast",
-    },
+        container: 'body',
+        fadein: 500,
+        fadeout: 500
+    }
 };
 
-/**
- *
- * @author sk
- *
- * @type {{ surveyUrl: string; rebootURL: string; rebootCountdownIntl: number; err: { title: any; styles: { bg: string; border: string; icon: string; }; duration: number; container: string; 'fade-duration': string; }; ... 7 more ...; doReboot: (el: any, countdownEl: any) => void; }}
- */
 var tinyUPS = {
-    surveyUrl: "/survey",
-    rebootURL: "/reboot",
     rebootCountdownIntl: 10000,
     err: ohSnapConfig.err,
     warn: ohSnapConfig.warn,
@@ -111,174 +59,179 @@ var tinyUPS = {
      * Doc-scope initializer. Called manually
      */
     init: function () {
-        this.displayMode();
-        $("#dmode").on("click", (e) => {
-            this.displayMode(true);
+        // this.displayMode();
+        $('#dmode').on('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            // this.displayMode(true);
+            $(e.target);
+            window.settings.displayMode(true);
         });
         // password unhide
-        $("button.showkey").on("click", function (e) {
+        $('button.showkey').on('click', function (e) {
             e.preventDefault();
-            let s = $(this).parent().find("input[type]");
-            s.prop("type", s.prop("type") === "text" ? "password" : "text");
-            if (s.prop("type") === "text") {
-                $(this).addClass("active");
+            let s = $(this).parent().find('input[type]');
+            s.prop('type', s.prop('type') === 'text' ? 'password' : 'text');
+            if (s.prop('type') === 'text') {
+                $(this).addClass('active');
             } else {
-                $(this).removeClass("active");
+                $(this).removeClass('active');
             }
         });
         // survey
-        $("#dosurvey").on("click", (e) => {
+        $('#dosurvey').on('click', e => {
             e.preventDefault();
             this.getSurvey();
         });
-        var pkg = require("../../package.json");
+        var pkg = require('../../package.json');
         this.uiVer = pkg.version;
         pkg = null;
-        var pkg = require("../../configure.json");
+        var pkg = require('../../configure.json');
         this.fwVer = pkg.version;
         pkg = null;
         // footer
         $('a[data-i18n="[title]gotoGithubLink"]').append(
-            new Date().getFullYear() + " (fw: " + this.fwVer + " / ui: " + this.uiVer + ")"
+            new Date().getFullYear() + ' (fw: ' + this.fwVer + ' / ui: ' + this.uiVer + ')'
         );
         this.initPage();
         // i18n
-        $("html").localize();
-    },
-    /**
-     *
-     * @param {*} toggle
-     */
-    displayMode: function (toggle = false) {
-        if (
-            localStorage.theme === "dark" ||
-            (!("theme" in localStorage) &&
-                window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-            if (toggle) {
-                localStorage.theme = "light";
-                document.documentElement.classList.remove("dark");
-            } else {
-                document.documentElement.classList.add("dark");
-            }
-        } else {
-            if (toggle) {
-                localStorage.theme = "dark";
-                document.documentElement.classList.add("dark");
-            } else {
-                document.documentElement.classList.remove("dark");
-            }
-        }
+        $('html').localize();
     },
     handleErrorResponse: function (o, ts, e) {
         if (o.status === 401) {
             window.location.reload();
         } else {
-            ohSnap($.t("js.errCommunication"), this.err);
+            console.error(ts + ': ' + o.responseText);
+            ohSnap($.t('js.errCommunication'), this.err);
         }
     },
     getSurvey: function () {
         const self = this;
-        let list = $('select[name="ssid"]');
         $.ajax({
-            url:
-                window.location.protocol +
-                "//" +
-                window.location.hostname +
-                this.surveyUrl,
-            // url: testURL + "/?test=1",
+            url: $restURL.surveyUrl,
             type: 'POST',
-            dataType: "json",
-            success: (r) => {
+            dataType: 'json',
+            success: r => {
                 // returned as an object, so the painful version of length
                 // create node
                 if (r.delay !== undefined) {
                     let delay = parseInt(r.delay);
-                    console.log("delay detected: ", delay);
+                    console.log('scan delay detected: ', delay);
                     ohSnap(
-                        delay > 0
-                            ? $.t("js.scanRepeatIn", { ds: delay / 1000.0 })
-                            : $.t("js.scanInProgress"),
+                        delay > 0 ? $.t('js.scanRepeatIn', { ds: delay / 1000.0 }) : $.t('js.scanInProgress'),
                         self.info
                     );
                     setTimeout(() => {
                         self.getSurvey();
                     }, delay);
                 } else if (r.length != 0) {
+                    const list = $('select[name="ssid"]');
+                    // get currently selected option value
+                    let currentSSID = list.val();
+                    let currentSSIDtext = '';
+                    let selectedOption = list[0].options[list[0].options.selectedIndex];
+                    if (selectedOption) {
+                        currentSSIDtext = selectedOption.text;
+                    }
                     self.scanResult = r;
-                    list.html("");
-                    for (let i = 0; i < r.length; i++) {
-                        if (r[i].s === "") continue;
-                        let node = document.createElement("option");
-                        let enc = "TKIP";
-                        switch (r[i].e) {
+                    list.html('');
+                    //
+                    const addListNode = (val, text) => {
+                        let node = document.createElement('option');
+                        node.value = val;
+                        node.innerHTML = text;
+                        list.append(node);
+                    };
+                    // option text feeder
+                    const optionText = r => {
+                        let enc = 'TKIP';
+                        switch (r.e) {
                             case 4:
-                                enc = "CCMP";
+                                enc = 'CCMP';
                                 break;
                             case 5:
-                                enc = "WEP";
+                                enc = 'WEP';
                                 break;
                             case 7:
-                                enc = "NONE";
+                                enc = 'NONE';
                                 break;
                             case 8:
-                                enc = "AUTO";
+                                enc = 'AUTO';
                                 break;
                         }
-                        node.value = r[i].s;
-                        node.innerHTML =
-                            r[i].s + " (ENC: " + enc + " RSSI: " + r[i].r + ")";
-                        list.append(node);
+                        return r.s + ' (ENC: ' + enc + ' RSSI: ' + r.r + ')';
+                    };
+                    // append the default option
+                    if (currentSSID !== null && currentSSID !== undefined) {
+                        addListNode(currentSSID, currentSSIDtext);
                     }
-                    ohSnap($.t("js.scanComplete"), self.info);
-                } else ohSnap($.t("js.errNoWiFiDetect"), self.err);
+                    // parse
+                    for (let i = 0; i < r.length; i++) {
+                        if (r[i].s === '' || r[i].s === null) continue;
+                        // if the default option exists in results
+                        if (r[i].s !== currentSSID) {
+                            addListNode(r[i].s, optionText(r[i]));
+                        } else {
+                            // if found same SSID as the currentSSID, then update text
+                            let k = list[0].options.selectedIndex;
+                            list[0].options[k].text = optionText(r[i]);
+                        }
+                    }
+                    ohSnap($.t('js.scanComplete'), self.info);
+                } else ohSnap($.t('js.errNoWiFiDetect'), self.err);
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
-            },
+            }
         });
     }, // getSurvey
-    doReboot: function (el, countdownEl) {
+    showCountdownAt: function (whereTo, duration, thenDo = null, step = 1000) {
+        const el = $(whereTo);
+        if(el.length !== 0) {
+            let countdown = duration / step;
+            $(el).html(countdown);
+            setInterval(() => {
+                countdown -= 1;
+                if (countdown >= 0) {
+                    $(el).html(countdown);
+                    if (countdown === 0) {
+                        (thenDo !== null && typeof thenDo === 'function') && thenDo();
+                    }
+                }
+            }, step);
+        } else
+            console.warn(`no elements like: ${whereTo} for countdown couter`);
+    },  // showCountdownAt
+    doReboot: function (countdownEl, controlEl = null) {
         const self = this;
-        $(el).attr("disabled", "disabled");
-        $(el).addClass("disabled");
+        if (controlEl !== null) {
+            $(controlEl).attr('disabled', 'disabled');
+            $(controlEl).addClass('disabled');
+        }
         $.ajax({
-            url:
-                window.location.protocol +
-                "//" +
-                window.location.hostname +
-                this.rebootURL,
-            // url: testURL + "/?test=34",
-            dataType: "json",
+            url: $restURL.rebootURL,
+            dataType: 'json',
             type: 'POST',
-            success: (r) => {
+            success: r => {
                 if (r.length != 0) {
                     if (r.done === true) {
-                        ohSnap($.t("js.deviceIsRebooting"), self.info);
-                        let countdown = self.rebootCountdownIntl / 1000;
-                        $(countdownEl).html(countdown);
-                        setInterval(() => {
-                            countdown -= 1;
-                            if (countdown >= 0) {
-                                $(countdownEl).html(countdown);
-                                if (countdown === 0) {
-                                    window.location.reload();
-                                }
-                            }
-                        }, 1000);
+                        ohSnap($.t('js.deviceIsRebooting'), self.info);
+                        self.showCountdownAt(countdownEl, self.rebootCountdownIntl, () => {
+                            window.location.reload();
+                        });
                     }
                     // else
                     // console.log('wrong answer: ', r);
-                } else ohSnap($.t("js.errDoReboot"), self.err);
+                } else ohSnap($.t('js.errDoReboot'), self.err);
             },
             error: (o, ts, e) => {
                 this.handleErrorResponse(o, ts, e);
-            },
+            }
         });
-    }, // doReboot
+    } // doReboot
 };
 
 window.$ = jQuery;
 window.tinyUPS = tinyUPS;
 
-export { tinyUPS, i18next, $i18next, ohSnap, ohSnapX };
+export { tinyUPS, ohSnap, ohSnapX, $restURL, $baseURL };

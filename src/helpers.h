@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 9th January 2024 2:25:40 pm                               #
+# Last Modified: Wednesday, 19th March 2025 1:26:55 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -30,7 +30,7 @@
 #include <WiFi.h>
 #include <sys/param.h>
 
-// #define DEBUG                           2
+// #define DEBUG                           3
 #define _STRING(x)                      #x
 #define STRING(x)                       _STRING(x)
 #define VERSION_UI                      STRING(VERSION_WEBUI)
@@ -94,7 +94,7 @@ typedef struct
     // - WiFi (both 32 octets max)
     char ssid[32] = "";                             // V
     char ssidkey[32] = "";                          // V
-    char apkey[32] = "iesh3Iequaef";                // V
+    char apkey[32] = "Ya9geiqu6AiThiel";            // V
     // - NTP
     char ntpServer[20] = "pool.ntp.org";            // V
     char ntpServerFB[20] = "time.google.com";       // V
@@ -146,19 +146,19 @@ extern session_t session;
 // system events
 typedef struct
 {
-    bool upsBatteryStatusChange = false;
-    bool upsOutputStateChange = true;
-    bool upsBatteryCapacityChange = true;
+    volatile bool upsBatteryStatusChange = false;
+    volatile bool upsOutputStateChange = true;
+    volatile bool upsBatteryCapacityChange = true;
     // when failed to connect to config.ssid
-    bool isActiveFilesystem = true;
-    bool wifiIsInAPMode = false;
-    bool wifiAPConnectSuccess = false;
-    bool isActiveSnmpAgent = false;
-    bool isActiveHttpd = false;
-    bool isActiveMonitor = false;
-    bool updateInProgress = false;
+    volatile bool isActiveFilesystem = false;
+    volatile bool wifiIsInAPMode = false;
+    volatile bool wifiAPConnectSuccess = false;
+    volatile bool isActiveSnmpAgent = false;
+    volatile bool isActiveHttpd = false;
+    volatile bool isActiveMonitor = false;
+    volatile bool updateInProgress = false;
 } common_event_t;
-volatile extern common_event_t systemEvent;
+extern common_event_t systemEvent;
 
 // monitored parameters
 typedef struct
@@ -220,6 +220,8 @@ typedef struct
     uint8_t upsDiagBatteryStatus = 3;
 } monitor_data_t;
 extern monitor_data_t monitorData;
+
+extern void scheduleReboot(bool now = false);
 
 const char _logDirPath[] = "/logs";
 const char _dataDirPath[] = "/data";

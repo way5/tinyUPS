@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 9th January 2024 12:21:47 am                              #
+# Last Modified: Wednesday, 19th March 2025 1:14:06 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -31,12 +31,13 @@
 #if ((WIFI_RECONNECT_METHOD == 2) || (WIFI_RECONNECT_METHOD == 3))
 unsigned long _last_connection_update = 0;
 #endif
+unsigned long _reboot_scheduled_at = 0;
 
 config_t config;
 session_t session;
 eeMemClass eemem;
 monitor_data_t monitorData;
-volatile common_event_t systemEvent;
+common_event_t systemEvent;
 MonitorClass monitor;
 AgentClass snmpagent;
 AsyncWebServer httpd(80);
@@ -52,14 +53,26 @@ wifi_event_id_t wifiEvtCon, wifiEvtDscon;
  *
 */
 void systemReboot() {
-    yield();
-    logsys.put("-- reboot --");
-    snmpagent.kill();
-    FFat.end();
-    __DL("(!) reboot...");
-    // hard reset - can leave some of the registers in the old state
-    // which can lead to problems ESP.reset(), using soft-reboot instead
-    ESP.restart();
+    if(_reboot_scheduled_at != 0 && _reboot_scheduled_at + 2000UL >= millis()) {
+        logsys.put("-- reboot --");
+        snmpagent.kill();
+        FFat.end();
+        __DL("(!) reboot...");
+        // hard reset - can leave some of the registers in the old state
+        // which can lead to problems ESP.reset(), using soft-reboot instead
+        ESP.restart();
+    }
+}
+
+/**
+ * @brief Setup timer for upcoming reboot
+ *
+ */
+void scheduleReboot(bool now) {
+    if(_reboot_scheduled_at == 0) {
+        _reboot_scheduled_at = now ? millis() + 2000UL : millis();
+        __DL("(i) reboot has been scheduled in 2s...");
+    }
 }
 
 /**
@@ -142,7 +155,7 @@ void setAP() {
     //   wrapper around the SDK’s system_phy_set_max_tpw() api call.
     // WiFi.setOutputPower(20.0);
     // do preliminary network scan
-    WiFi.scanNetworks(true);
+    // WiFi.scanNetworks(true, false, false, 10);
     _CHBD(_ssid);
 #ifdef DEBUG
     __DL("(i) AP started");
@@ -158,17 +171,17 @@ void setAP() {
  * @return false - connection failed
 */
 bool waitSTA() {
-    uint8_t cntr = 0;
+    // uint8_t cntr = 0;
 #if ((WIFI_RECONNECT_METHOD == 2) || (WIFI_RECONNECT_METHOD == 3))
     _last_connection_update = millis();
 #endif
-    while(WiFi.waitForConnectResult() != WL_CONNECTED && cntr != 10) {
+    if(WiFi.waitForConnectResult() != WL_CONNECTED) {
         // feedLoopWDT();
-        yield();
-        delay(100);
-        cntr++;
-    }
-    if(WiFi.status() != WL_CONNECTED) {
+        // optimistic_yield(100);
+        // delay(100);
+        // cntr++;
+    // }
+    // if(WiFi.status() != WL_CONNECTED) {
 #ifdef DEBUG
     __DF("(!) connect to AP failed, err: %d\n", WiFi.status());
 #endif
@@ -190,61 +203,60 @@ bool waitSTA() {
  *        the config.ssid network if it has been found
  *
 */
-#if WIFI_RECONNECT_METHOD == 2
-void testSTA() {
-    String ssid;
-    // int16_t result;
-    _last_connection_update = millis();
+// #if WIFI_RECONNECT_METHOD == 2
+// void testSTA() {
+//     String ssid;
 
-    int16_t result = WiFi.scanComplete();
+//     _last_connection_update = millis();
 
-    if(result == 0 || result == -2) {
-        result = WiFi.scanNetworks(true);
-        while(result == -1) {
-            yield();
-            result = WiFi.scanComplete();
-        }
-    }
+//     int16_t result = WiFi.scanComplete();
 
-test_sta_loop:
-    // delay(1000);
-    // result = WiFi.scanComplete();
+//     if(result == 0 || result == -2) {
+//         result = WiFi.scanNetworks(true, false, false, 10);
+//         while(result == -1) {
+//             optimistic_yield(100);
+//             result = WiFi.scanComplete();
+//         }
+//     }
 
-    // no debug here - going blind
-    if (result == 0)
-    {
-        // nothing found
-        return;
-    }
-    else if (result > 0)
-    {
-        uint8_t cntr = 0;
-        int32_t rssi = 0;
-        uint8_t encType = 0;
-        uint8_t * bssid;
-        int32_t channel = 0;
-        // result # networks found
-        while (cntr < result)
-        {
-            WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel);
-            if(strcmp(config.ssid, ssid.c_str()) == 0) break;
-            cntr++;
-        }
-    }
-    else if(result == -1)
-    {
-        // in progress
-        // feedLoopWDT();
-        yield();
-        // pass through this again
-        goto test_sta_loop;
-    }
-    // try to connect if the source network has been found
-    if(strcmp(config.ssid, ssid.c_str()) == 0) {
-        setSTA();
-    }
-}
-#endif
+// test_sta_loop:
+//     // no debug here - going blind
+//     if (result == 0)
+//     {
+//         // nothing found
+//         return;
+//     }
+//     else if (result > 0)
+//     {
+//         uint8_t cntr = 0;
+//         int32_t rssi = 0;
+//         uint8_t encType = 0;
+//         uint8_t * bssid;
+//         int32_t channel = 0;
+//         // result # networks found
+//         while (cntr < result)
+//         {
+//             WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel);
+//             if(strcmp(config.ssid, ssid.c_str()) == 0) break;
+//             cntr++;
+//         }
+//     }
+//     else if(result == -1)
+//     {
+//         // in progress
+//         // feedLoopWDT();
+//         optimistic_yield(100);
+//         // pass through this again
+//         goto test_sta_loop;
+//     }
+//     // cleanup
+//     WiFi.scanDelete();
+//     // try to connect if the source network has been found
+//     if(strcmp(config.ssid, ssid.c_str()) == 0) {
+//         setSTA();
+//     }
+// }
+// #endif
 
 /**
  * @brief Normal operation mode (setup complete)
@@ -348,7 +360,7 @@ void loop() {
         }
         // always query
         monitor.loop();
-        // resulve connection issues
+        // resolve connection issues
         if(systemEvent.wifiAPConnectSuccess) {
             snmpagent.loop();
         }
@@ -357,9 +369,13 @@ void loop() {
             && WiFi.softAPgetStationNum() == 0
                 && (_last_connection_update == 0
                     || (millis() - _last_connection_update >= 120000UL))) {
-                testSTA();
+                // testSTA();
+                WiFi.mode(WIFI_MODE_STA);
+                WiFi.reconnect();
+                _last_connection_update = millis();
         }
-    #elif ((WIFI_RECONNECT_METHOD == 1) || (WIFI_RECONNECT_METHOD == 2))
+    #endif
+    #if ((WIFI_RECONNECT_METHOD == 1) || (WIFI_RECONNECT_METHOD == 2))
         else if(!systemEvent.wifiIsInAPMode) {
             WiFi.reconnect();
             waitSTA();
@@ -374,4 +390,5 @@ void loop() {
     #endif
         httpdLoop();
     }
+    systemReboot();
 }

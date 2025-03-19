@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 8th January 2024 11:23:09 pm                               #
+# Last Modified: Tuesday, 18th March 2025 11:05:52 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -34,7 +34,7 @@
 #include "updater.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Hash.h>
+// #include <Hash.h>
 #include "FS.h"
 #include "FFat.h"
 #include "eemem.h"
@@ -44,7 +44,6 @@
 #include "ntpc.h"
 
 extern AsyncWebServer httpd;
-extern void systemReboot();
 extern fLogClass logsys;
 extern fLogClass logsnmp;
 extern fLogClass logTempMon;
@@ -59,8 +58,6 @@ const char resPageIndex[] = "/i.htm";
 const char resPageError[] = "/e.htm";
 const char resPageSetup[] = "/s.htm";
 const char resFavicon[] = "/favicon.ico";
-const char resSvgEye[] = "/eye.svg";
-const char resSvgGth[] = "/gth.svg";
 
 const char headerCookie[] = "Cookie";
 const char headerSetCookie[] = "Set-Cookie";
@@ -75,7 +72,8 @@ const char mimeTextCss[] = "text/css";
 const char mimeAppJS[] = "application/javascript";
 const char mimeAppJSON[] = "application/json";
 const char mimeImgXICN[] = "image/x-icon";
-const char mimeImgSVG[] = "image/svg+xml";
+const char mimeTtfFonts[] = "font/ttf";
+const char mimeWoffFonts[] = "font/woff2";
 
 const char jsonLoginRepeat[] = "{\"login\":\"repeat\"}";
 const char jsonLoginOK[] = "{\"login\":\"ok\"}";
@@ -92,10 +90,11 @@ const char maskDashbrd03[] =  "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\
 const char maskInfoGraph[] = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
 
 const char maskGetConfig01[] = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,";
-const char maskGetConfig02[] = "\"ntptmoff\":%d,\"ntpdloff\":%d,\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\",";
+const char maskGetConfig02[] = "\"ntptmoff\":%d,\"ntpdloff\":%d,\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"apkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\",";
 const char maskGetConfig03[] = "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
-                                "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"api\":[%s]}";
+                                "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"snum\":\"%s\"}";   // ,\"api\":[%s]
 const char maskSurvey[] = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
+const char maskDeviceSerial[] = "{\"serial\":\"%s\"}";
 
 typedef struct ApiKeysT {
     char * memo;
@@ -125,18 +124,19 @@ void httpdInit();
 bool isAuthorized(AsyncWebServerRequest * req);
 void httpdRespond(AsyncWebServerRequest * req, const char * file, const char* mime, bool gzipped = true, AsyncWebServerResponse * res = nullptr);
 void httpdLoop();
-int8_t loadAPIKeys(api_keys_t ** keys);
-char * apiKeysToJSON();
-bool addAPIKey(api_keys_t * k);
-bool removeAPIKey(time_t &id);
-bool writeAPIData(api_keys_t ** data);
+// int8_t loadAPIKeys(api_keys_t ** keys);
+// char * apiKeysToJSON();
+// bool addAPIKey(api_keys_t * k);
+// bool removeAPIKey(time_t &id);
+// bool writeAPIData(api_keys_t ** data);
 // HTML & assets
 void httpdGetHtmlPage(AsyncWebServerRequest *req);
 void httpdGetHtmlError(AsyncWebServerRequest * req);
 void httpdGetStyleChunk(AsyncWebServerRequest *req);
 void httpdGetScriptChunk(AsyncWebServerRequest *req);
 void httpdGetFavicon(AsyncWebServerRequest *req);
-void httpdGetSvgImage(AsyncWebServerRequest *req);
+void httpdGetTtfFonts(AsyncWebServerRequest *req);
+void httpdGetWoffFonts(AsyncWebServerRequest *req);
 void httpdGetLogout(AsyncWebServerRequest *req);
 // API
 void httpdPostSiteSurvey(AsyncWebServerRequest *req);
@@ -148,8 +148,9 @@ void httpdPostSnmpLog(AsyncWebServerRequest *req);
 void httpdPostInfoGraph(AsyncWebServerRequest *req);
 void httpdPostMonTmpLog(AsyncWebServerRequest *req);
 void httpdPostMonBDtaLog(AsyncWebServerRequest *req);
-void httpdPostAPIadd(AsyncWebServerRequest * req);
-void httpdPostAPIdel(AsyncWebServerRequest * req);
+void httpdPostGenSerial(AsyncWebServerRequest *req);
+// void httpdPostAPIadd(AsyncWebServerRequest * req);
+// void httpdPostAPIdel(AsyncWebServerRequest * req);
 void httpdPostGetDashbrd(AsyncWebServerRequest *req);
 // config
 void httpdPostGetConfig(AsyncWebServerRequest *req);

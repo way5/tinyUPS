@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 9th January 2024 2:32:40 pm                               #
+# Last Modified: Wednesday, 19th March 2025 1:14:06 am                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -33,8 +33,11 @@ void httpdInit()
     httpd.on("/e.js", HTTP_GET, httpdGetScriptChunk);
     httpd.on("/s.js", HTTP_GET, httpdGetScriptChunk);
     httpd.on(resFavicon, HTTP_GET, httpdGetFavicon);
-    httpd.on(resSvgGth, HTTP_GET, httpdGetSvgImage);
-    httpd.on(resSvgEye, HTTP_GET, httpdGetSvgImage);
+    // FONTS
+    httpd.on("/bold.woff2", HTTP_GET, httpdGetWoffFonts);
+    httpd.on("/reg.woff2", HTTP_GET, httpdGetWoffFonts);
+    httpd.on("/bold.ttf", HTTP_GET, httpdGetTtfFonts);
+    httpd.on("/reg.ttf", HTTP_GET, httpdGetTtfFonts);
     // POST
     httpd.on("/survey", HTTP_POST, httpdPostSiteSurvey);
     httpd.on("/setup-init", HTTP_POST, httpdPostSetupInit);
@@ -45,8 +48,9 @@ void httpdInit()
     httpd.on("/infograph", HTTP_POST, httpdPostInfoGraph);
     httpd.on("/montmpr", HTTP_POST, httpdPostMonTmpLog);
     httpd.on("/monbdata", HTTP_POST, httpdPostMonBDtaLog);
-    httpd.on("/addapikey", HTTP_POST, httpdPostAPIadd);
-    httpd.on("/delapikey", HTTP_POST, httpdPostAPIdel);
+    httpd.on("/genserial", HTTP_POST, httpdPostGenSerial);
+    // httpd.on("/addapikey", HTTP_POST, httpdPostAPIadd);
+    // httpd.on("/delapikey", HTTP_POST, httpdPostAPIdel);
     // DASHBOARD DATA
     httpd.on("/getdashbrd", HTTP_POST, httpdPostGetDashbrd);
     // CONFIG
@@ -78,6 +82,10 @@ void httpdLoop()
     {
         if ((session.authTimeout + (config.authTimeoutMax * 1000UL)) <= millis())
         {
+        #if DEBUG == 3
+            unsigned long timeout = millis() - session.authTimeout;
+            __DF("(i) drop auth cookie by timeout: %ld, lifetime: %ld\n", timeout, (config.authTimeoutMax * 1000UL));
+        #endif
             // reset timer and token
             session.authTimeout = 0;
             memset(session.authToken, '\0', sizeof(session.authToken));
@@ -86,12 +94,7 @@ void httpdLoop()
 }
 
 /*
-██╗   ██╗████████╗██╗██╗     ███████╗
-██║   ██║╚══██╔══╝██║██║     ██╔════╝
-██║   ██║   ██║   ██║██║     ███████╗
-██║   ██║   ██║   ██║██║     ╚════██║
-╚██████╔╝   ██║   ██║███████╗███████║
- ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝
+* UTILS
 */
 
 /**
@@ -116,44 +119,44 @@ void hashgen(char *c)
 bool isAuthorized(AsyncWebServerRequest *req)
 {
     bool res = false;
-    if (strlen(session.authToken) != 0 && req->hasHeader(String(headerCookie)))
-    {
-        AsyncWebHeader *cookie = req->getHeader(String(headerCookie));
+    // if (strlen(session.authToken) != 0 && req->hasHeader(String(headerCookie)))
+    // {
+        const AsyncWebHeader *cookie = req->getHeader(headerCookie);
         if (cookie->toString().indexOf(String(session.authToken)) != -1)
         {
             res = true;
         }
-    }
-    else if (req->method() == HTTP_POST && req->hasParam(String("key")))
-    {
-        AsyncWebParameter *k = req->getParam(String("key"));
-        if (k->value().length() != 32)
-        {
-#ifdef DEBUG
-            __DF("wrong key lengh: %s\n", k->value().c_str());
-#endif
-            res = false;
-        }
-        else
-        {
-            api_keys_t **data;
-            _ALLOC_API_ARRAY(data);
-            int8_t n = loadAPIKeys(data);
-            while (n > 0 && strlen(data[n - 1]->key) != 0)
-            {
-                if (strcmp(data[n - 1]->key, k->value().c_str()) == 0)
-                {
-#ifdef DEBUG
-                    __DL("auth key verified");
-#endif
-                    res = true;
-                    break;
-                }
-                n--;
-            }
-            delete[] data;
-        }
-    }
+//     }
+//     else if (req->method() == HTTP_POST && req->hasParam(String("key")))
+//     {
+//         AsyncWebParameter *k = req->getParam(String("key"));
+//         if (k->value().length() != 32)
+//         {
+// #ifdef DEBUG
+//             __DF("wrong key lengh: %s\n", k->value().c_str());
+// #endif
+//             res = false;
+//         }
+//         else
+//         {
+//             api_keys_t **data;
+//             _ALLOC_API_ARRAY(data);
+//             int8_t n = loadAPIKeys(data);
+//             while (n > 0 && strlen(data[n - 1]->key) != 0)
+//             {
+//                 if (strcmp(data[n - 1]->key, k->value().c_str()) == 0)
+//                 {
+// #ifdef DEBUG
+//                     __DL("auth key verified");
+// #endif
+//                     res = true;
+//                     break;
+//                 }
+//                 n--;
+//             }
+//             delete[] data;
+//         }
+//     }
     return res;
 }
 
@@ -175,9 +178,9 @@ void httpdRespond(AsyncWebServerRequest *req, const char *file, const char *mime
     }
     // res->addHeader(String("Cache-Control"), String("max-age=30"));
     // unset previosly created cookie
-    if (fname == String(resPageLogin) && req->hasHeader(String(headerCookie)))
+    if (fname == String(resPageLogin) && req->hasHeader(headerCookie))
     {
-        AsyncWebHeader *cookie = req->getHeader(String(headerCookie));
+        const AsyncWebHeader *cookie = req->getHeader(headerCookie);
         if (!(cookie->toString().isEmpty()) && cookie->toString().indexOf(String(cookieNameReset)) == -1)
         {
             res->addHeader(String(headerSetCookie), String(cookieNameReset));
@@ -200,7 +203,7 @@ void httpdGetHtmlPage(AsyncWebServerRequest *req)
     String path = req->url();
     const char * fname;
 
-    if (WiFi.getMode() == WIFI_MODE_APSTA)
+    if (WiFi.getMode() != WIFI_MODE_STA)
     {
         fname = resPageSetup;
     }
@@ -208,7 +211,7 @@ void httpdGetHtmlPage(AsyncWebServerRequest *req)
     {
         if (strlen(session.authToken) != 0 && req->hasHeader(headerCookie))
         {
-            AsyncWebHeader *cookie = req->getHeader(headerCookie);
+            const AsyncWebHeader *cookie = req->getHeader(headerCookie);
 #if DEBUG == 3
             // cookie has the CR already
             __DF("has cookie: %s", cookie->toString().c_str());
@@ -281,16 +284,12 @@ void httpdGetFavicon(AsyncWebServerRequest *req)
     httpdRespond(req, resFavicon, mimeImgXICN);
 }
 
-void httpdGetSvgImage(AsyncWebServerRequest *req)
-{
-    if (req->url() == String(resSvgEye))
-    {
-        httpdRespond(req, resSvgEye, mimeImgSVG);
-    }
-    else if (req->url() == String(resSvgGth))
-    {
-        httpdRespond(req, resSvgGth, mimeImgSVG);
-    }
+void httpdGetTtfFonts(AsyncWebServerRequest *req) {
+    httpdRespond(req, req->url().c_str(), mimeTtfFonts, false);
+}
+
+void httpdGetWoffFonts(AsyncWebServerRequest *req) {
+    httpdRespond(req, req->url().c_str(), mimeWoffFonts, false);
 }
 
 void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr, const int code) // const __FlashStringHelper * descr) {
@@ -307,49 +306,49 @@ void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr, const i
  *
  * @return api_keys_t
  */
-int8_t loadAPIKeys(api_keys_t **keys)
-{
-    int8_t i = 0;
-    fs::File _f;
-    if (!FFat.exists(_apiKeysDBPath))
-    {
-        _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
-        delay(100);
-        _f.close();
-    }
-    else
-    {
-        _f = FFat.open(_apiKeysDBPath, FILE_READ);
-        if (_f)
-        {
-            char c;
-            String keyData = "";
-            // skip consistancy check, rely on addAPIKey()
-            while (_f.available())
-            {
-                c = _f.read();
-                if (c != 0x0A)
-                {
-                    keyData += static_cast<char>(c);
-                }
-                else
-                {
-                    api_keys_t *key = new api_keys_t();
-                    strcpy(key->key, keyData.substring(0, 32).c_str());   // 32 max
-                    strcpy(key->memo, keyData.substring(32, 48).c_str()); // 16 max
-                    key->created = static_cast<time_t>(keyData.substring(48).toInt());
-                    keys[i] = key;
-                    keyData = "";
-                    i++;
-                }
-            }
-            _f.close();
-        }
-        else
-            i = -1;
-    }
-    return i;
-}
+// int8_t loadAPIKeys(api_keys_t **keys)
+// {
+//     int8_t i = 0;
+//     fs::File _f;
+//     if (!FFat.exists(_apiKeysDBPath))
+//     {
+//         _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
+//         delay(100);
+//         _f.close();
+//     }
+//     else
+//     {
+//         _f = FFat.open(_apiKeysDBPath, FILE_READ);
+//         if (_f)
+//         {
+//             char c;
+//             String keyData = "";
+//             // skip consistancy check, rely on addAPIKey()
+//             while (_f.available())
+//             {
+//                 c = _f.read();
+//                 if (c != 0x0A)
+//                 {
+//                     keyData += static_cast<char>(c);
+//                 }
+//                 else
+//                 {
+//                     api_keys_t *key = new api_keys_t();
+//                     strcpy(key->key, keyData.substring(0, 32).c_str());   // 32 max
+//                     strcpy(key->memo, keyData.substring(32, 48).c_str()); // 16 max
+//                     key->created = static_cast<time_t>(keyData.substring(48).toInt());
+//                     keys[i] = key;
+//                     keyData = "";
+//                     i++;
+//                 }
+//             }
+//             _f.close();
+//         }
+//         else
+//             i = -1;
+//     }
+//     return i;
+// }
 
 /**
  * @brief Encode keys data to json format
@@ -357,38 +356,38 @@ int8_t loadAPIKeys(api_keys_t **keys)
  *
  * @return String
  */
-char *apiKeysToJSON()
-{
-    uint8_t i = 0;
-    char *t;
-    char *api;
-    _CHB(t, 0x10);
-    _CHB(api, 0x400);
-    api_keys_t **data;
-    _ALLOC_API_ARRAY(data);
-    int8_t n = loadAPIKeys(data);
-    if (n > 0)
-    {
-        while (i < 5 && data[i] != nullptr)
-        {
-            if (strlen(api) != 0)
-                strcat(api, "},");
-            val2str(data[i]->created, t);
-            strcat(api, "{\"m\":\"");
-            strcat(api, data[i]->memo);
-            strcat(api, "\",\"k\":\"");
-            strcat(api, data[i]->key);
-            strcat(api, "\",\"id\":");
-            strcat(api, t);
-            _CHBC(t);
-            i++;
-        }
-        strcat(api, "}");
-    }
-    delete[] data;
-    _CHBD(t);
-    return api;
-}
+// char *apiKeysToJSON()
+// {
+//     uint8_t i = 0;
+//     char *t;
+//     char *api;
+//     _CHB(t, 0x10);
+//     _CHB(api, 0x400);
+//     api_keys_t **data;
+//     _ALLOC_API_ARRAY(data);
+//     int8_t n = loadAPIKeys(data);
+//     if (n > 0)
+//     {
+//         while (i < 5 && data[i] != nullptr)
+//         {
+//             if (strlen(api) != 0)
+//                 strcat(api, "},");
+//             val2str(data[i]->created, t);
+//             strcat(api, "{\"m\":\"");
+//             strcat(api, data[i]->memo);
+//             strcat(api, "\",\"k\":\"");
+//             strcat(api, data[i]->key);
+//             strcat(api, "\",\"id\":");
+//             strcat(api, t);
+//             _CHBC(t);
+//             i++;
+//         }
+//         strcat(api, "}");
+//     }
+//     delete[] data;
+//     _CHBD(t);
+//     return api;
+// }
 
 /**
  * @brief Add an API key into file
@@ -397,22 +396,23 @@ char *apiKeysToJSON()
  * @return true
  * @return false
  */
-bool addAPIKey(api_keys_t *k)
-{
-    api_keys_t **data;
-    _ALLOC_API_ARRAY(data);
-    int8_t n = loadAPIKeys(data);
+// bool addAPIKey(api_keys_t *k)
+// {
+//     api_keys_t **data;
+//     _ALLOC_API_ARRAY(data);
+//     int8_t n = loadAPIKeys(data);
 
-    if (n != -1 && n < 5)
-    {
-        data[n] = k;
-        return writeAPIData(data);
-    }
-#ifdef DEBUG
-    __DL("too many api keys");
-#endif
-    return false;
-}
+//     if (n != -1 && n < 5)
+//     {
+//         data[n] = k;
+//         return writeAPIData(data);
+//     }
+// #ifdef DEBUG
+//     __DL("too many api keys");
+// #endif
+//     return false;
+// }
+
 /**
  * @brief Remove the API key record from file
  *
@@ -420,37 +420,37 @@ bool addAPIKey(api_keys_t *k)
  * @return true
  * @return false
  */
-bool removeAPIKey(time_t &id)
-{
-    bool result = false;
-    uint8_t i = 0, k = 0;
-    api_keys_t **data;
-    _ALLOC_API_ARRAY(data);
-    int8_t n = loadAPIKeys(data);
-    if (n > 0)
-    {
-        api_keys_t **dataNew;
-        _ALLOC_API_ARRAY(dataNew);
-        while (data[i] != nullptr && i < 5)
-        {
-            if (data[i]->created != id)
-            {
-                dataNew[k] = data[i];
-                k++;
-            }
-            i++;
-        }
-        result = writeAPIData(dataNew);
-    }
-#ifdef DEBUG
-    else
-    {
-        __DL("no API keys or failed to open");
-    }
-#endif
-    delete[] data;
-    return result;
-}
+// bool removeAPIKey(time_t &id)
+// {
+//     bool result = false;
+//     uint8_t i = 0, k = 0;
+//     api_keys_t **data;
+//     _ALLOC_API_ARRAY(data);
+//     int8_t n = loadAPIKeys(data);
+//     if (n > 0)
+//     {
+//         api_keys_t **dataNew;
+//         _ALLOC_API_ARRAY(dataNew);
+//         while (data[i] != nullptr && i < 5)
+//         {
+//             if (data[i]->created != id)
+//             {
+//                 dataNew[k] = data[i];
+//                 k++;
+//             }
+//             i++;
+//         }
+//         result = writeAPIData(dataNew);
+//     }
+// #ifdef DEBUG
+//     else
+//     {
+//         __DL("no API keys or failed to open");
+//     }
+// #endif
+//     delete[] data;
+//     return result;
+// }
 
 /**
  * @brief Write data to API keys file
@@ -459,67 +459,64 @@ bool removeAPIKey(time_t &id)
  * @return true
  * @return false
  */
-bool writeAPIData(api_keys_t **data)
-{
-    char *s, *t;
-    size_t m = 0;
-    uint8_t i = 0;
-    fs::File _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
-    if (!_f) {
-        delete[] data;
-        return false;
-    }
-    // if an empty array given. nothing to do with it.
-    if(data[0] == nullptr)
-        goto write_api_data;
-    _CHB(s, 128);
-    _CHB(t, 24);
-    while (data[i] != nullptr && i < 5)
-    {
-        val2str(data[i]->created, t);
-        strcpy(s, data[i]->key);
-        // writing exact characters quantity
-        strcat(s, data[i]->memo);
-        m = strlen(data[i]->memo);
-        while (m < 16UL)
-        {
-            strcat(s, " ");
-            m++;
-        }
-        strcat(s, t);
-        s[strlen(s)] = 0x0A; // addint LF
-        _f.write(reinterpret_cast<const uint8_t *>(s), strlen(s));
-        _CHBC(t);
-        _CHBC(s);
-        i++;
-    }
-    _CHBD(t);
-    _CHBD(s);
-write_api_data:
-    delete[] data;
-    _f.close();
-    return true;
-}
+// bool writeAPIData(api_keys_t **data)
+// {
+//     char *s, *t;
+//     size_t m = 0;
+//     uint8_t i = 0;
+//     fs::File _f = FFat.open(_apiKeysDBPath, FILE_WRITE);
+//     if (!_f) {
+//         delete[] data;
+//         return false;
+//     }
+//     // if an empty array given. nothing to do with it.
+//     if(data[0] == nullptr)
+//         goto write_api_data;
+//     _CHB(s, 128);
+//     _CHB(t, 24);
+//     while (data[i] != nullptr && i < 5)
+//     {
+//         val2str(data[i]->created, t);
+//         strcpy(s, data[i]->key);
+//         // writing exact characters quantity
+//         strcat(s, data[i]->memo);
+//         m = strlen(data[i]->memo);
+//         while (m < 16UL)
+//         {
+//             strcat(s, " ");
+//             m++;
+//         }
+//         strcat(s, t);
+//         s[strlen(s)] = 0x0A; // addint LF
+//         _f.write(reinterpret_cast<const uint8_t *>(s), strlen(s));
+//         _CHBC(t);
+//         _CHBC(s);
+//         i++;
+//     }
+//     _CHBD(t);
+//     _CHBD(s);
+// write_api_data:
+//     delete[] data;
+//     _f.close();
+//     return true;
+// }
 
-// ██████╗ ███████╗ ██████╗ ██╗   ██╗███████╗███████╗████████╗███████╗
-// ██╔══██╗██╔════╝██╔═══██╗██║   ██║██╔════╝██╔════╝╚══██╔══╝██╔════╝
-// ██████╔╝█████╗  ██║   ██║██║   ██║█████╗  ███████╗   ██║   ███████╗
-// ██╔══██╗██╔══╝  ██║▄▄ ██║██║   ██║██╔══╝  ╚════██║   ██║   ╚════██║
-// ██║  ██║███████╗╚██████╔╝╚██████╔╝███████╗███████║   ██║   ███████║
-// ╚═╝  ╚═╝╚══════╝ ╚══▀▀═╝  ╚═════╝ ╚══════╝╚══════╝   ╚═╝   ╚══════╝
+/*
+* REQUESTS
+*/
 
 /**
  * @brief Upgrade process result responder
  *
 */
 void httpdPostUpgradeResponder(AsyncWebServerRequest *req) {
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON), 128);
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON, 128U);
 
     if (!updaterInProgress() && Update.hasError())
     {
         res->setCode(500);
         res->printf(jsonUpdateERR, Update.errorString());
-    #if DEBUG == 2
+    #if DEBUG == 3
         __DF("(!) update failed: %s\n", Update.errorString());
     #endif
         // logsys.putts("(!) update error: %s", Update.errorString());
@@ -528,7 +525,7 @@ void httpdPostUpgradeResponder(AsyncWebServerRequest *req) {
     {
         res->setCode(500);
         res->printf(jsonUpdateERR, String(updaterLastError()).c_str());
-    #if DEBUG == 2
+    #if DEBUG == 3
         __DF("(!) filesystem update failed: %d\n", updaterLastError());
     #endif
     }
@@ -538,7 +535,7 @@ void httpdPostUpgradeResponder(AsyncWebServerRequest *req) {
     res->addHeader(String("Connection"), String("close"));
     req->send(res);
 
-    systemReboot();
+    scheduleReboot();
 }
 
 /**
@@ -556,7 +553,7 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
 
     if(!index)
     {
-    #if DEBUG == 2
+    #if DEBUG == 3
         __DF("received update: %s\n", filename.c_str());
     #endif
         logsys.putts(PSTR("received update: %s"), filename.c_str());
@@ -571,7 +568,7 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
             FFat.end();
             // prepare buffer and partition
             if(!updaterGetReady()) {
-            #if DEBUG == 2
+            #if DEBUG == 3
                 __DF("(!) partition access error\n");
             #endif
                 // logsys.putts("(!) partition access error");
@@ -582,14 +579,14 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
             if(!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), U_FLASH)
             {
                 err = Update.errorString();
-            #if DEBUG == 2
+            #if DEBUG == 3
                 __DF("(!) firmware update init error: %s\n", err);
             #endif
                 logsys.put(PSTR("(!) firmware update init error: %s"), err);
                 goto upgrade_end;
             }
         }
-    #if DEBUG == 2
+    #if DEBUG == 3
         __D("[upgrading].");
     #endif
     }
@@ -599,7 +596,7 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
         if(!updaterWriteData(data, len, final)) {
             goto upgrade_fatal;
         }
-    #if DEBUG == 2
+    #if DEBUG == 3
         __D(F("."));
     #endif
     }
@@ -607,14 +604,14 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
     {
         if(Update.write(data, len) != len)
         {
-        #if DEBUG == 2
+        #if DEBUG == 3
             err = Update.errorString();
             __DF(PSTR("(!) firmware write fatal error: %s\n"), err);
         #endif
             // logsys.put(PSTR("(!) update error: %s"), err);
             goto upgrade_fatal;
         }
-    #if DEBUG == 2
+    #if DEBUG == 3
         else {
             __D(F("."));
         }
@@ -622,7 +619,7 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
     }
     else
     {
-    #if DEBUG == 2
+    #if DEBUG == 3
         err = Update.errorString();
         __DF(PSTR("(!) update error: %s\n"), err);
         // logsys.put(PSTR("(!) update error: %s"), err);
@@ -635,13 +632,13 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
     {
         if(updaterInProgress())
         {
-        #if DEBUG == 2
+        #if DEBUG == 3
             __DF("\n(i) filesystem update success / file size: %uB\n", (index + len));
         #endif
         }
         else if(Update.end(true))
         {
-        #if DEBUG == 2
+        #if DEBUG == 3
             __DF("\n(i) firmware update success / file size: %uB\n", (index + len));
         #endif
             logsys.putts("(i) firmware update success / file size: %uB\n", (index + len));
@@ -649,7 +646,7 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
         else
         {
             err = Update.errorString();
-        #if DEBUG == 2
+        #if DEBUG == 3
             __DF(PSTR("\n(!) unexpected termination on update: %s\n"), err);
         #endif
             logsys.put(PSTR("(!) unexpected termination on update: %s\n"), err);
@@ -657,11 +654,10 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
     }
 
 upgrade_end:
-    delay(10);
     return;
 
 upgrade_fatal:
-    systemReboot();
+    scheduleReboot(true);
 }
 
 /**
@@ -671,24 +667,25 @@ upgrade_fatal:
  */
 void httpdPostSiteSurvey(AsyncWebServerRequest *req)
 {
-    String ssid;
     int16_t result = 0;
 
     result = WiFi.scanComplete();
+    // 0 - nothing found, -1 - scan running, -2 - scan failed
     if (result == 0 || result == -2) {
         // Doing one more attempt
-        result = WiFi.scanNetworks(true);
-        while(result == -1) {
-            yield();
-            result = WiFi.scanComplete();
-        }
+        result = WiFi.scanNetworks(true, false, false, 6);
+        // while(result == -1) {
+        //     optimistic_yield(100);
+        //     result = WiFi.scanComplete();
+        // }
     }
+    // result = WiFi.scanNetworks(false, false, false, 6);
 
 #if DEBUG == 3
     __DF("(i) %d networks:\n", result);
 #endif
 
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON), 1024);
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
 
     if (result == 0)
     {
@@ -699,16 +696,17 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     }
     else if (result > 0)
     {
+        String ssid = "";
         uint8_t cntr = 0;
         int32_t rssi = 0;
         uint8_t encType = 0;
-        uint8_t * bssid;
+        uint8_t * bssid = (uint8_t *)malloc(sizeof(uint8_t));
         int32_t channel = 0;
         // print unsorted scan results
         res->print("[");
         while (cntr < result)
         {
-            WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel); // , hidden);
+            WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel);
 
         #if DEBUG == 3
             __DF(" %02d: %ddBm %s\n", cntr, rssi, ssid.c_str());
@@ -721,7 +719,6 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
                 res->print(",");
             }
             cntr++;
-
         }
 
         res->print("]");
@@ -731,18 +728,24 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     #if DEBUG == 3
         __DL("(i) scan in progress");
     #endif
-        res->print("{\"delay\":1000}");
+        res->print("{\"delay\":4000}");
     }
     else
     {
     #if DEBUG == 3
         __DL("(i) scan repeat");
     #endif
-        res->print("{\"delay\":0}");
+        res->print("{\"delay\":2000}");
     }
-    // WiFi.scanDelete();
 
     req->send(res);
+    // TODO memory must be allocated for this procedure which leads to wdt reset
+    if(result >= 0) {
+        WiFi.scanDelete();
+    #if DEBUG == 3
+        __DL("(i) results cleanup finished");
+    #endif
+    }
 }
 
 /**
@@ -793,10 +796,10 @@ void httpdPostSetup(AsyncWebServerRequest *req)
         String doc = "{\"setup\": \"done\"}";
 
     #if DEBUG == 3
-        __DF("Login: %s\n", login);
-        __DF("Pass: %s\n", pass);
-        __DF("SSID: %s\n", ssid);
-        __DF("SSID pass: %s\n", ssidkey);
+        __DF("Login: %s\n", login.c_str());
+        __DF("Pass: %s\n", pass.c_str());
+        __DF("SSID: %s\n", ssid.c_str());
+        __DF("SSID pass: %s\n", ssidkey.c_str());
     #endif
 
         if (ssid.length() == 0 || ssidkey.length() == 0 || login.length() == 0 || pass.length() == 0)
@@ -815,8 +818,7 @@ void httpdPostSetup(AsyncWebServerRequest *req)
 
         req->send(200, String(mimeAppJSON), doc);
         // doing restart
-        delay(1000);
-        systemReboot();
+        scheduleReboot();
     }
     else
     {
@@ -846,8 +848,8 @@ void httpdPostLogin(AsyncWebServerRequest *req)
     }
 
 #if DEBUG == 3
-    __DF("login: %s vs %s\n", login, config.admLogin);
-    __DF("pass: %s vs %s\n", pass, config.admPassw);
+    __DF("login: %s vs %s\n", login.c_str(), config.admLogin);
+    __DF("pass: %s vs %s\n", pass.c_str(), config.admPassw);
 #endif
 
     // if already authorized
@@ -863,10 +865,11 @@ void httpdPostLogin(AsyncWebServerRequest *req)
     {
         if (strcmp(config.admLogin, login.c_str()) == 0 && strcmp(config.admPassw, pass.c_str()) == 0)
         {
-            String token = "";
-            hashgen(cookie);
-            token = sha1(String(cookie));
-            memcpy(session.authToken, token.c_str(), token.length());
+            char * token;
+            _CHB(token, 128);
+            hashgen(token);
+            // token = sha1(String(cookie));
+            memcpy(session.authToken, token, strlen(token));
             strcpy(cookie, cookieName);
             strcat(cookie, session.authToken);
             strcat(cookie, cookieName2);
@@ -879,7 +882,8 @@ void httpdPostLogin(AsyncWebServerRequest *req)
             __DF("(i) %s is logged-in\n", cookie);
         #endif
             logsys.putts("(i) %s is logged-in", login.c_str());
-            WiFi.scanNetworks(true, false);
+            // WiFi.scanNetworks(true, false, false, 10);
+            _CHBD(token);
         }
         else
         {
@@ -920,7 +924,7 @@ void httpdPostGetDashbrd(AsyncWebServerRequest *req)
     multi_heap_info_t * mem = new multi_heap_info_t();
     heap_caps_get_info(mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
 
     res->printf(maskDashbrd01,
                 WiFi.localIP().toString().c_str(),
@@ -956,12 +960,9 @@ void httpdPostGetDashbrd(AsyncWebServerRequest *req)
     req->send(res);
 }
 
-//  ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
-// ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
-// ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
-// ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
-// ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
-//  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
+/*
+* CONFIG
+*/
 
 /**
  * @brief GET SYSTEM
@@ -978,9 +979,9 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
     char *b;
     _CHB(b, 0x10);
     str2dt(config.BatteryLastReplaceDate, b);
-    char *keys = apiKeysToJSON();
+    // char *keys = apiKeysToJSON();
 
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
 
     res->printf(maskGetConfig01,
                 config.batteryTempLT,
@@ -995,6 +996,7 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
                 config.ntpDaylightOffset,
                 config.ssid,
                 config.ssidkey,
+                config.apkey,
                 config.snmpPort,
                 config.snmpTrapPort,
                 config.sysLocation);
@@ -1006,10 +1008,12 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
                 config.snmpSetCN,
                 config.admLogin,
                 config.admPassw,
-                keys);
+                config.upsSerialNumber
+            );
+                // keys);
 
     _CHBD(b);
-    _CHBD(keys);
+    // _CHBD(keys);
 
     req->send(res);
 }
@@ -1026,7 +1030,7 @@ void httpdPostSetConfigSystem(AsyncWebServerRequest *req)
         httpdJsonErrResponse(req, "auth");
         return;
     }
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
     res->print("{");
 
     String battmplt = req->arg("battmplt");
@@ -1042,13 +1046,13 @@ void httpdPostSetConfigSystem(AsyncWebServerRequest *req)
     String ssidkey = req->arg("ssidkey");
 
 #if DEBUG == 3
-    __DF("battmplt: %s\n", battmplt);
-    __DF("battmput: %s\n", battmput);
-    __DF("ntpsrv: %s\n", ntpsrv);
-    __DF("ntpsrvsitl: %s\n", ntpsrvsitl);
-    __DF("ntptmoff: %s\n", ntptmoff);
-    __DF("ssid: %s\n", ssid);
-    __DF("ssidkey: %s\n", ssidkey);
+    __DF("battmplt: %s\n", battmplt.c_str());
+    __DF("battmput: %s\n", battmput.c_str());
+    __DF("ntpsrv: %s\n", ntpsrv.c_str());
+    __DF("ntpsrvsitl: %s\n", ntpsrvsitl.c_str());
+    __DF("ntptmoff: %s\n", ntptmoff.c_str());
+    __DF("ssid: %s\n", ssid.c_str());
+    __DF("ssidkey: %s\n", ssidkey.c_str());
 #endif
 
     float t1 = 0;
@@ -1137,7 +1141,7 @@ void httpdPostSetConfigSNMP(AsyncWebServerRequest *req)
         httpdJsonErrResponse(req, "auth");
         return;
     }
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
     res->print("{");
 
     String snmpport = req->arg("snmpport");
@@ -1147,10 +1151,10 @@ void httpdPostSetConfigSNMP(AsyncWebServerRequest *req)
     String snmpbatrpldt = req->arg("snmpbatrpldt");
 
 #if DEBUG == 3
-    __DF("snmpport: %s\n", snmpport);
-    __DF("snmploctn: %s\n", snmploctn);
-    __DF("snmpcontct: %s\n", snmpcontct);
-    __DF("snmpbatrpldt: %s\n", snmpbatrpldt);
+    __DF("snmpport: %s\n", snmpport.c_str());
+    __DF("snmploctn: %s\n", snmploctn.c_str());
+    __DF("snmpcontct: %s\n", snmpcontct.c_str());
+    __DF("snmpbatrpldt: %s\n", snmpbatrpldt.c_str());
 #endif
 
     uint16_t t1 = atoi((char *)snmpport.c_str());
@@ -1200,7 +1204,7 @@ void httpdPostSetConfigSecurity(AsyncWebServerRequest *req)
         httpdJsonErrResponse(req, "auth");
         return;
     }
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
     res->print("{");
 
     String authtmout = req->arg("authtmout");
@@ -1208,13 +1212,15 @@ void httpdPostSetConfigSecurity(AsyncWebServerRequest *req)
     String snmpsckey = req->arg("snmpsckey");
     String adlogin = req->arg("adlogin");
     String adpass = req->arg("adpass");
+    String apkey = req->arg("apkey");
 
 #if DEBUG == 3
-    __DF("authtmout: %s\n", authtmout);
-    __DF("snmpgckey: %s\n", snmpgckey);
-    __DF("snmpsckey: %s\n", snmpsckey);
-    __DF("adlogin: %s\n", adlogin);
-    __DF("adpass: %s\n", adpass);
+    __DF("authtmout: %s\n", authtmout.c_str());
+    __DF("snmpgckey: %s\n", snmpgckey.c_str());
+    __DF("snmpsckey: %s\n", snmpsckey.c_str());
+    __DF("adlogin: %s\n", adlogin.c_str());
+    __DF("adpass: %s\n", adpass.c_str());
+    __DF("apkey: %s\n", apkey.c_str());
 #endif
 
     uint16_t t1 = atoi(authtmout.c_str());
@@ -1238,6 +1244,14 @@ void httpdPostSetConfigSecurity(AsyncWebServerRequest *req)
     {
         res->print(",\"adlogin\":false,\"adpass\":false");
     }
+
+    if(apkey.length() >= 16 && apkey.length() <= 32) {
+        res->print(",\"apkey\":");
+        res->print(eemem.setApKey(apkey.c_str()) ? "true" : "false");
+    } else {
+        res->print(",\"apkey\":false");
+    }
+
     eemem.commit();
     res->print("}");
 
@@ -1291,7 +1305,7 @@ void httpdPostInfoGraph(AsyncWebServerRequest *req)
     multi_heap_info_t * mem = new multi_heap_info_t();
     heap_caps_get_info(mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     ntp.timestampToString(ts);
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
 
     res->printf(maskInfoGraph,
                 ts,
@@ -1337,107 +1351,135 @@ void httpdPostMonBDtaLog(AsyncWebServerRequest *req)
 }
 
 /**
- * @brief Add an API key
+ * @brief Generate device serial number
  *
  * @param req
  */
-void httpdPostAPIadd(AsyncWebServerRequest *req)
-{
+void httpdPostGenSerial(AsyncWebServerRequest *req) {
     if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
         return;
     }
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
-    res->print("{");
 
-    String memo = req->arg(String("apikm"));
-    String key = req->arg(String("apik"));
+    char * b;
+    _CHB(b, 64);
+    uint16_t salt = random(10000, 0xFFFF);
+    ntp.getDatetime(b, "%Y%m%d");
+    sprintf(config.upsSerialNumber, "%s.%d", b, salt);
 
-#if DEBUG == 3
-    __DF("memo: %s (%d)\n", memo.c_str(), memo.length());
-    __DF("key: %s (%d)\n", key.c_str(), key.length());
-#endif
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
 
-    if (memo != "" && key != "")
-    {
-        char *keys;
-        api_keys_t *ak = new api_keys_t();
-        if (key.length() > 32)
-        {
-            res->print("\"err\":\"key too large\"}");
-            goto sendData;
-        }
-        if (memo.length() > 16)
-        {
-            res->print("\"err\":\"memo too large\"}");
-            goto sendData;
-        }
-        // memset(ak->key, '\0', sizeof(ak->key));
-        ak->created = ntp.getTimestamp();
-        strcpy(ak->memo, (memo.substring(0, 16)).c_str());
-        strcpy(ak->key, (key.substring(0, 32)).c_str());
-        if (!addAPIKey(ak))
-        {
-            res->print("\"err\":\"too many keys\"}");
-            goto sendData;
-        }
-        keys = apiKeysToJSON();
-        res->printf("\"api\": [%s]}", keys);
-        _CHBD(keys);
-    }
-    else
-    {
-        res->print("\"err\":\"");
-        if (memo == "")
-        {
-            res->print("empty memo\"}");
-        }
-        else
-        {
-            res->print("empty key\"}");
-        }
-    }
+    res->printf(maskDeviceSerial, config.upsSerialNumber);
 
-sendData:
     req->send(res);
+
+    _CHBD(b);
+    eemem.commit();
 }
+
+/**
+ * @brief Add an API key
+ *
+ * @param req
+ */
+// void httpdPostAPIadd(AsyncWebServerRequest *req)
+// {
+//     if (!isAuthorized(req))
+//     {
+//         httpdJsonErrResponse(req, "auth");
+//         return;
+//     }
+//     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
+//     res->print("{");
+
+//     String memo = req->arg(String("apikm"));
+//     String key = req->arg(String("apik"));
+
+// #if DEBUG == 3
+//     __DF("memo: %s (%d)\n", memo.c_str(), memo.length());
+//     __DF("key: %s (%d)\n", key.c_str(), key.length());
+// #endif
+
+//     if (memo != "" && key != "")
+//     {
+//         char *keys;
+//         api_keys_t *ak = new api_keys_t();
+//         if (key.length() > 32)
+//         {
+//             res->print("\"err\":\"key too large\"}");
+//             goto sendData;
+//         }
+//         if (memo.length() > 16)
+//         {
+//             res->print("\"err\":\"memo too large\"}");
+//             goto sendData;
+//         }
+//         // memset(ak->key, '\0', sizeof(ak->key));
+//         ak->created = ntp.getTimestamp();
+//         strcpy(ak->memo, (memo.substring(0, 16)).c_str());
+//         strcpy(ak->key, (key.substring(0, 32)).c_str());
+//         if (!addAPIKey(ak))
+//         {
+//             res->print("\"err\":\"too many keys\"}");
+//             goto sendData;
+//         }
+//         keys = apiKeysToJSON();
+//         res->printf("\"api\": [%s]}", keys);
+//         _CHBD(keys);
+//     }
+//     else
+//     {
+//         res->print("\"err\":\"");
+//         if (memo == "")
+//         {
+//             res->print("empty memo\"}");
+//         }
+//         else
+//         {
+//             res->print("empty key\"}");
+//         }
+//     }
+
+// sendData:
+//     req->send(res);
+// }
 
 /**
  * @brief
  *
  * @param req
  */
-void httpdPostAPIdel(AsyncWebServerRequest *req)
-{
-    if (!isAuthorized(req))
-    {
-        httpdJsonErrResponse(req, "auth");
-        return;
-    }
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
-    res->print("{");
-    char *keys;
+// void httpdPostAPIdel(AsyncWebServerRequest *req)
+// {
+//     if (!isAuthorized(req))
+//     {
+//         httpdJsonErrResponse(req, "auth");
+//         return;
+//     }
+//     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
+//     res->print("{");
+//     char *keys;
 
-    String id = req->arg(String("id"));
-    if (id == "")
-    {
-        res->print("\"err\":\"wrong id\"}");
-        req->send(res);
-        return;
-    }
-    time_t idv = static_cast<time_t>(atoi(id.c_str()));
-    if (!removeAPIKey(idv))
-    {
-        res->print("\"err\":\"failed\"}");
-        req->send(res);
-        return;
-    }
-    keys = apiKeysToJSON();
-    res->printf("\"api\": [%s]}", keys);
-    _CHBD(keys);
-    req->send(res);
-}
+//     String id = req->arg(String("id"));
+//     if (id == "")
+//     {
+//         res->print("\"err\":\"wrong id\"}");
+//         req->send(res);
+//         return;
+//     }
+//     time_t idv = static_cast<time_t>(atoi(id.c_str()));
+//     if (!removeAPIKey(idv))
+//     {
+//         res->print("\"err\":\"failed\"}");
+//         req->send(res);
+//         return;
+//     }
+//     keys = apiKeysToJSON();
+//     res->printf("\"api\": [%s]}", keys);
+//     _CHBD(keys);
+//     req->send(res);
+// }
 
 /**
  * @brief
@@ -1449,8 +1491,7 @@ void httpdPostReboot(AsyncWebServerRequest *req)
     if (isAuthorized(req) || WiFi.getMode() == WIFI_MODE_APSTA)
     {
         req->send(200, mimeAppJSON, "{\"done\":true}");
-        delay(100);
-        systemReboot();
+        scheduleReboot();
     }
     else
     {
@@ -1470,7 +1511,7 @@ void httpdPostControlCooling(AsyncWebServerRequest *req)
         httpdJsonErrResponse(req, "auth");
         return;
     }
-    AsyncResponseStream *res = req->beginResponseStream(String(mimeAppJSON));
+    AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
     res->print("{\"isclng\":");
     if (monitor.isCooling())
     {
@@ -1502,6 +1543,5 @@ void httpdPostReset(AsyncWebServerRequest *req)
     logsys.putts("(i) eemem erase started");
     eemem.restore();
     req->send(200, mimeAppJSON, "{\"done\":true}");
-    delay(100);
-    systemReboot();
+    scheduleReboot();
 }

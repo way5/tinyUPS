@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Tuesday, 31st May 2022 8:50:35 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 12:23:36 pm                             #
+# Last Modified: Tuesday, 18th March 2025 11:44:00 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -160,6 +160,22 @@ bool eeMemClass::setAdmPassw(const char *value)
     if (vs != 0 && strcmp(config.admPassw, value) != 0)
     {
         strcpy(config.admPassw, value);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Setting new AP access key
+ *
+ * @param value
+ * @return true
+ * @return false
+ */
+bool eeMemClass::setApKey(const char *value) {
+    size_t vs = strlen(value);
+    if(vs != 0 && strcmp(config.apkey, value) != 0) {
+        strcpy(config.apkey, value);
         return true;
     }
     return false;

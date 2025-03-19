@@ -1,0 +1,66 @@
+@charset 'utf-8';
+
+/*
+HIDE SCROLLBARS
+*/
+/* Chrome, Safari and Opera */
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-none::-webkit-scrollbar-button {
+    display: none;
+}
+/* IE, Edge and Firefox */
+.scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.body-bg {
+    @apply bg-gray-200 dark:bg-base-700;
+}
+
+.body-text-color {
+    @apply text-gray-900 dark:text-gray-300;
+}
+
+.disabled-button-bg {
+    @apply hover:bg-gray-200 dark:hover:bg-base-700;
+    @extend .body-bg;
+}
+
+.active-button-bg {
+    @apply bg-white dark:bg-base-500 dark:hover:bg-base-700 hover:bg-violet-400;
+}
+
+.active-button-border {
+    @apply border-gray-400 dark:border-base-400;
+}
+
+.active-button-text {
+    @apply dark:hover:text-white hover:text-white;
+}
+
+.container-bg {
+    @apply bg-white dark:bg-base-500;
+}
+
+.container-border {
+    @apply border-gray-400 dark:border-base-400;
+}
+
+.container-inner-border {
+    @apply border-base-100 dark:border-base-400;
+}
+
+.container-intense-border {
+    @apply border-gray-700 dark:border-base-200;
+}
+
+.container-intense-inverted-border {
+    @apply border-gray-200 dark:border-base-700;
+}
+
+.default-text {
+    @apply text-gray-700 dark:text-base-200;
+}
