@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 1:35:46 am                              #
+# Last Modified: Wednesday, 19th March 2025 4:12:58 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -82,10 +82,10 @@ void httpdLoop()
     {
         if ((session.authTimeout + (config.authTimeoutMax * 1000UL)) <= millis())
         {
-        #if DEBUG == 3
+#if DEBUG == 3
             unsigned long timeout = millis() - session.authTimeout;
             __DF("(i) drop auth cookie by timeout: %ld, lifetime: %ld\n", timeout, (config.authTimeoutMax * 1000UL));
-        #endif
+#endif
             // reset timer and token
             session.authTimeout = 0;
             memset(session.authToken, '\0', sizeof(session.authToken));
@@ -94,8 +94,8 @@ void httpdLoop()
 }
 
 /*
-* UTILS
-*/
+ * UTILS
+ */
 
 /**
  * @brief
@@ -169,7 +169,7 @@ void httpdRespond(AsyncWebServerRequest *req, const char *file, const char *mime
 void httpdGetHtmlPage(AsyncWebServerRequest *req)
 {
     String path = req->url();
-    const char * fname;
+    const char *fname;
 
     if (WiFi.getMode() != WIFI_MODE_STA)
     {
@@ -252,11 +252,13 @@ void httpdGetFavicon(AsyncWebServerRequest *req)
     httpdRespond(req, resFavicon, mimeImgXICN);
 }
 
-void httpdGetTtfFonts(AsyncWebServerRequest *req) {
+void httpdGetTtfFonts(AsyncWebServerRequest *req)
+{
     httpdRespond(req, req->url().c_str(), mimeTtfFonts, false);
 }
 
-void httpdGetWoffFonts(AsyncWebServerRequest *req) {
+void httpdGetWoffFonts(AsyncWebServerRequest *req)
+{
     httpdRespond(req, req->url().c_str(), mimeWoffFonts, false);
 }
 
@@ -268,32 +270,33 @@ void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr, const i
 }
 
 /*
-* REQUESTS
-*/
+ * REQUESTS
+ */
 
 /**
  * @brief Upgrade process result responder
  *
-*/
-void httpdPostUpgradeResponder(AsyncWebServerRequest *req) {
+ */
+void httpdPostUpgradeResponder(AsyncWebServerRequest *req)
+{
     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON, 128U);
 
     if (!updaterInProgress() && Update.hasError())
     {
         res->setCode(500);
         res->printf(jsonUpdateERR, Update.errorString());
-    #if DEBUG == 3
+#if DEBUG == 3
         __DF("(!) update failed: %s\n", Update.errorString());
-    #endif
+#endif
         // logsys.putts("(!) update error: %s", Update.errorString());
     }
-    else if(updaterHasErrors())
+    else if (updaterHasErrors())
     {
         res->setCode(500);
         res->printf(jsonUpdateERR, String(updaterLastError()).c_str());
-    #if DEBUG == 3
+#if DEBUG == 3
         __DF("(!) filesystem update failed: %d\n", updaterLastError());
-    #endif
+#endif
     }
     else
         res->print(jsonUpdateOK);
@@ -307,7 +310,7 @@ void httpdPostUpgradeResponder(AsyncWebServerRequest *req) {
 /**
  * @brief Upgrade process handler
  *
-*/
+ */
 void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
     if (!isAuthorized(req))
@@ -315,13 +318,13 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
         httpdJsonErrResponse(req, "auth");
         return;
     }
-    char const * err = nullptr;
+    char const *err = nullptr;
 
-    if(!index)
+    if (!index)
     {
-    #if DEBUG == 3
+#if DEBUG == 3
         __DF("received update: %s\n", filename.c_str());
-    #endif
+#endif
         logsys.putts(PSTR("received update: %s"), filename.c_str());
 
         systemEvent.updateInProgress = true;
@@ -333,88 +336,92 @@ void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_
             // disconnect FS
             FFat.end();
             // prepare buffer and partition
-            if(!updaterGetReady()) {
-            #if DEBUG == 3
+            if (!updaterGetReady())
+            {
+#if DEBUG == 3
                 __DF("(!) partition access error\n");
-            #endif
+#endif
                 // logsys.putts("(!) partition access error");
             }
         }
         else
         {
-            if(!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), U_FLASH)
+            if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), U_FLASH)
             {
                 err = Update.errorString();
-            #if DEBUG == 3
+#if DEBUG == 3
                 __DF("(!) firmware update init error: %s\n", err);
-            #endif
+#endif
                 logsys.put(PSTR("(!) firmware update init error: %s"), err);
                 goto upgrade_end;
             }
         }
-    #if DEBUG == 3
+#if DEBUG == 3
         __D("[upgrading].");
-    #endif
+#endif
     }
 
     // receive data & confirm
-    if(updaterInProgress()) {
-        if(!updaterWriteData(data, len, final)) {
+    if (updaterInProgress())
+    {
+        if (!updaterWriteData(data, len, final))
+        {
             goto upgrade_fatal;
         }
-    #if DEBUG == 3
+#if DEBUG == 3
         __D(F("."));
-    #endif
+#endif
     }
-    else if(!Update.hasError())
+    else if (!Update.hasError())
     {
-        if(Update.write(data, len) != len)
+        if (Update.write(data, len) != len)
         {
-        #if DEBUG == 3
+#if DEBUG == 3
             err = Update.errorString();
             __DF(PSTR("(!) firmware write fatal error: %s\n"), err);
-        #endif
+#endif
             // logsys.put(PSTR("(!) update error: %s"), err);
             goto upgrade_fatal;
         }
-    #if DEBUG == 3
-        else {
+#if DEBUG == 3
+        else
+        {
             __D(F("."));
         }
-    #endif
+#endif
     }
     else
     {
-    #if DEBUG == 3
+#if DEBUG == 3
         err = Update.errorString();
         __DF(PSTR("(!) update error: %s\n"), err);
         // logsys.put(PSTR("(!) update error: %s"), err);
-    #endif
+#endif
         goto upgrade_fatal;
     }
 
     // if the data end is reached
-    if(final)
+    if (final)
     {
-        if(updaterInProgress())
+        if (updaterInProgress())
         {
-        #if DEBUG == 3
+#if DEBUG == 3
             __DF("\n(i) filesystem update success / file size: %uB\n", (index + len));
-        #endif
+#endif
         }
-        else if(Update.end(true))
+        else if (Update.end(true))
         {
-        #if DEBUG == 3
+#if DEBUG == 3
             __DF("\n(i) firmware update success / file size: %uB\n", (index + len));
-        #endif
+#endif
             logsys.putts("(i) firmware update success / file size: %uB\n", (index + len));
         }
         else
         {
             err = Update.errorString();
-        #if DEBUG == 3
+#if DEBUG == 3
             __DF(PSTR("\n(!) unexpected termination on update: %s\n"), err);
-        #endif
+#endif
             logsys.put(PSTR("(!) unexpected termination on update: %s\n"), err);
         }
     }
@@ -437,7 +444,8 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
 
     result = WiFi.scanComplete();
     // 0 - nothing found, -1 - scan running, -2 - scan failed
-    if (result == 0 || result == -2) {
+    if (result == 0 || result == -2)
+    {
         // Doing one more attempt
         result = WiFi.scanNetworks(true, false, false, 6);
     }
@@ -450,9 +458,9 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
 
     if (result == 0)
     {
-    #if DEBUG == 3
+#if DEBUG == 3
         __DL("(!) no networks");
-    #endif
+#endif
         res->print("{\"err\": \"No networks found\"}");
     }
     else if (result > 0)
@@ -461,7 +469,7 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
         uint8_t cntr = 0;
         int32_t rssi = 0;
         uint8_t encType = 0;
-        uint8_t * bssid = (uint8_t *)malloc(sizeof(uint8_t));
+        uint8_t *bssid = (uint8_t *)malloc(sizeof(uint8_t));
         int32_t channel = 0;
         // print unsorted scan results
         res->print("[");
@@ -469,9 +477,9 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
         {
             WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel);
 
-        #if DEBUG == 3
+#if DEBUG == 3
             __DF(" %02d: %ddBm %s\n", cntr, rssi, ssid.c_str());
-        #endif
+#endif
 
             res->printf(maskSurvey, ssid.c_str(), rssi, encType);
             // doc += String(buffer);
@@ -486,26 +494,27 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     }
     else if (result == -1)
     {
-    #if DEBUG == 3
+#if DEBUG == 3
         __DL("(i) scan in progress");
-    #endif
+#endif
         res->print("{\"delay\":4000}");
     }
     else
     {
-    #if DEBUG == 3
+#if DEBUG == 3
         __DL("(i) scan repeat");
-    #endif
+#endif
         res->print("{\"delay\":2000}");
     }
 
     req->send(res);
     // TODO memory must be allocated for this procedure which leads to wdt reset
-    if(result >= 0) {
+    if (result >= 0)
+    {
         WiFi.scanDelete();
-    #if DEBUG == 3
+#if DEBUG == 3
         __DL("(i) results cleanup finished");
-    #endif
+#endif
     }
 }
 
@@ -556,12 +565,12 @@ void httpdPostSetup(AsyncWebServerRequest *req)
         String ssidkey = req->arg("ssidkey");
         String doc = "{\"setup\": \"done\"}";
 
-    #if DEBUG == 3
+#if DEBUG == 3
         __DF("Login: %s\n", login.c_str());
         __DF("Pass: %s\n", pass.c_str());
         __DF("SSID: %s\n", ssid.c_str());
         __DF("SSID pass: %s\n", ssidkey.c_str());
-    #endif
+#endif
 
         if (ssid.length() == 0 || ssidkey.length() == 0 || login.length() == 0 || pass.length() == 0)
         {
@@ -616,9 +625,9 @@ void httpdPostLogin(AsyncWebServerRequest *req)
     // if already authorized
     if (strlen(session.authToken) != 0)
     {
-    #ifdef DEBUG
+#ifdef DEBUG
         __DL("(!) already logged in");
-    #endif
+#endif
         logsys.putts("(i) %s repeated login attempt", login.c_str());
         strcpy(doc, jsonLoginRepeat);
     }
@@ -626,7 +635,7 @@ void httpdPostLogin(AsyncWebServerRequest *req)
     {
         if (strcmp(config.admLogin, login.c_str()) == 0 && strcmp(config.admPassw, pass.c_str()) == 0)
         {
-            char * token;
+            char *token;
             _CHB(token, 128);
             hashgen(token);
             // token = sha1(String(cookie));
@@ -639,9 +648,9 @@ void httpdPostLogin(AsyncWebServerRequest *req)
             session.authTimeout = millis();
             strcpy(doc, jsonLoginOK);
             cookieAuth = true;
-        #if DEBUG == 3
+#if DEBUG == 3
             __DF("(i) %s is logged-in\n", cookie);
-        #endif
+#endif
             logsys.putts("(i) %s is logged-in", login.c_str());
             // WiFi.scanNetworks(true, false, false, 10);
             _CHBD(token);
@@ -649,9 +658,9 @@ void httpdPostLogin(AsyncWebServerRequest *req)
         else
         {
             logsys.putts("(!) login rejected: %s", login.c_str());
-        #ifdef DEBUG
+#ifdef DEBUG
             __DF("(!) %s login rejected\n", login.c_str());
-        #endif
+#endif
             strcpy(doc, jsonLoginERR);
         }
     }
@@ -682,7 +691,7 @@ void httpdPostGetDashbrd(AsyncWebServerRequest *req)
         return;
     }
 
-    multi_heap_info_t * mem = new multi_heap_info_t();
+    multi_heap_info_t *mem = new multi_heap_info_t();
     heap_caps_get_info(mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 
     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
@@ -695,8 +704,7 @@ void httpdPostGetDashbrd(AsyncWebServerRequest *req)
                 WiFi.SSID().c_str(),
                 WiFi.macAddress().c_str(),
                 (mem->total_free_bytes / 1024.00),
-                (mem->largest_free_block / 1024.0)
-                );
+                (mem->largest_free_block / 1024.0));
     res->printf(maskDashbrd02,
                 monitor.getSysTemp(),
                 monitorData.upsAdvInputLineVoltage,
@@ -722,8 +730,8 @@ void httpdPostGetDashbrd(AsyncWebServerRequest *req)
 }
 
 /*
-* CONFIG
-*/
+ * CONFIG
+ */
 
 /**
  * @brief GET SYSTEM
@@ -768,8 +776,7 @@ void httpdPostGetConfig(AsyncWebServerRequest *req)
                 config.snmpSetCN,
                 config.admLogin,
                 config.admPassw,
-                config.upsSerialNumber
-            );
+                config.upsSerialNumber);
 
     _CHBD(b);
 
@@ -1003,10 +1010,13 @@ void httpdPostSetConfigSecurity(AsyncWebServerRequest *req)
         res->print(",\"adlogin\":false,\"adpass\":false");
     }
 
-    if(apkey.length() >= 16 && apkey.length() <= 32) {
+    if (apkey.length() >= 16 && apkey.length() <= 32)
+    {
         res->print(",\"apkey\":");
         res->print(eemem.setApKey(apkey.c_str()) ? "true" : "false");
-    } else {
+    }
+    else
+    {
         res->print(",\"apkey\":false");
     }
 
@@ -1060,7 +1070,7 @@ void httpdPostInfoGraph(AsyncWebServerRequest *req)
     }
     char *ts;
     _CHB(ts, 24);
-    multi_heap_info_t * mem = new multi_heap_info_t();
+    multi_heap_info_t *mem = new multi_heap_info_t();
     heap_caps_get_info(mem, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     ntp.timestampToString(ts);
     AsyncResponseStream *res = req->beginResponseStream(mimeAppJSON);
@@ -1113,14 +1123,15 @@ void httpdPostMonBDtaLog(AsyncWebServerRequest *req)
  *
  * @param req
  */
-void httpdPostGenSerial(AsyncWebServerRequest *req) {
+void httpdPostGenSerial(AsyncWebServerRequest *req)
+{
     if (!isAuthorized(req))
     {
         httpdJsonErrResponse(req, "auth");
         return;
     }
 
-    char * b;
+    char *b;
     _CHB(b, 64);
     uint16_t salt = random(10000, 0xFFFF);
     ntp.getDatetime(b, "%Y%m%d");

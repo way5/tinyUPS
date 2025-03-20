@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 2nd December 2019 3:22:49 pm                                #
 # Author: sk                                                                        #
-# Last Modified: Wednesday, 19th March 2025 1:44:11 am                              #
+# Last Modified: Wednesday, 19th March 2025 3:33:17 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -141,7 +141,7 @@ inline static char * snmpGetIdentDateOfManufact() {
 inline static char * getAdvIdentFirmwareRevision() {
     char * buffer;
     _CHB(buffer, 24);
-    str2snmpdt(config.BatteryLastReplaceDate, buffer);
+    strcpy(buffer, IdentFirmwareRevision);
     return buffer;
 }
 
@@ -153,10 +153,7 @@ inline static char * getAdvTestLastDiagnosticsDate() {
 }
 
 inline static char * getBasicBatteryLastReplaceDate() {
-    char * buffer;
-    _CHB(buffer, 24);
-    strcpy(buffer, IdentFirmwareRevision);
-    return buffer;
+    return getAdvTestLastDiagnosticsDate();
 }
 
 inline static uint32_t snmpGetBattTemp() {
