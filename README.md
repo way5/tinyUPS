@@ -1,4 +1,8 @@
-## `tinyUPS` a tiny toolkit for your UPS
+<h1>
+
+`tinyUPS` a tiny toolkit for your UPS
+
+</h1>
 
 <p align="center" style="text-align:center">
 <img src="./doc/wp.jpg" width="100%">
@@ -46,7 +50,6 @@ The project requires an advanced skills in electronics. It's not a plug-n-play d
 
 ## **+ TABLE OF CONTENTS**
 
-+ [`tinyUPS` a tiny toolkit for your UPS](#tinyups-a-tiny-toolkit-for-your-ups)
 + [**+ DESCRIPTION**](#-description)
 + [**+ TABLE OF CONTENTS**](#-table-of-contents)
 + [**+ TOOLKIT**](#-toolkit)
@@ -101,9 +104,8 @@ The example driver is for a built in SPI LCD display, for a particular manufactu
 You'll probably have the very different device and may be even without any LCD display, so you'd need to figure out how to speak with the controller. This part is DIY. Feel free to call for help in Discussions.
 
 ### - Web UI<a id="webui"></a>
-**tinyUPS** has web UI based at [tailwindcss](https://tailwindcss.com/)/[flowbite](https://github.com/themesberg/flowbite) and [webpack](https://webpack.js.org/concepts/).
 
-UI translations are available in [./web/lang](./web/lang) directory. You're able to add a new one or remove existing if you wish by editing the header of [i18n.js](web/src/includes/i18n.js) script. Variable <code>i18nlang</code> contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from <code>i18nlang</code> to save space on file system partition.
+UI translations are available in [./web/lang](./web/lang) directory. You can add new translation or remove existing if you wish by editing the header of [i18n.js](web/src/includes/i18n.js) script. Variable <code>i18nlang</code> contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from <code>i18nlang</code> to save space on file system partition.
 
 The package manager is <code>yarn</code> so if you're not familiar with it continue with the folowing to build the UI:
 
@@ -111,12 +113,11 @@ The package manager is <code>yarn</code> so if you're not familiar with it conti
 yarn build:prod
 ```
 
-that's all you need to prepare the FS to upload. Use "Upload Filesystem Image" command from PlatformIO project tasks or:
+that's all you need to prepare the FS partition to upload. Use "Upload Filesystem Image" command from PlatformIO project tasks or:
 
 ```bash
 platformio run --target uploadfs [--environment [your_env]]
 ```
-
 
 ## **+ BUILD**<a id="build"></a>
 
