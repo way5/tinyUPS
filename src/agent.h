@@ -4,7 +4,7 @@
 # Project: Smart station                                                            #
 # File Created: Tuesday, 3rd December 2019 4:54:06 pm                               #
 # Author: sk                                                                        #
-# Last Modified: Wednesday, 19th March 2025 1:44:07 am                              #
+# Last Modified: Wednesday, 19th March 2025 5:27:13 pm                              #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -58,7 +58,7 @@ const char sysName[] = "tinyUPS";
 const char sysModel[] = "tinyUPS.01";
 const char IdentFirmwareRevision[] = VERSION_FW;
 const char IdentWebUIRevision[] = VERSION_UI;
-const char sysDescr[] = "tinyUPS Invertor";
+const char sysDescr[] = "Power Inverter with tinyUPS";
 const char IdentDateOfManufact[] = "01/01/22";
 
 
