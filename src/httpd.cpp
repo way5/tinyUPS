@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 4:12:58 pm                              #
+# Last Modified: Saturday, 7th June 2025 6:18:13 pm                                 #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -447,7 +447,7 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     if (result == 0 || result == -2)
     {
         // Doing one more attempt
-        result = WiFi.scanNetworks(true, false, false, 6);
+        result = WiFi.scanNetworks(true, false, false, 7);
     }
 
 #if DEBUG == 3
