@@ -78,12 +78,12 @@ const secondsToHRts = (t) => {
         t = t % 3600;
         ts = ts + value + " " + $.t("js.hr", { count: value }) + " ";
     }
-    if (t > 60 && value == 0) {
+    if (t > 60) {
         value = Math.floor(t / 60);
         t = t % 60;
         ts = ts + value + " " + $.t("js.min") + " ";
     }
-    if (t > 0 && value == 0) {
+    if (t > 0) {
         ts = ts + t + " " + $.t("js.sec");
     }
     return ts;

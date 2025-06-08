@@ -3,7 +3,7 @@
 # File: httpd.cpp                                                                   #
 # File Created: Monday, 22nd May 2023 4:02:52 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Saturday, 7th June 2025 6:18:13 pm                                 #
+# Last Modified: Sunday, 8th June 2025 12:00:45 am                                  #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -447,7 +447,7 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
     if (result == 0 || result == -2)
     {
         // Doing one more attempt
-        result = WiFi.scanNetworks(true, false, false, 7);
+        result = WiFi.scanNetworks(true, false, false, (unsigned long)WIFI_DISCOVERED_LENGTH);
     }
 
 #if DEBUG == 3
@@ -478,7 +478,7 @@ void httpdPostSiteSurvey(AsyncWebServerRequest *req)
             WiFi.getNetworkInfo(cntr, ssid, encType, rssi, bssid, channel);
 
 #if DEBUG == 3
-            __DF(" %02d: %ddBm %s\n", cntr, rssi, ssid.c_str());
+            __DF(" %02d: %lddBm %s\n", cntr, rssi, ssid.c_str());
 #endif
 
             res->printf(maskSurvey, ssid.c_str(), rssi, encType);
@@ -652,7 +652,7 @@ void httpdPostLogin(AsyncWebServerRequest *req)
             __DF("(i) %s is logged-in\n", cookie);
 #endif
             logsys.putts("(i) %s is logged-in", login.c_str());
-            // WiFi.scanNetworks(true, false, false, 10);
+            // WiFi.scanNetworks(true, false, false, (unsigned long)WIFI_DISCOVERED_LENGTH);
             _CHBD(token);
         }
         else

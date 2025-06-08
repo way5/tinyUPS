@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 2nd December 2019 3:22:49 pm                                #
 # Author: sk                                                                        #
-# Last Modified: Wednesday, 19th March 2025 3:33:17 pm                              #
+# Last Modified: Saturday, 7th June 2025 10:02:34 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -94,7 +94,7 @@ inline static char * getName() {
 // Decription
 inline static char * getDescr() {
     char * buffer;
-    _CHB(buffer, 24);
+    _CHB(buffer, 32);
     strcpy(buffer, sysDescr);
     return buffer;
 }

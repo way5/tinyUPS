@@ -3,7 +3,7 @@
 # File: update.cpp                                                                  #
 # File Created: Monday, 8th January 2024 11:04:58 pm                                #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Tuesday, 9th January 2024 1:58:10 am                               #
+# Last Modified: Sunday, 8th June 2025 1:24:26 am                                   #
 # Modified By: Sergey Ko                                                            #
 # License: CC-BY-NC-4.0 (https://creativecommons.org/licenses/by-nc/4.0/legalcode)  #
 #####################################################################################
@@ -13,13 +13,12 @@
 
 #include "updater.h"
 
-static __attribute__(( aligned(4) )) uint8_t * upFsBuffer = nullptr;
-static const esp_partition_t * upFsPartn = nullptr;
+static __attribute__((aligned(4))) uint8_t *upFsBuffer = nullptr;
+static const esp_partition_t *upFsPartn = nullptr;
 static size_t upFsBufferCursor = 0;
 // filesystem standard header offset
 static size_t upFsOffset = 0x1000;
 static esp_err_t upFsErr = 0;
-
 
 /**
  * @brief Prepeare buffer and retrieve partition pointer
@@ -27,12 +26,14 @@ static esp_err_t upFsErr = 0;
  * @return true
  * @return false
  */
-bool updaterGetReady() {
+bool updaterGetReady()
+{
     // prepare buffer
     upFsBuffer = reinterpret_cast<uint8_t *>(malloc(SPI_FLASH_SEC_SIZE));
     // looking for the partition
     upFsPartn = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_FAT, NULL);
-    if(!upFsPartn) {
+    if (!upFsPartn)
+    {
         return false;
     }
     return true;
@@ -47,14 +48,15 @@ bool updaterGetReady() {
  * @return true
  * @return false
  */
-bool updaterWriteData(uint8_t * data, size_t len, bool final) {
+bool updaterWriteData(uint8_t *data, size_t len, bool final)
+{
     size_t remLen = len;
-    while((upFsBufferCursor + remLen) > SPI_FLASH_SEC_SIZE)
+    while ((upFsBufferCursor + remLen) > SPI_FLASH_SEC_SIZE)
     {
         size_t remData = (SPI_FLASH_SEC_SIZE - upFsBufferCursor);
         memcpy(upFsBuffer + upFsBufferCursor, data + (len - remLen), remData);
         // erasing and writing
-        if(!_updaterWritePartition(SPI_FLASH_SEC_SIZE))
+        if (!_updaterWritePartition(SPI_FLASH_SEC_SIZE))
             return false;
         // tail length
         remLen -= remData;
@@ -63,8 +65,9 @@ bool updaterWriteData(uint8_t * data, size_t len, bool final) {
     memcpy(upFsBuffer + upFsBufferCursor, data + (len - remLen), remLen);
     upFsBufferCursor += remLen;
     // skip any trailing data
-    if(remLen == upFsPartn->size - upFsOffset) {
-        if(!_updaterWritePartition(remLen))
+    if (remLen == upFsPartn->size - upFsOffset)
+    {
+        if (!_updaterWritePartition(remLen))
             return false;
     }
     return true;
@@ -77,21 +80,24 @@ bool updaterWriteData(uint8_t * data, size_t len, bool final) {
  * @return true
  * @return false
  */
-bool _updaterWritePartition(size_t len) {
+bool _updaterWritePartition(size_t len)
+{
     // erasing
     upFsErr = esp_partition_erase_range(upFsPartn, upFsOffset, len);
-    if(upFsErr != ESP_OK) {
-    // #if DEBUG == 2
+    if (upFsErr != ESP_OK)
+    {
+        // #if DEBUG == 2
         __DF("(!) partition erase error [%d] at offset [%d] length [%d]\n", upFsErr, upFsOffset, len);
-    // #endif
+        // #endif
         return false;
     }
     // writing
     upFsErr = esp_partition_write(upFsPartn, upFsOffset, upFsBuffer, len);
-    if(upFsErr != ESP_OK) {
-    // #if DEBUG == 2
+    if (upFsErr != ESP_OK)
+    {
+        // #if DEBUG == 2
         __DF("(!) partition write error [%d] at offset [%d] length [%d]\n", upFsErr, upFsOffset, len);
-    // #endif
+        // #endif
         return false;
     }
     // reset cursor
@@ -109,7 +115,8 @@ bool _updaterWritePartition(size_t len) {
  * @return true
  * @return false
  */
-bool updaterInProgress() {
+bool updaterInProgress()
+{
     return (upFsPartn != nullptr);
 }
 
@@ -118,7 +125,8 @@ bool updaterInProgress() {
  *
  * @return esp_err_t
  */
-esp_err_t updaterLastError() {
+esp_err_t updaterLastError()
+{
     return upFsErr;
 }
 
@@ -128,6 +136,7 @@ esp_err_t updaterLastError() {
  * @return true
  * @return false
  */
-bool updaterHasErrors() {
+bool updaterHasErrors()
+{
     return (upFsErr != ESP_OK);
 }

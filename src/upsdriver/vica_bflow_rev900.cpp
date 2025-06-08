@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.cpp                                                       #
 # File Created: Thursday, 8th June 2023 10:53:51 pm                                 #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 8th January 2024 4:29:23 pm                                #
+# Last Modified: Sunday, 8th June 2025 12:41:14 pm                                  #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -21,20 +21,20 @@ spi_slave_transaction_t spiTrans;
 const uint8_t _voltageAvgCounterMax = 20;
 const uint8_t _loadAvgCounterMax = 5;
 
-volatile static uint8_t _lastAddress = 0;
-volatile static uint16_t _inputVoltageTmp = 0;
-volatile static uint16_t _outputVoltageTmp = 0;
-volatile static uint16_t _inputVoltageAvgSum = 0;
-volatile static uint8_t _inputVoltageAvgCount = 1;
-volatile static uint16_t _outputVoltageAvgSum = 0;
-volatile static uint8_t _outputVoltageAvgCount = 1;
-volatile static uint16_t _loadAvgSum = 0;
-volatile static uint8_t _loadAvgCount = 1;
+static uint8_t _lastAddress = 0;
+static uint16_t _inputVoltageTmp = 0;
+static uint16_t _outputVoltageTmp = 0;
+static uint16_t _inputVoltageAvgSum = 0;
+static uint8_t _inputVoltageAvgCount = 1;
+static uint16_t _outputVoltageAvgSum = 0;
+static uint8_t _outputVoltageAvgCount = 1;
+static uint16_t _loadAvgSum = 0;
+static uint8_t _loadAvgCount = 1;
 // event data buffers
-volatile static uint8_t _eventBufferCursor = 0;
-volatile static uint8_t _eventBatteryStatusChange[3] = {0};
-volatile static uint8_t _eventBatteryCapacityChange[3] = {0};
-volatile static uint8_t _eventOutputStatusChange[3] = {0};
+static uint8_t _eventBufferCursor = 0;
+static uint8_t _eventBatteryStatusChange[3] = {0};
+static uint8_t _eventBatteryCapacityChange[3] = {0};
+static uint8_t _eventOutputStatusChange[3] = {0};
 
 /**
  * @brief Clear the RX buffer
@@ -136,7 +136,9 @@ esp_err_t upsDriverInit() {
 uint32_t upsDriverGetCurrentBatteryLifeTime(uint8_t currentOutputLoad, uint8_t currentCapacity) {
     // (charge capacity) = I*t
     float r = (BATTERY_RATED_CHARGE_CAPACITY_AH * (currentCapacity/100.0));
-    r /= (UPS_RATED_BATTERY_AMPS_MAX * (currentOutputLoad/100.0));
+    if(currentOutputLoad != 0) {
+        r *= (UPS_RATED_BATTERY_AMPS_MAX * (currentOutputLoad/100.0));
+    }
     r *= 3600;
     return static_cast<uint32_t>(r);
 }
@@ -146,7 +148,7 @@ uint32_t upsDriverGetCurrentBatteryLifeTime(uint8_t currentOutputLoad, uint8_t c
  *
  * @param trans
 */
-void IRAM_ATTR upsSPISetupComplete(spi_slave_transaction_t *trans) {
+void upsSPISetupComplete(spi_slave_transaction_t *trans) {
     // do something
 }
 
@@ -155,7 +157,7 @@ void IRAM_ATTR upsSPISetupComplete(spi_slave_transaction_t *trans) {
  *
  * @param trans
 */
-void IRAM_ATTR upsSPITransferComplete(spi_slave_transaction_t *trans) {
+void upsSPITransferComplete(spi_slave_transaction_t *trans) {
     uint8_t addr = 0;
     uint8_t data = 0;
     rx_value_t * rx = reinterpret_cast<rx_value_t *>(trans->rx_buffer);
