@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.h                                                         #
 # File Created: Thursday, 8th June 2023 9:45:49 pm                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Friday, 5th January 2024 1:13:21 am                                #
+# Last Modified: Saturday, 7th June 2025 10:59:50 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -40,7 +40,7 @@ esp_err_t upsDriverInit();
 void upsDriverDeinit();
 void upsDriverLoop();
 uint32_t upsDriverGetCurrentBatteryLifeTime(uint8_t currentOutputLoad, uint8_t currentCapacity);
-void IRAM_ATTR upsSPISetupComplete(spi_slave_transaction_t *trans);
-void IRAM_ATTR upsSPITransferComplete(spi_slave_transaction_t *trans);
+void upsSPISetupComplete(spi_slave_transaction_t *trans);
+void upsSPITransferComplete(spi_slave_transaction_t *trans);
 
 #endif                                  // VICA_B_FLOW_REVOLUTION_900VA_H

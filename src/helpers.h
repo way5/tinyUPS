@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 4:13:24 pm                              #
+# Last Modified: Sunday, 8th June 2025 1:08:04 am                                   #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -146,17 +146,17 @@ extern session_t session;
 // system events
 typedef struct
 {
-    volatile bool upsBatteryStatusChange = false;
-    volatile bool upsOutputStateChange = true;
-    volatile bool upsBatteryCapacityChange = true;
+    bool upsBatteryStatusChange = false;
+    bool upsOutputStateChange = true;
+    bool upsBatteryCapacityChange = true;
     // when failed to connect to config.ssid
-    volatile bool isActiveFilesystem = false;
-    volatile bool wifiIsInAPMode = false;
-    volatile bool wifiAPConnectSuccess = false;
-    volatile bool isActiveSnmpAgent = false;
-    volatile bool isActiveHttpd = false;
-    volatile bool isActiveMonitor = false;
-    volatile bool updateInProgress = false;
+    bool isActiveFilesystem = false;
+    bool wifiIsInAPMode = false;
+    bool wifiAPConnectSuccess = false;
+    bool isActiveSnmpAgent = false;
+    bool isActiveHttpd = false;
+    bool isActiveMonitor = false;
+    bool updateInProgress = false;
 } common_event_t;
 extern common_event_t systemEvent;
 

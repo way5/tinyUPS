@@ -114,12 +114,12 @@ REBOOT & RESET COUNTERS
 }
 
 .toggle-btn-wrapper {
-    @apply inline-flex relative items-center cursor-pointer;
+    @apply inline-flex relative items-center cursor-pointer leading-none;
 
     .toggle-btn-sw {
-        @apply relative w-11 h-6 rounded-full after:content-[''] after:absolute after:top-[1px] after:left-[2px] border
+        @apply relative w-11 h-6 rounded-full after:content-[''] after:absolute after:top-[1px] after:left-[3px] border
                 after:bg-white dark:after:bg-base-500 after:border
-                after:rounded-full after:h-5 after:w-5 after:transition-all after:border-gray-700 dark:after:border-base-200;
+                after:rounded-full after:h-5 after:w-5 after:transition-all after:border-gray-500 dark:after:border-gray-300;
         @extend .body-bg;
         @extend .container-intense-border;
     }
@@ -378,7 +378,7 @@ main {
         @apply w-full flex items-center justify-between;
 
         & > div:first-child {
-            @apply grow py-2 px-4 rounded-md;
+            @apply grow py-2 px-4 rounded-md min-h-10;
             @extend .body-bg;
         }
 
@@ -432,6 +432,10 @@ main {
     */
     .apexcharts-canvas {
         // @apply overflow-hidden;
+
+        .apexcharts-legend-series {
+            @apply justify-center gap-x-1;
+        }
 
         .power-outage-tooltip {
             @apply relative text-white bg-violet-400 dark:bg-base-400 rounded-sm shadow-lg border border-violet-900 p-3;

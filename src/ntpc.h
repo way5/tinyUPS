@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Monday, 6th June 2022 9:34:33 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Monday, 4th September 2023 10:59:39 am                             #
+# Last Modified: Sunday, 8th June 2025 1:24:26 am                                   #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -46,25 +46,26 @@ const char formatDatetime[] = "%d %b,%Y %T";
 const uint32_t _sec_in_year = 31556952;
 const uint32_t _sec_in_day = 86400;
 
-class NTPClientClass {
-    public:
-        tm getTS();
-        time_t getEpoch();
-        status_t loop();
-        void getDatetime(char * b, const char * format = nullptr);
-        // returns uptime in hundreds of second
-        unsigned long uptimeSNMP();
-        void uptimeHR(char * buffer);
-        unsigned long uptimeSeconds();
-        void timestampToString(char * buffer);
-        unsigned long getTimestamp();
-        status_t forceUpdate();
+class NTPClientClass
+{
+public:
+    tm getTS();
+    time_t getEpoch();
+    status_t loop();
+    void getDatetime(char *b, const char *format = nullptr);
+    // returns uptime in hundreds of second
+    unsigned long uptimeSNMP();
+    void uptimeHR(char *buffer);
+    unsigned long uptimeSeconds();
+    void timestampToString(char *buffer);
+    unsigned long getTimestamp();
+    status_t forceUpdate();
 
-    protected:
-        time_t _last_update = 0;
-        time_t _startTime = 0;
+protected:
+    time_t _last_update = 0;
+    time_t _startTime = 0;
 };
 
 extern NTPClientClass ntp;
 
-#endif                          // NTPCCLASS_H
+#endif // NTPCCLASS_H

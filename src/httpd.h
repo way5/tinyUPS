@@ -3,7 +3,7 @@
 # File: httpd.h                                                                     #
 # File Created: Monday, 22nd May 2023 4:02:57 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 1:38:11 am                              #
+# Last Modified: Sunday, 8th June 2025 1:24:26 am                                   #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -34,7 +34,6 @@
 #include "updater.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-// #include <Hash.h>
 #include "FS.h"
 #include "FFat.h"
 #include "eemem.h"
@@ -81,52 +80,58 @@ const char jsonLoginERR[] = "{\"login\":\"err\",\"err\":\"Wrong login or passwor
 const char jsonUpdateOK[] = "{\"update\":\"ok\"}";
 const char jsonUpdateERR[] = "{\"update\":\"err\",\"err\":\"%s\"}";
 
-const char maskDashbrd01[] = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","\
-                                            "\"apmac\":\"%s\",\"ram\": %.2f,\"ram3\": %.2f,";
+const char maskDashbrd01[] = "{\"ip\":\"%s\",\"sm\":\"%s\",\"gw\":\"%s\",\"mac\":\"%s\",\"ap\":\"%s\","
+                             "\"apmac\":\"%s\",\"ram\": %.2f,\"ram3\": %.2f,";
 
-const char maskDashbrd02[] = "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"battmp\":%.2f,"\
-                                            "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,";
-const char maskDashbrd03[] =  "\"outload\":%d,\"ltime\":%u,\"isclng\":%d,\"uptm\":%lu,\"ctime\":%ld}";
+const char maskDashbrd02[] = "\"systmp\": %.2f,\"involt\":%d,\"infreq\":%d,\"outvolt\":%d,\"outfreq\":%d,\"battmp\":%.2f,"
+                             "\"snmp\":%d,\"outst\":%d,\"battst\":%d,\"battdiast\":%d,\"battcap\":%d,";
+const char maskDashbrd03[] = "\"outload\":%d,\"ltime\":%ld,\"isclng\":%d,\"uptm\":%lu,\"ctime\":%ld}";
 const char maskInfoGraph[] = "{\"%s\":{\"st\":%.2f,\"bt\":%.2f,\"r\":%.2f,\"r3\":%.2f}}";
 
 const char maskGetConfig01[] = "{\"battmplt\":%.2f,\"battmput\":%.2f,\"devtmplt\":%.2f,\"devtmput\":%.2f,\"ntpsrv\":\"%s\",\"ntpsrvfb\":\"%s\",\"ntpsrvsitl\":%d,";
-const char maskGetConfig02[] = "\"ntptmoff\":%d,\"ntpdloff\":%d,\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"apkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\",";
-const char maskGetConfig03[] = "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","\
-                                "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"snum\":\"%s\"}";   // ,\"api\":[%s]
-const char maskSurvey[] = "{\"s\":\"%s\",\"r\":%d,\"e\":%d}";
+const char maskGetConfig02[] = "\"ntptmoff\":%d,\"ntpdloff\":%ld,\"ssid\":\"%s\",\"ssidkey\":\"%s\",\"apkey\":\"%s\",\"snmpport\":%d,\"snmptraport\":%d,\"snmploctn\":\"%s\",";
+const char maskGetConfig03[] = "\"snmpcontct\":\"%s\",\"snmpbatrpldt\":\"%s\",\"authtmout\":%d,\"snmpgckey\":\"%s\","
+                               "\"snmpsckey\":\"%s\",\"adlogin\":\"%s\",\"adpass\":\"%s\",\"snum\":\"%s\"}"; // ,\"api\":[%s]
+const char maskSurvey[] = "{\"s\":\"%s\",\"r\":%ld,\"e\":%d}";
 const char maskDeviceSerial[] = "{\"serial\":\"%s\"}";
 
-typedef struct ApiKeysT {
-    char * memo;
+typedef struct ApiKeysT
+{
+    char *memo;
     time_t created = 0;
-    char * key;
-    ApiKeysT() {
+    char *key;
+    ApiKeysT()
+    {
         this->memo = reinterpret_cast<char *>(malloc((size_t)16));
         this->key = reinterpret_cast<char *>(malloc((size_t)32));
     }
-    ~ApiKeysT() {
+    ~ApiKeysT()
+    {
         free(this->memo);
         free(this->key);
     }
 } api_keys_t;
 
-#define _ALLOC_API_ARRAY(A)        do {                                 \
-    A = new api_keys_t * [5];                                           \
-    uint8_t i = 0;                                                      \
-    while(i < 5) {                                                      \
-        A[i] = nullptr;                                                 \
-        i++;                                                            \
-    }                                                                   \
-} while(0)
+#define _ALLOC_API_ARRAY(A)      \
+    do                           \
+    {                            \
+        A = new api_keys_t *[5]; \
+        uint8_t i = 0;           \
+        while (i < 5)            \
+        {                        \
+            A[i] = nullptr;      \
+            i++;                 \
+        }                        \
+    } while (0)
 
 void httpdInit();
 // utils
-bool isAuthorized(AsyncWebServerRequest * req);
-void httpdRespond(AsyncWebServerRequest * req, const char * file, const char* mime, bool gzipped = true, AsyncWebServerResponse * res = nullptr);
+bool isAuthorized(AsyncWebServerRequest *req);
+void httpdRespond(AsyncWebServerRequest *req, const char *file, const char *mime, bool gzipped = true, AsyncWebServerResponse *res = nullptr);
 void httpdLoop();
 // HTML & assets
 void httpdGetHtmlPage(AsyncWebServerRequest *req);
-void httpdGetHtmlError(AsyncWebServerRequest * req);
+void httpdGetHtmlError(AsyncWebServerRequest *req);
 void httpdGetStyleChunk(AsyncWebServerRequest *req);
 void httpdGetScriptChunk(AsyncWebServerRequest *req);
 void httpdGetFavicon(AsyncWebServerRequest *req);
@@ -157,6 +162,6 @@ void httpdPostReset(AsyncWebServerRequest *req);
 void httpdPostUpgradeResponder(AsyncWebServerRequest *req);
 void httpdPostUpgradeReceiver(AsyncWebServerRequest *req, String filename, size_t index, uint8_t *data, size_t len, bool final);
 // common JSON responses
-void httpdJsonErrResponse(AsyncWebServerRequest *req, const char * descr, const int code = 401);
+void httpdJsonErrResponse(AsyncWebServerRequest *req, const char *descr, const int code = 401);
 
-#endif                              // HTTPD_SERVER_H
+#endif // HTTPD_SERVER_H
