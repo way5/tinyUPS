@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 19th March 2025 1:38:11 am                              #
+# Last Modified: Saturday, 7th June 2025 6:18:13 pm                                 #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -144,7 +144,7 @@ void setAP() {
     // to an access point that module may have automatically
     // made using previously saved credentials.
     WiFi.disconnect();
-    delay(100);
+    // delay(100);
     WiFi.mode(WIFI_MODE_APSTA);
     // uint8_t mac[6];
     // TODO: WiFi.softAPmacAddress(mac);
@@ -209,9 +209,10 @@ void setSTA() {
     // to an access point that module may have automatically
     // made using previously saved credentials.
     WiFi.disconnect();
-    delay(100);
+    // delay(100);
     // beacon idle timeout
     // esp_wifi_set_inactive_time();
+    // WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
     WiFi.mode(WIFI_MODE_STA);
     WiFi.setSleep(WIFI_PS_NONE);
 #if WIFI_RECONNECT_METHOD == 4

@@ -30,7 +30,7 @@ The project is now on beta test stage, however it shows very stable results duri
 </td>
 <td>
 
-The project requires an advanced skills in electronics. It's not a plug-n-play device. ;)
+The project requires advanced skills in electronics. It's not a plug-n-play device. ;)
 
 </td>
 </tr>
@@ -42,7 +42,7 @@ The project requires an advanced skills in electronics. It's not a plug-n-play d
 </td>
 <td>
 
-**Follow the standard precautions! Every UPS is a potentially dangerous device because it contains an electric parts under high voltage.**
+**Follow the standard precautions! Uninterruptible Power Supply (UPS) is a potentially dangerous device as it contains electric parts under high voltage.**
 
 </td>
 </tr>
@@ -176,19 +176,6 @@ The UI is pretty simple and displays most of the real-time parameters. There are
 
 ![tinyUPS dashboard charts](doc/i0.jpg)
 
-
-<!--
-**tinyUPS** may be monitored remotely via JSON API, in practice it may be easily included in a local smart home network. To get access to API you need to add an API key (go to Configuration -> API):
-
-![API control panel](doc/i1.jpg)
-
-Now you're able to send a post request using similar url format:
-
-```
-http://tinyUPS_ip_address/command?key=154aae95aa657fc37e0fa7e712dd7856
-```
- -->
-
  After successful setup it is highly recommended to change the `AP key` and generate the `device serial number`. Both option values and corresponding controls you can find in `Settings` -> `Security` tab and `SNMP` tab respectively.
 
 
@@ -197,7 +184,6 @@ http://tinyUPS_ip_address/command?key=154aae95aa657fc37e0fa7e712dd7856
 ### - DRIVERS<a id="drivers"></a>
 There are the following functions that must be implemented by every UPS driver: `upsDriverInit, upsDriverLoop, upsDriverDeinit`.
 You may also wish to look at the driver for thermistor (currently this is 1k M52A), it may need some changes. Depends on which thermistor you'll be using.
-
 
 ### - DEBUG<a id="debug"></a>
 Serial monitor is used to perform the most of the tasks and to solve issues. Once you've connected use <code>?</code> to request the commands list.
