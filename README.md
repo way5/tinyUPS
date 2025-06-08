@@ -30,7 +30,7 @@ The project is now on beta test stage, however it shows very stable results duri
 </td>
 <td>
 
-The project requires advanced skills in electronics. It's not a plug-n-play device. ;)
+This project requires advanced skills in electronics. It's not a plug-n-play device. ;)
 
 </td>
 </tr>
@@ -74,7 +74,7 @@ The project requires advanced skills in electronics. It's not a plug-n-play devi
 - KiCAD
 
 ### - CONTROLLER<a id="controller"></a>
-**tinyUPS** is originally based on [WEMOS S2 mini](https://www.wemos.cc/en/latest/s2/s2_mini.html) board. However very likely it would work on another ESP32 boards with minor changes in firmware.
+**tinyUPS** is originally based on [WEMOS S2 mini](https://www.wemos.cc/en/latest/s2/s2_mini.html) board. However, very likely it would work on another ESP32 boards with minor changes in firmware.
 All the configuration you may need is in [platformio.ini](platformio.ini) and the UPS driver header file. If the communication interface of a particular UPS is not SPI, you need to create a new UPS driver and to change the PCB as well.
 
 <table cellpadding="0" cellspacing="0" width="100%">
@@ -98,22 +98,22 @@ Since the most of the UPS controllers have 5V data bus, we need a level shifter 
 
 [Bill of materials](schematics/CAM/tinyUPS.csv). Instead of the BSS138 mosfets could be used any compatible type, ex.: IRLML2502.
 
-If you'll be using S2 mini board you need to desolder built-in LDO IC (ME6211C33) since power will be supplied directly to 3.3V pin. It's possible to keep the LDO but you will not be able to use serial port for firmware upload and debugging. See [WEMOS S2 mini schematics](schematics/sch_s2_mini_v1.0.0.pdf).
+If you'll be using `S2 mini` board you need to desolder built-in LDO IC (ME6211C33) since power will be supplied directly to 3.3V pin. It's possible to keep the LDO but you will not be able to use serial port for firmware upload and debugging. See [WEMOS S2 mini schematics](schematics/sch_s2_mini_v1.0.0.pdf).
 
 The example driver is for a built in SPI LCD display, for a particular manufacturer and model.
-You'll probably have the very different device and may be even without any LCD display, so you'd need to figure out how to speak with the controller. This part is DIY. Feel free to call for help in Discussions.
+You'll probably have the very different device and may be even without any LCD display, so you'd need to figure out how to speak with the controller. This part is DIY. Feel free to call for help in [Discussions](https://github.com/way5/tinyUPS/discussions).
 
 ### - Web UI<a id="webui"></a>
 
-UI translations are available in [./web/lang](./web/lang) directory. You can add new translation or remove existing if you wish by editing the header of [i18n.js](web/src/includes/i18n.js) script. Variable <code>i18nlang</code> contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from <code>i18nlang</code> to save space on file system partition.
+UI translations are available in [./web/lang](./web/lang) directory. You can add new translation or remove existing if you wish by editing the header of [i18n.js](web/src/includes/i18n.js) script. Variable `i18nlang` contains the list of available locales to be built-in, where element 0 of the array is also a fallback (used by default) locale. Remove unnecessary locales from `i18nlang` to save space on file system partition.
 
-The package manager is <code>yarn</code> so if you're not familiar with it continue with the folowing to build the UI:
+The package manager is `yarn` so if you're not familiar with it continue with the folowing to build the UI:
 
 ```bash
 yarn build:prod
 ```
 
-that's all you need to prepare the FS partition to upload. Use "Upload Filesystem Image" command from PlatformIO project tasks or:
+that's all you need to prepare the FS partition to upload. Use `Upload Filesystem Image` command from `PlatformIO` project tasks or:
 
 ```bash
 platformio run --target uploadfs [--environment [your_env]]
@@ -123,7 +123,7 @@ platformio run --target uploadfs [--environment [your_env]]
 
 ### - CONFIGURATION<a id="configuration"></a>
 
-All the sigificant parameters for your setup are inside [configrure.json](./configure.json) file. If you're adding a new parameter you'd need to run `Rebuild Intellisense Index` in PlatformIO in order to have your parameter set and available.
+All sigificant parameters for your setup are inside [configrure.json](./configure.json) file. If you're adding a new parameter you'd need to run `Rebuild Intellisense Index` in PlatformIO in order to have your parameter set and available.
 
 | PARAMETER | DESCRIPTION |
 |:---|:---|
@@ -139,6 +139,8 @@ All the sigificant parameters for your setup are inside [configrure.json](./conf
 | ups_rated_output_freq | Nominal output frequency (Hz) |
 | battery_rated_charge_capacity_ah | Nominal UPS battery capacity (Ah) |
 | ups_rated_battery_amps_max | Nominal UPS battery current (Amps) |
+| wifi_reconnect_method | WiFi reconnection method (`see below`) |
+| wifi_discovered_length | Max. length of the data array of discovered APs |
 
 ### - WiFi CONNECTION STRATEGIES<a id="reconnect_strategy"></a>
 
@@ -176,7 +178,7 @@ The UI is pretty simple and displays most of the real-time parameters. There are
 
 ![tinyUPS dashboard charts](doc/i0.jpg)
 
- After successful setup it is highly recommended to change the `AP key` and generate the `device serial number`. Both option values and corresponding controls you can find in `Settings` -> `Security` tab and `SNMP` tab respectively.
+ After successful setup it is highly recommended to change the `AP key` and generate the `device serial number`. Both options and corresponding controls you can find in `Settings` -> `Security` tab and `SNMP` tab respectively.
 
 
 ## **+ DEVELOPMENT**<a id="#development"></a>
@@ -186,7 +188,7 @@ There are the following functions that must be implemented by every UPS driver: 
 You may also wish to look at the driver for thermistor (currently this is 1k M52A), it may need some changes. Depends on which thermistor you'll be using.
 
 ### - DEBUG<a id="debug"></a>
-Serial monitor is used to perform the most of the tasks and to solve issues. Once you've connected use <code>?</code> to request the commands list.
+Serial monitor is used to perform the most of the tasks and to solve issues. Once you've connected use `?` to list available commands.
 
 ![tinyUPS serial monitor](doc/i4.jpg)
 
@@ -199,5 +201,4 @@ Serial monitor is used to perform the most of the tasks and to solve issues. Onc
 
 - Arduino [SNMP agent](https://github.com/0neblock/Arduino_SNMP) by #0neblock
 - [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
-- [Hash library](https://github.com/bbx10/Hash_tng)
 - Icons by [Tabler Icons](https://tabler.io/)
