@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Friday, 10th June 2022 8:44:02 pm                                   #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 8th June 2025 1:20:53 am                                   #
+# Last Modified: Sunday, 8th June 2025 12:43:02 pm                                  #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                      #
 #####################################################################################
@@ -212,7 +212,7 @@ void serialLoop()
             {
             case WIFI_MODE_AP:
             case WIFI_MODE_APSTA:
-                __DF(" (i) mode: AP ssid: %s IP: %s\n", WiFi.softAPSSID().c_str(), (WiFi.softAPIP()).toString().c_str());
+                __DF(" (i) mode: AP ssid: %s IP: %s Key: %s\n", WiFi.softAPSSID().c_str(), (WiFi.softAPIP()).toString().c_str(), config.apkey);
                 break;
             case WIFI_MODE_STA:
                 __DF(" (i) mode: STA MAC: %s IP: %s\n", WiFi.macAddress().c_str(), (WiFi.localIP()).toString().c_str());

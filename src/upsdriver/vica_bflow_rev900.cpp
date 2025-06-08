@@ -3,7 +3,7 @@
 # File: vica_bflow_rev900.cpp                                                       #
 # File Created: Thursday, 8th June 2023 10:53:51 pm                                 #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 8th June 2025 12:35:10 am                                  #
+# Last Modified: Sunday, 8th June 2025 12:41:14 pm                                  #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -137,7 +137,7 @@ uint32_t upsDriverGetCurrentBatteryLifeTime(uint8_t currentOutputLoad, uint8_t c
     // (charge capacity) = I*t
     float r = (BATTERY_RATED_CHARGE_CAPACITY_AH * (currentCapacity/100.0));
     if(currentOutputLoad != 0) {
-        r /= (UPS_RATED_BATTERY_AMPS_MAX * (currentOutputLoad/100.0));
+        r *= (UPS_RATED_BATTERY_AMPS_MAX * (currentOutputLoad/100.0));
     }
     r *= 3600;
     return static_cast<uint32_t>(r);

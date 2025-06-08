@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 2:36:45 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 8th June 2025 1:08:04 am                                   #
+# Last Modified: Sunday, 8th June 2025 12:59:20 pm                                  #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -103,7 +103,7 @@ typedef struct
     // saving time. It is generally one hour, that corresponds to 3600 seconds
     int32_t ntpDaylightOffset = 0;                  // X, sec
     // (GMT -1 = -3600, GMT 0 = 0, GMT +1 = 3600)
-    int8_t ntpTimeOffset = 0; // V, hrs
+    int8_t ntpTimeOffset = 0;                       // V, hrs
     // - Auth (both 16 octets max)
     char admLogin[16] = "";                         // V
     char admPassw[16] = "";                         // V
@@ -124,14 +124,14 @@ typedef struct
     uint16_t snmpTrapPort = 162;                    // V
     // - OIDs
     char BatteryLastReplaceDate[7] = "010120";      // V, mm/dd/yy
-    // The delay in seconds the UPS remains on after being told to turn off
+    // Delay in seconds the UPS remains on after being told to turn off
     uint16_t upsAdvConfigShutoffDelay = 50;         // V, seconds
-    // The delay in seconds after utility line power returns before the UPS will turn on
+    // Delay in seconds after utility line power returns before the UPS will turn on
     uint16_t upsAdvConfigReturnDelay = 20;          // V, seconds
-    // The desired run time of the UPS, in seconds, once the low battery condition is reached
+    // Desired run time of the UPS, in seconds, once the low battery condition is reached
     uint16_t upsAdvConfigLowBatteryRunTime = 40;    // V, seconds
-    // unique UPS serial number
-    char upsSerialNumber[16] = "";                  // X
+    // Unique UPS serial number
+    char upsSerialNumber[16] = "";                  // М
 } config_t;
 extern config_t config;
 
