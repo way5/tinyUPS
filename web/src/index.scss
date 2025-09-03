@@ -152,7 +152,7 @@ header {
         @extend .container-border;
 
         .nav-bar-logo {
-            @apply text-center mdup:rounded-l-lg bg-violet-500 px-4 py-1 mdup:px-12 sm:px-8;
+            @apply text-center mdup:rounded-l-lg bg-violet-400 px-4 py-1 mdup:px-12 sm:px-8;
 
             h1 {
                 @apply text-lg font-bold text-white;

@@ -231,7 +231,6 @@ dkms.conf
 *.app
 
 # Custom
-datasheet
 tmp
 web/data/**
 !web/data/logs

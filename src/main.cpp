@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 8th June 2025 12:00:45 am                                  #
+# Last Modified: Wednesday, 20th August 2025 4:18:58 pm                             #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -246,7 +246,9 @@ void setSTA()
  */
 void setup()
 {
+#ifndef DEBUG_ESP_PORT
     Serial.begin(SERIAL_BAUD);
+#endif
     // init FS
     if (!FFat.begin(false, "", 10U, "storage"))
     {
@@ -312,7 +314,9 @@ void loop()
 {
     if (!systemEvent.updateInProgress)
     {
+#ifndef DEBUG_ESP_PORT
         serialLoop();
+#endif
         if (!systemEvent.isActiveFilesystem)
             return;
         if (ntp.loop() == OKAY)
@@ -324,6 +328,8 @@ void loop()
         }
         // always query
         monitor.loop();
+        //
+        optimistic_yield(5);
         // resolve connection issues
         if (systemEvent.wifiAPConnectSuccess)
         {
@@ -355,5 +361,6 @@ void loop()
 #endif
         httpdLoop();
     }
+    yield();
     systemReboot();
 }

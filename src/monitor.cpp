@@ -4,7 +4,7 @@
 # Project: tinyUPS                                                                  #
 # File Created: Thursday, 19th May 2022 3:13:05 am                                  #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Sunday, 8th June 2025 1:24:26 am                                   #
+# Last Modified: Tuesday, 17th June 2025 10:26:08 pm                                #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -149,7 +149,6 @@ void MonitorClass::loop()
         this->_last_update = millis();
         _update_cntr++;
     }
-    optimistic_yield(100);
     // call driver loop routine
     upsDriverLoop();
     // handle the recent events
