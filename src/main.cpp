@@ -3,7 +3,7 @@
 # File: main.cpp                                                                    #
 # File Created: Monday, 22nd May 2023 3:50:32 pm                                    #
 # Author: Sergey Ko                                                                 #
-# Last Modified: Wednesday, 20th August 2025 4:18:58 pm                             #
+# Last Modified: Tuesday, 18th August 2026 6:27:41 pm                               #
 # Modified By: Sergey Ko                                                            #
 # License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)                       #
 #####################################################################################
@@ -246,7 +246,7 @@ void setSTA()
  */
 void setup()
 {
-#ifndef DEBUG_ESP_PORT
+#if defined(DEBUG_ESP_PORT)
     Serial.begin(SERIAL_BAUD);
 #endif
     // init FS
@@ -314,7 +314,7 @@ void loop()
 {
     if (!systemEvent.updateInProgress)
     {
-#ifndef DEBUG_ESP_PORT
+#if defined(DEBUG_ESP_PORT)
         serialLoop();
 #endif
         if (!systemEvent.isActiveFilesystem)
@@ -361,6 +361,6 @@ void loop()
 #endif
         httpdLoop();
     }
-    yield();
+    // yield();
     systemReboot();
 }
